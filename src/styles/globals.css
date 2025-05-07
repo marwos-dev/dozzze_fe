@@ -18,6 +18,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-/* * Título: #4682B4 (Azul Acero) - Mantiene el contraste para el título.
-* Texto: #808080 (Gris Paloma) - Sigue siendo una opción legible.
-* Background: #F5F5DC (Beige Arena) */
+
+@theme {
+  --color-greenlight: #D4E4D3;
+  --color-dozeblue:#1E3A8A;
+  --color-dozegray:#808080;
+  --color-dozebg1:#F5F5DC;
+}
