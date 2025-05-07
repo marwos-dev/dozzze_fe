@@ -4,7 +4,7 @@ import AnimatedButton from '../ui/buttons/AnimatedButton'
 
 export default function Home() {
     return (
-        <div className="py-10 px-6 lg:px-24 flex flex-col-reverse lg:flex-row items-center justify-between gap-10">
+        <div className="max-w-6xl  mx-auto  py-10 px-6 mb-10 lg:px-16 flex flex-col-reverse lg:flex-row items-center justify-between gap-10  rounded-2xl shadow-2xl">
 
             {/* Texto a la izquierda en pantallas grandes */}
             <div className="max-w-xl">
