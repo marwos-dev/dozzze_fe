@@ -29,7 +29,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
                     className="p-1 text-dozeblue hover:text-black disabled:text-gray-300"
                     disabled={value <= min}
                 >
-                    <Minus className="w-5 h-5" />
+                    <Minus className="w-3 h-3" />
                 </button>
                 <span className="text-dozeblue text-sm font-medium">{value}</span>
                 <button
@@ -38,7 +38,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
                     className="p-1 text-dozeblue hover:text-black disabled:text-gray-300"
                     disabled={value >= max}
                 >
-                    <Plus className="w-5 h-5" />
+                    <Plus className="w-3 h-3" />
                 </button>
             </div>
         </div>

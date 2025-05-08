@@ -9,6 +9,7 @@ import 'react-date-range/dist/theme/default.css'
 import TextInput from '../ui/inputs/TextInput'
 import DateInput from '../ui/inputs/DateInput'
 import SelectInput from '../ui/inputs/SelectInput'
+import { map } from 'framer-motion/client'
 
 export default function Seeker() {
     const [destination, setDestination] = useState('')
@@ -58,34 +59,53 @@ export default function Seeker() {
             </h2>
             <form
                 onSubmit={handleSubmit}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_2fr_1fr_1fr_2fr_auto] gap-4 items-end"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end"
             >
-                <TextInput
-                    label="Destino"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    placeholder="Ciudad, País"
-                    Icon={MapPin}
-                />
-                <DateInput
-                    dateRange={dateRange}
-                    onDateChange={handleDateChange}
-                    isPopoverOpen={isDatePopoverOpen}
-                    setIsPopoverOpen={setIsDatePopoverOpen}
-                    calendarRef={calendarRef}
-                />
-                <SelectInput label="Habitaciones" value={rooms} setValue={setRooms} />
-                <SelectInput label="Personas" value={guests} setValue={setGuests} />
-                <TextInput
-                    label="Código promocional"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
-                    placeholder="Introduce tu código"
-                    Icon={Percent}
-                />
+                <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+                    <TextInput
+                        label="Destino"
+                        value={destination}
+                        onChange={(e) => setDestination(e.target.value)}
+                        placeholder="Ingrese su destino" Icon={MapPin}
+                    />
+                </div>
+                <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+                    <DateInput
+                        dateRange={dateRange}
+                        onDateChange={handleDateChange}
+                        isPopoverOpen={isDatePopoverOpen}
+                        setIsPopoverOpen={setIsDatePopoverOpen}
+                        calendarRef={calendarRef}
+                    />
+                </div>
+                <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+                    <SelectInput
+                        label="Habitaciones"
+                        value={rooms}
+                        setValue={setRooms}
+                        min={1}
+                        max={10}
+                    />
+                </div>
+                <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+                    <SelectInput
+                        label="Huéspedes"
+                        value={guests}
+                        setValue={setGuests}
+                        min={1}
+                        max={10}
+                    />
+                </div>
+                <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+                    <TextInput
+                        label="Código promocional"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value)}
+                        placeholder="Ingrese su código promocional" Icon={Percent} />
+                </div>
                 <button
                     type="submit"
-                    className="bg-dozeblue text-white rounded-xl py-3 px-4 font-semibold text-sm sm:text-base hover:bg-dozeblue/90 transition-all w-full"
+                    className="bg-dozeblue text-white py-2 px-4 rounded-full hover:bg-dozeblue-dark"
                 >
                     Buscar
                 </button>
