@@ -19,17 +19,16 @@ const AnimatedButton = ({
         if (section) section.scrollIntoView({ behavior: 'smooth' })
     }
 
-    // Evento para manejar el toque en móviles
     const handleTouch: TouchEventHandler<HTMLButtonElement> = (e) => {
-        e.preventDefault()  // Evitar el comportamiento predeterminado si es necesario
-        handleClick(e as any)  // Llamar a la misma función handleClick
+        e.preventDefault()
+        handleClick(e as any)
     }
 
     return (
         <button
             onClick={handleClick}
-            onTouchStart={handleTouch}  // Añadir soporte para toque
-            className={`group flex items-center gap-3 font-semibold py-2 pl-4 pr-3 rounded-full transition-colors bg-greenlight text-dozeblue hover:bg-dozeblue hover:text-greenlight focus:outline-none focus:ring-2 focus:ring-greenlight ${className}`}
+            onTouchStart={handleTouch}
+            className={`group flex items-center border-2 border-dozeblue gap-3 font-semibold py-2 pl-4 pr-3 rounded-full transition-colors bg-greenlight text-dozeblue hover:bg-dozeblue hover:text-greenlight focus:outline-none focus:ring-2 focus:ring-greenlight ${className}`}
         >
             {text}
             <div
