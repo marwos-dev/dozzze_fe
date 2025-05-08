@@ -9,7 +9,6 @@ import 'react-date-range/dist/theme/default.css'
 import TextInput from '../ui/inputs/TextInput'
 import DateInput from '../ui/inputs/DateInput'
 import SelectInput from '../ui/inputs/SelectInput'
-import { map } from 'framer-motion/client'
 
 export default function Seeker() {
     const [destination, setDestination] = useState('')
