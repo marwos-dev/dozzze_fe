@@ -1,5 +1,5 @@
 'use client';
-import ZoneCard from "../ui/cards/ZoneCard";
+import ZoneCard from "../ui/cards/ZoneCard/ZoneCard";
 
 export default function ZoneSection() {
     return (
@@ -7,7 +7,6 @@ export default function ZoneSection() {
             <ZoneCard
                 country="España"
                 destination="Barcelona"
-                hotel="Hotel Catalonia"
                 duration="7 días"
                 imageUrl="https://media-cdn.tripadvisor.com/media/photo-s/06/c7/ba/92/salah-satu-bangunan-di.jpg"
                 coordinates={[
