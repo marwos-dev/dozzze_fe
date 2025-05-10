@@ -14,14 +14,18 @@ const AnimatedButton = ({
     sectionId,
     className = '',
 }: AnimatedButtonProps) => {
-    const handleClick: MouseEventHandler<HTMLButtonElement> = () => {
+    const scrollToSection = () => {
         const section = document.querySelector(sectionId)
         if (section) section.scrollIntoView({ behavior: 'smooth' })
     }
 
+    const handleClick: MouseEventHandler<HTMLButtonElement> = () => {
+        scrollToSection()
+    }
+
     const handleTouch: TouchEventHandler<HTMLButtonElement> = (e) => {
         e.preventDefault()
-        handleClick(e as any)
+        scrollToSection()
     }
 
     return (

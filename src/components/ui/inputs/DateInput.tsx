@@ -1,18 +1,24 @@
 import React, { RefObject } from 'react';
 import { CalendarDays, X } from 'lucide-react';
 import { format } from 'date-fns';
-import { DateRange, Range } from 'react-date-range';
+import { DateRange, Range, RangeKeyDict } from 'react-date-range';
 import { motion } from 'framer-motion';
 
 interface DateInputProps {
     dateRange: Range[];
-    onDateChange: (item: any) => void;
+    onDateChange: (rangesByKey: RangeKeyDict) => void;
     isPopoverOpen: boolean;
     setIsPopoverOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    calendarRef: RefObject<HTMLDivElement | null>
+    calendarRef: RefObject<HTMLDivElement | null>;
 }
 
-const DateInput: React.FC<DateInputProps> = ({ dateRange, onDateChange, isPopoverOpen, setIsPopoverOpen, calendarRef }) => {
+const DateInput: React.FC<DateInputProps> = ({
+    dateRange,
+    onDateChange,
+    isPopoverOpen,
+    setIsPopoverOpen,
+    calendarRef,
+}) => {
     return (
         <div className="relative col-span-full sm:col-span-2">
             <label className="text-dozeblue font-medium block mb-1">Fechas</label>
