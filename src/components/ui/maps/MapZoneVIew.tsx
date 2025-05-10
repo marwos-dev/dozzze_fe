@@ -1,10 +1,22 @@
 'use client';
-import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
-import type { LatLngExpression } from 'leaflet';
+import { MapContainer, TileLayer, Polygon, useMap } from 'react-leaflet';
+import type { LatLngExpression, LatLngBoundsExpression } from 'leaflet';
+import { useEffect } from 'react';
 import 'leaflet/dist/leaflet.css';
 
 interface MapViewProps {
     coordinates: LatLngExpression[];
+}
+
+function FitBounds({ coordinates }: { coordinates: LatLngExpression[] }) {
+    const map = useMap();
+
+    useEffect(() => {
+        const bounds: LatLngBoundsExpression = coordinates as LatLngBoundsExpression;
+        map.fitBounds(bounds, { padding: [20, 20] });
+    }, [map, coordinates]);
+
+    return null;
 }
 
 export default function MapZoneView({ coordinates }: MapViewProps) {
@@ -17,6 +29,7 @@ export default function MapZoneView({ coordinates }: MapViewProps) {
         >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <Polygon positions={coordinates} pathOptions={{ color: 'blue' }} />
+            <FitBounds coordinates={coordinates} />
         </MapContainer>
     );
 }
