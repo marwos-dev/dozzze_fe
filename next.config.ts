@@ -1,13 +1,16 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   images: {
-    domains: [
-      '31.media.tumblr.com',
-      'www.asianventure.com',
-      'media-cdn.tripadvisor.com'
-    ]
-  }
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

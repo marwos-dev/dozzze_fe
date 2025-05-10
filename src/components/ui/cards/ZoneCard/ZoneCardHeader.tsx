@@ -11,7 +11,7 @@ interface ZoneCardHeaderProps {
 export default function ZoneCardHeader({ country, showMap, toggleMap }: ZoneCardHeaderProps) {
     return (
         <div className="flex justify-between items-center px-4 py-4">
-            <h1 className="text-xl font-light tracking-widest font-sans text-gray-800">
+            <h1 className="text-xl font-light tracking-widest font-sans text-dozegray">
                 {country}
             </h1>
 
