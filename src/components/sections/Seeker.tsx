@@ -9,6 +9,7 @@ import 'react-date-range/dist/theme/default.css'
 import TextInput from '../ui/inputs/TextInput'
 import DateInput from '../ui/inputs/DateInput'
 import SelectInput from '../ui/inputs/SelectInput'
+import { RangeKeyDict } from 'react-date-range'
 
 export default function Seeker() {
     const [destination, setDestination] = useState('')
@@ -26,7 +27,7 @@ export default function Seeker() {
 
     const calendarRef = useRef<HTMLDivElement>(null)
 
-    const handleDateChange = (item: any) => {
+    const handleDateChange = (item: RangeKeyDict) => {
         setDateRange([item.selection])
     }
 
