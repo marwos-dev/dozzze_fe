@@ -19,7 +19,7 @@ export default function ZoneCardMedia({
 }: ZoneCardMediaProps) {
     return (
         <motion.div
-            className="relative w-full h-[220px] sm:h-[250px] mx-auto shadow-md"
+            className="relative w-full h-[220px] sm:h-[250px] mx-auto shadow-md overflow-hidden rounded-t-2xl"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
