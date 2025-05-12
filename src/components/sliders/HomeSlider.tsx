@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 
 const images = [
-    '/images/homesection/img1.jpg',
-    '/images/homesection/img2.jpg',
-    '/images/homesection/img3.jpg',
+    '/images/Homesection/img1.jpg',
+    '/images/Homesection/img2.jpg',
+    '/images/Homesection/img3.jpg',
 ]
 
 export default function HomeSlider() {
