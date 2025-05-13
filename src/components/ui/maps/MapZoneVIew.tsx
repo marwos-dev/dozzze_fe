@@ -1,21 +1,24 @@
 'use client';
 
-import { MapContainer, TileLayer, Polygon, Marker, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polygon, Marker, Popup, useMap } from 'react-leaflet';
 import type { LatLngExpression, LatLngBoundsExpression } from 'leaflet';
 import { useEffect } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import type { PointWithMedia } from '@/types/map';
 
 interface MapViewProps {
     zoneCoordinates: LatLngExpression[];
-    pointsCoordinates?: LatLngExpression[];
+    pointsCoordinates?: PointWithMedia[];
 }
 
-function FitBounds({ zoneCoordinates, pointsCoordinates }: { zoneCoordinates: LatLngExpression[]; pointsCoordinates?: LatLngExpression[] }) {
+function FitBounds({ zoneCoordinates, pointsCoordinates }: MapViewProps) {
     const map = useMap();
 
     useEffect(() => {
-        const allPoints = pointsCoordinates ? [...zoneCoordinates, ...pointsCoordinates] : zoneCoordinates;
+        const allPoints = pointsCoordinates
+            ? [...zoneCoordinates, ...pointsCoordinates.map(p => p.position)]
+            : zoneCoordinates;
         const bounds: LatLngBoundsExpression = allPoints as LatLngBoundsExpression;
         map.fitBounds(bounds, { padding: [20, 20] });
     }, [map, zoneCoordinates, pointsCoordinates]);
@@ -40,8 +43,20 @@ export default function MapZoneView({ zoneCoordinates, pointsCoordinates = [] }:
         >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <Polygon positions={zoneCoordinates} pathOptions={{ color: 'green' }} />
-            {pointsCoordinates.map((position, index) => (
-                <Marker key={index} position={position} icon={gpsIcon} />
+            {pointsCoordinates.map((point, index) => (
+                <Marker key={index} position={point.position} icon={gpsIcon}>
+                    <Popup>
+                        {point.images && point.images.length > 0 ? (
+                            <div className="flex flex-col gap-2">
+                                {point.images.map((url, i) => (
+                                    <img key={i} src={url} alt={`Foto ${i + 1}`} className="w-40 h-auto rounded" />
+                                ))}
+                            </div>
+                        ) : (
+                            <span>Ubicación registrada</span>
+                        )}
+                    </Popup>
+                </Marker>
             ))}
             <FitBounds zoneCoordinates={zoneCoordinates} pointsCoordinates={pointsCoordinates} />
         </MapContainer>

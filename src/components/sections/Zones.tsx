@@ -31,8 +31,13 @@ export default function ZoneSection() {
                     [41.4689, 2.1234],
                 ]}
                 pointsCoordinates={[
-                    [-34.6250, -58.3900],
-                    [-34.6100, -58.4000],
+                    {
+                        position: [-34.6250, -58.3900],
+                        images: ['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800']
+                    },
+                    {
+                        position: [-34.6100, -58.4000]
+                    }
                 ]}
             />
             <ZoneCard
@@ -47,8 +52,13 @@ export default function ZoneSection() {
                     [19.4352, -99.1456],
                 ]}
                 pointsCoordinates={[
-                    [-34.6250, -58.3900],
-                    [-34.6100, -58.4000],
+                    {
+                        position: [-34.6250, -58.3900],
+                        images: ['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800']
+                    },
+                    {
+                        position: [-34.6100, -58.4000]
+                    }
                 ]}
             />
             <ZoneCard
@@ -63,10 +73,13 @@ export default function ZoneSection() {
                     [-34.6037, -58.3816],
                 ]}
                 pointsCoordinates={[
-                    [-34.6037, -58.3816],
-                    [-34.6200, -58.3720],
-                    [-34.6250, -58.3900],
-                    [-34.6100, -58.4000],
+                    {
+                        position: [-34.6250, -58.3900],
+                        images: ['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800']
+                    },
+                    {
+                        position: [-34.6100, -58.4000]
+                    }
                 ]}
             />
         </div>

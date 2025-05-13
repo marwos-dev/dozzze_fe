@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from "react";
 import type { LatLngExpression } from 'leaflet';
 import { Maximize, Minimize, Expand } from "lucide-react";
+import type { PointWithMedia } from '@/types/map';
 
 const MapView = dynamic(() => import('../../maps/MapZoneVIew'), { ssr: false });
 const MapModal = dynamic(() => import('../../maps/MapModal'), { ssr: false });
@@ -14,7 +15,7 @@ interface ZoneCardMediaProps {
     showMap: boolean;
     selectedImage: string;
     zoneCoordinates: LatLngExpression[];
-    pointsCoordinates: LatLngExpression[];
+    pointsCoordinates: PointWithMedia[];
     showOverlayMap: boolean;
     setShowOverlayMap: (value: boolean) => void;
     cardHeight: number;

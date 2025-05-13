@@ -1,8 +1,10 @@
 'use client';
+
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import type { LatLngExpression } from "leaflet";
+import type { PointWithMedia } from '@/types/map';
 
 const MapView = dynamic(() => import("./MapZoneVIew"), { ssr: false });
 
@@ -10,7 +12,7 @@ interface MapModalProps {
     isOpen: boolean;
     onClose: () => void;
     zoneCoordinates: LatLngExpression[];
-    pointsCoordinates: LatLngExpression[]
+    pointsCoordinates: PointWithMedia[];
 }
 
 export default function MapModal({ isOpen, onClose, zoneCoordinates, pointsCoordinates }: MapModalProps) {

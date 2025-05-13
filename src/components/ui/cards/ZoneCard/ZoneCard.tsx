@@ -4,12 +4,13 @@ import type { LatLngExpression } from 'leaflet';
 import ZoneCardMedia from './ZoneCardMedia';
 import ZoneCardFooter from './ZoneCardFooter';
 import ZoneCardHeader from './ZoneCardHeader';
+import type { PointWithMedia } from '@/types/map';
 
 interface ZoneCardProps {
     country: string;
     imageUrls: string[];
     zoneCoordinates: LatLngExpression[];
-    pointsCoordinates: LatLngExpression[];
+    pointsCoordinates: PointWithMedia[];
 
 }
 
