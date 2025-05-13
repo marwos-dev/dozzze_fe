@@ -8,13 +8,16 @@ import ZoneCardHeader from './ZoneCardHeader';
 interface ZoneCardProps {
     country: string;
     imageUrls: string[];
-    coordinates: LatLngExpression[];
+    zoneCoordinates: LatLngExpression[];
+    pointsCoordinates: LatLngExpression[];
+
 }
 
 export default function ZoneCard({
     country,
     imageUrls,
-    coordinates,
+    zoneCoordinates,
+    pointsCoordinates
 }: ZoneCardProps) {
     const [showMap, setShowMap] = useState(false);
     const [selectedImage, setSelectedImage] = useState(imageUrls[0]);
@@ -45,7 +48,8 @@ export default function ZoneCard({
             <ZoneCardMedia
                 showMap={showMap}
                 selectedImage={selectedImage}
-                coordinates={coordinates}
+                zoneCoordinates={zoneCoordinates}
+                pointsCoordinates={pointsCoordinates}
                 showOverlayMap={showOverlayMap}
                 setShowOverlayMap={setShowOverlayMap}
                 cardHeight={cardHeight}

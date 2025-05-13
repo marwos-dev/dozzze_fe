@@ -9,10 +9,11 @@ const MapView = dynamic(() => import("./MapZoneVIew"), { ssr: false });
 interface MapModalProps {
     isOpen: boolean;
     onClose: () => void;
-    coordinates: LatLngExpression[];
+    zoneCoordinates: LatLngExpression[];
+    pointsCoordinates: LatLngExpression[]
 }
 
-export default function MapModal({ isOpen, onClose, coordinates }: MapModalProps) {
+export default function MapModal({ isOpen, onClose, zoneCoordinates, pointsCoordinates }: MapModalProps) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -31,7 +32,7 @@ export default function MapModal({ isOpen, onClose, coordinates }: MapModalProps
                 className="relative bg-white w-full h-full max-w-6xl max-h-[90vh] rounded-lg overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
-                <MapView coordinates={coordinates} />
+                <MapView zoneCoordinates={zoneCoordinates} pointsCoordinates={pointsCoordinates} />
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 bg-red-500 text-white p-2 rounded-full z-10"

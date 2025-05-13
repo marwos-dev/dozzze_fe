@@ -13,7 +13,8 @@ const MapModal = dynamic(() => import('../../maps/MapModal'), { ssr: false });
 interface ZoneCardMediaProps {
     showMap: boolean;
     selectedImage: string;
-    coordinates: LatLngExpression[];
+    zoneCoordinates: LatLngExpression[];
+    pointsCoordinates: LatLngExpression[];
     showOverlayMap: boolean;
     setShowOverlayMap: (value: boolean) => void;
     cardHeight: number;
@@ -23,7 +24,8 @@ interface ZoneCardMediaProps {
 export default function ZoneCardMedia({
     showMap,
     selectedImage,
-    coordinates
+    zoneCoordinates,
+    pointsCoordinates
 }: ZoneCardMediaProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showOverlayMap, setShowOverlayMap] = useState(false);
@@ -51,9 +53,11 @@ export default function ZoneCardMedia({
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}
-                            className="absolute inset-0"
-                        >
-                            <MapView coordinates={coordinates} />
+                            className="absolute inset-0">
+                            <MapView
+                                zoneCoordinates={zoneCoordinates}
+                                pointsCoordinates={pointsCoordinates}
+                            />
                             <button
                                 onClick={handleExpand}
                                 className="absolute bottom-1 right-1 bg-dozeblue text-white px-2 py-1 rounded shadow-md hover:bg-opacity-90 flex items-center gap-1 text-xs z-10"
@@ -87,7 +91,8 @@ export default function ZoneCardMedia({
             <MapModal
                 isOpen={isModalOpen}
                 onClose={closeModal}
-                coordinates={coordinates}
+                zoneCoordinates={zoneCoordinates}
+                pointsCoordinates={pointsCoordinates}
             />
 
             {/* Overlay sobre toda la tarjeta */}
@@ -99,7 +104,7 @@ export default function ZoneCardMedia({
                     transition={{ duration: 0.3 }}
                     className="absolute inset-0 z-30 bg-white shadow-xl rounded-2xl overflow-hidden"
                 >
-                    <MapView coordinates={coordinates} />
+                    <MapView zoneCoordinates={zoneCoordinates} pointsCoordinates={pointsCoordinates} />
 
                     {/* Botones arriba a la derecha */}
                     <div className="absolute top-2 right-2 flex gap-2 z-50">
