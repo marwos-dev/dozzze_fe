@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import type { LatLngExpression } from 'leaflet';
 import ZoneCardMedia from './ZoneCardMedia';
 import ZoneCardFooter from './ZoneCardFooter';
@@ -18,28 +18,39 @@ export default function ZoneCard({
 }: ZoneCardProps) {
     const [showMap, setShowMap] = useState(false);
     const [selectedImage, setSelectedImage] = useState(imageUrls[0]);
+    const [showOverlayMap, setShowOverlayMap] = useState(false);
 
-    const toggleMap = () => {
-        setShowMap(prev => !prev);
-    };
+    const cardRef = useRef<HTMLDivElement>(null);
+    const [cardHeight, setCardHeight] = useState(0);
+
+    useEffect(() => {
+        if (cardRef.current) {
+            setCardHeight(cardRef.current.offsetHeight);
+        }
+    }, [showMap, selectedImage]);
+
+    const toggleMap = () => setShowMap(prev => !prev);
 
     return (
-        <div className="w-full max-w-sm bg-greenlight shadow-xl px-2  sm:px-3 hover:shadow-2xl transform hover:scale-[1.01] transition-all text-center m-1 rounded-2xl overflow-hidden flex flex-col">
-
+        <div
+            ref={cardRef}
+            className="relative w-full max-w-sm bg-greenlight shadow-xl px-2 sm:px-3 transition-all text-center m-1 rounded-2xl overflow-hidden flex flex-col"
+        >
             <ZoneCardHeader
                 country={country}
                 showMap={showMap}
                 toggleMap={toggleMap}
             />
 
-            {/* Imagen/mapa */}
             <ZoneCardMedia
                 showMap={showMap}
                 selectedImage={selectedImage}
                 coordinates={coordinates}
+                showOverlayMap={showOverlayMap}
+                setShowOverlayMap={setShowOverlayMap}
+                cardHeight={cardHeight}
             />
 
-            {/* Miniaturas y botón */}
             <ZoneCardFooter
                 imageUrls={imageUrls}
                 selectedImage={selectedImage}
