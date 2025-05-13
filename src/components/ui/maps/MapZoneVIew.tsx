@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { PointWithMedia } from '@/types/map';
+import Image from 'next/image';
 
 interface MapViewProps {
     zoneCoordinates: LatLngExpression[];
@@ -45,22 +46,27 @@ export default function MapZoneView({ zoneCoordinates, pointsCoordinates = [] }:
             <Polygon positions={zoneCoordinates} pathOptions={{ color: '#808080' }} />
             {pointsCoordinates.map((point, index) => (
                 <Marker key={index} position={point.position} icon={gpsIcon}>
-                    <Popup maxWidth={300}>
+
+                    <Popup maxWidth={600}>
                         {point.images && point.images.length > 0 ? (
-                            <div className="w-[250px] min-h-[100px] flex flex-col gap-3">
+                            <div className="flex flex-col gap-3 w-[200px]">
                                 {point.images.map((url, i) => (
-                                    <img
-                                        key={i}
-                                        src={url}
-                                        alt={`Foto ${i + 1}`}
-                                        className="w-full rounded shadow object-cover"
-                                    />
+                                    <div key={i} className="relative w-[200px] h-[150px] rounded overflow-hidden">
+                                        <Image
+                                            src={url}
+                                            alt={`Foto ${i + 1}`}
+                                            fill
+                                            objectFit="cover"
+                                            className="rounded"
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         ) : (
                             <span className="text-base">Ubicación registrada</span>
                         )}
                     </Popup>
+
                 </Marker>
             ))}
             <FitBounds zoneCoordinates={zoneCoordinates} pointsCoordinates={pointsCoordinates} />
