@@ -42,18 +42,23 @@ export default function MapZoneView({ zoneCoordinates, pointsCoordinates = [] }:
             className="h-full w-full z-0 rounded"
         >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <Polygon positions={zoneCoordinates} pathOptions={{ color: 'green' }} />
+            <Polygon positions={zoneCoordinates} pathOptions={{ color: '#808080' }} />
             {pointsCoordinates.map((point, index) => (
                 <Marker key={index} position={point.position} icon={gpsIcon}>
-                    <Popup>
+                    <Popup maxWidth={300}>
                         {point.images && point.images.length > 0 ? (
-                            <div className="flex flex-col gap-2">
+                            <div className="w-[250px] min-h-[100px] flex flex-col gap-3">
                                 {point.images.map((url, i) => (
-                                    <img key={i} src={url} alt={`Foto ${i + 1}`} className="w-40 h-auto rounded" />
+                                    <img
+                                        key={i}
+                                        src={url}
+                                        alt={`Foto ${i + 1}`}
+                                        className="w-full rounded shadow object-cover"
+                                    />
                                 ))}
                             </div>
                         ) : (
-                            <span>Ubicación registrada</span>
+                            <span className="text-base">Ubicación registrada</span>
                         )}
                     </Popup>
                 </Marker>
