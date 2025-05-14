@@ -15,7 +15,7 @@ export default function ZoneCardFooter({
     setShowMap
 }: ZoneCardFooterProps) {
     return (
-        <div className="bg-dozebg1 mt-2 mb-4 px-4 shadow-md">
+        <div className="bg-dozebg1 mt-1 mb-4 px-4 shadow-md rounded-b-lg">
             {/* Miniaturas */}
             <div className="flex overflow-x-auto gap-2 pt-2 scrollbar-hide">
                 {imageUrls.map((url, index) => (

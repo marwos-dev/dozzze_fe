@@ -22,7 +22,7 @@ export default function ZoneSection() {
             <ZoneCard
                 country="Barcelona, España"
                 imageUrls={imageUrlsBarcelona}
-                coordinates={[
+                zoneCoordinates={[
                     [41.4689, 2.1234],
                     [41.4675, 2.2286],
                     [41.3809, 2.2286],
@@ -30,11 +30,20 @@ export default function ZoneSection() {
                     [41.3870, 2.1076],
                     [41.4689, 2.1234],
                 ]}
+                pointsCoordinates={[
+                    {
+                        position: [-34.6250, -58.3900],
+                        images: ['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800']
+                    },
+                    {
+                        position: [-34.6100, -58.4000]
+                    }
+                ]}
             />
             <ZoneCard
                 country="Ciudad de México, México"
                 imageUrls={imageUrlsMexicoCity}
-                coordinates={[
+                zoneCoordinates={[
                     [19.4352, -99.1456],
                     [19.4572, -99.1000],
                     [19.4200, -99.0700],
@@ -42,17 +51,35 @@ export default function ZoneSection() {
                     [19.4000, -99.1600],
                     [19.4352, -99.1456],
                 ]}
+                pointsCoordinates={[
+                    {
+                        position: [-34.6250, -58.3900],
+                        images: ['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800']
+                    },
+                    {
+                        position: [-34.6100, -58.4000]
+                    }
+                ]}
             />
             <ZoneCard
                 country="Buenos Aires, Argentina"
                 imageUrls={imageUrlsBuenosAires}
-                coordinates={[
+                zoneCoordinates={[
                     [-34.6037, -58.3816],
                     [-34.6095, -58.3700],
                     [-34.6200, -58.3720],
                     [-34.6250, -58.3900],
                     [-34.6100, -58.4000],
                     [-34.6037, -58.3816],
+                ]}
+                pointsCoordinates={[
+                    {
+                        position: [-34.6250, -58.3900],
+                        images: ['https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800']
+                    },
+                    {
+                        position: [-34.6100, -58.4000]
+                    }
                 ]}
             />
         </div>
