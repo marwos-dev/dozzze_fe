@@ -11,7 +11,9 @@ const Sections = () => {
             <section className="bg-greenlight p-5" id="seeker">
                 <Seeker />
             </section>
-            <Properties />
+            <section className="bg-greenlight p-5" >
+                <Properties />
+            </section>
         </main>
     );
 };
