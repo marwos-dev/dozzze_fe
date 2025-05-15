@@ -52,7 +52,7 @@ export default function Seeker() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="mx-auto w-full max-w-5xl rounded-2xl bg-dozebg1 shadow-xl px-4 py-6 sm:px-6 lg:px-10 mt-10"
+            className="mx-auto w-full max-w-5xl rounded-2xl bg-dozebg1 shadow-xl px-4 py-6 sm:px-6 lg:px-10 mb-10 -mt-6"
         >
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-dozeblue mb-6 text-center">
                 Encontrá tu alojamiento ideal
