@@ -1,3 +1,5 @@
+"use client"
+
 import Home from "./Home";
 import Properties from "./Properties";
 import Seeker from "./Seeker";
