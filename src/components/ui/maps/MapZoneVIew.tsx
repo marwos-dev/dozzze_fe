@@ -1,12 +1,20 @@
 'use client';
 
-import { MapContainer, TileLayer, Polygon, Marker, Popup, useMapEvents } from 'react-leaflet';
-import type { LatLngExpression, LatLngBoundsExpression } from 'leaflet';
-import { useEffect } from 'react';
+import {
+    MapContainer,
+    TileLayer,
+    Polygon,
+    Marker,
+    Popup,
+    useMap,
+    useMapEvents,
+} from 'react-leaflet';
+import type { LatLngExpression } from 'leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { PointWithMedia } from '@/types/map';
 import Image from 'next/image';
+import { useEffect } from 'react';
 
 interface MapViewProps {
     zoneCoordinates: LatLngExpression[];
@@ -17,15 +25,41 @@ interface MapViewProps {
     onZoomChange: (zoom: number) => void;
 }
 
-function TrackViewChanges({ onCenterChange, onZoomChange }: Pick<MapViewProps, 'onCenterChange' | 'onZoomChange'>) {
+function TrackViewChanges({
+    onCenterChange,
+    onZoomChange,
+}: Pick<MapViewProps, 'onCenterChange' | 'onZoomChange'>) {
     useMapEvents({
         moveend(e) {
             onCenterChange(e.target.getCenter());
         },
         zoomend(e) {
             onZoomChange(e.target.getZoom());
-        }
+        },
     });
+    return null;
+}
+
+// 🔁 Nueva implementación: solo sincroniza si el cambio es significativo
+function SyncMapView({ center, zoom }: { center: LatLngExpression; zoom: number }) {
+    const map = useMap();
+
+    useEffect(() => {
+        const currentCenter = map.getCenter();
+        const currentZoom = map.getZoom();
+
+        const latDiff = Math.abs(currentCenter.lat - (center as any).lat);
+        const lngDiff = Math.abs(currentCenter.lng - (center as any).lng);
+        const zoomDiff = Math.abs(currentZoom - zoom);
+
+        const centerChanged = latDiff > 0.0001 || lngDiff > 0.0001;
+        const zoomChanged = zoomDiff > 0;
+
+        if (centerChanged || zoomChanged) {
+            map.setView(center, zoom);
+        }
+    }, [center, zoom, map]);
+
     return null;
 }
 
@@ -42,24 +76,28 @@ export default function MapZoneView({
     center,
     zoom,
     onCenterChange,
-    onZoomChange
+    onZoomChange,
 }: MapViewProps) {
     return (
         <MapContainer
             center={center}
             zoom={zoom}
-            scrollWheelZoom={false}
+            scrollWheelZoom={true}
             className="h-full w-full z-0 rounded"
         >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <Polygon positions={zoneCoordinates} pathOptions={{ color: '#808080' }} />
+
             {pointsCoordinates.map((point, index) => (
                 <Marker key={index} position={point.position} icon={gpsIcon}>
                     <Popup maxWidth={600}>
                         {point.images && point.images.length > 0 ? (
                             <div className="flex flex-col gap-3 w-[200px]">
                                 {point.images.map((url, i) => (
-                                    <div key={i} className="relative w-[200px] h-[150px] rounded overflow-hidden">
+                                    <div
+                                        key={i}
+                                        className="relative w-[200px] h-[150px] rounded overflow-hidden"
+                                    >
                                         <Image
                                             src={url}
                                             alt={`Foto ${i + 1}`}
@@ -76,7 +114,12 @@ export default function MapZoneView({
                     </Popup>
                 </Marker>
             ))}
-            <TrackViewChanges onCenterChange={onCenterChange} onZoomChange={onZoomChange} />
+
+            <TrackViewChanges
+                onCenterChange={onCenterChange}
+                onZoomChange={onZoomChange}
+            />
+            <SyncMapView center={center} zoom={zoom} />
         </MapContainer>
     );
 }
