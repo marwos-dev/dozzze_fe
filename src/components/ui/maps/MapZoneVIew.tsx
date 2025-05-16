@@ -1,6 +1,6 @@
 'use client';
 
-import { MapContainer, TileLayer, Polygon, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polygon, Marker, Popup, useMapEvents } from 'react-leaflet';
 import type { LatLngExpression, LatLngBoundsExpression } from 'leaflet';
 import { useEffect } from 'react';
 import L from 'leaflet';
@@ -11,19 +11,21 @@ import Image from 'next/image';
 interface MapViewProps {
     zoneCoordinates: LatLngExpression[];
     pointsCoordinates?: PointWithMedia[];
+    center: LatLngExpression;
+    zoom: number;
+    onCenterChange: (center: LatLngExpression) => void;
+    onZoomChange: (zoom: number) => void;
 }
 
-function FitBounds({ zoneCoordinates, pointsCoordinates }: MapViewProps) {
-    const map = useMap();
-
-    useEffect(() => {
-        const allPoints = pointsCoordinates
-            ? [...zoneCoordinates, ...pointsCoordinates.map(p => p.position)]
-            : zoneCoordinates;
-        const bounds: LatLngBoundsExpression = allPoints as LatLngBoundsExpression;
-        map.fitBounds(bounds, { padding: [20, 20] });
-    }, [map, zoneCoordinates, pointsCoordinates]);
-
+function TrackViewChanges({ onCenterChange, onZoomChange }: Pick<MapViewProps, 'onCenterChange' | 'onZoomChange'>) {
+    useMapEvents({
+        moveend(e) {
+            onCenterChange(e.target.getCenter());
+        },
+        zoomend(e) {
+            onZoomChange(e.target.getZoom());
+        }
+    });
     return null;
 }
 
@@ -34,11 +36,18 @@ const gpsIcon = new L.Icon({
     popupAnchor: [0, -32],
 });
 
-export default function MapZoneView({ zoneCoordinates, pointsCoordinates = [] }: MapViewProps) {
+export default function MapZoneView({
+    zoneCoordinates,
+    pointsCoordinates = [],
+    center,
+    zoom,
+    onCenterChange,
+    onZoomChange
+}: MapViewProps) {
     return (
         <MapContainer
-            center={zoneCoordinates[0]}
-            zoom={13}
+            center={center}
+            zoom={zoom}
             scrollWheelZoom={false}
             className="h-full w-full z-0 rounded"
         >
@@ -46,7 +55,6 @@ export default function MapZoneView({ zoneCoordinates, pointsCoordinates = [] }:
             <Polygon positions={zoneCoordinates} pathOptions={{ color: '#808080' }} />
             {pointsCoordinates.map((point, index) => (
                 <Marker key={index} position={point.position} icon={gpsIcon}>
-
                     <Popup maxWidth={600}>
                         {point.images && point.images.length > 0 ? (
                             <div className="flex flex-col gap-3 w-[200px]">
@@ -66,10 +74,9 @@ export default function MapZoneView({ zoneCoordinates, pointsCoordinates = [] }:
                             <span className="text-base">Ubicación registrada</span>
                         )}
                     </Popup>
-
                 </Marker>
             ))}
-            <FitBounds zoneCoordinates={zoneCoordinates} pointsCoordinates={pointsCoordinates} />
+            <TrackViewChanges onCenterChange={onCenterChange} onZoomChange={onZoomChange} />
         </MapContainer>
     );
 }

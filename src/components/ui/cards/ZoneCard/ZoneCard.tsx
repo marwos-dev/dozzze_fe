@@ -11,7 +11,6 @@ interface ZoneCardProps {
     imageUrls: string[];
     zoneCoordinates: LatLngExpression[];
     pointsCoordinates: PointWithMedia[];
-
 }
 
 export default function ZoneCard({
@@ -23,6 +22,9 @@ export default function ZoneCard({
     const [showMap, setShowMap] = useState(false);
     const [selectedImage, setSelectedImage] = useState(imageUrls[0]);
     const [showOverlayMap, setShowOverlayMap] = useState(false);
+
+    const [mapCenter, setMapCenter] = useState<LatLngExpression>(zoneCoordinates[0]);
+    const [mapZoom, setMapZoom] = useState<number>(13);
 
     const cardRef = useRef<HTMLDivElement>(null);
     const [cardHeight, setCardHeight] = useState(0);
@@ -54,6 +56,10 @@ export default function ZoneCard({
                 showOverlayMap={showOverlayMap}
                 setShowOverlayMap={setShowOverlayMap}
                 cardHeight={cardHeight}
+                mapCenter={mapCenter}
+                mapZoom={mapZoom}
+                setMapCenter={setMapCenter}
+                setMapZoom={setMapZoom}
             />
 
             <ZoneCardFooter

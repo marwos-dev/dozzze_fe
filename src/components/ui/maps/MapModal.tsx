@@ -13,9 +13,22 @@ interface MapModalProps {
     onClose: () => void;
     zoneCoordinates: LatLngExpression[];
     pointsCoordinates: PointWithMedia[];
+    center: LatLngExpression;
+    zoom: number;
+    onCenterChange: (center: LatLngExpression) => void;
+    onZoomChange: (zoom: number) => void;
 }
 
-export default function MapModal({ isOpen, onClose, zoneCoordinates, pointsCoordinates }: MapModalProps) {
+export default function MapModal({
+    isOpen,
+    onClose,
+    zoneCoordinates,
+    pointsCoordinates,
+    center,
+    zoom,
+    onCenterChange,
+    onZoomChange
+}: MapModalProps) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -34,7 +47,14 @@ export default function MapModal({ isOpen, onClose, zoneCoordinates, pointsCoord
                 className="relative bg-white w-full h-full max-w-6xl max-h-[90vh] rounded-lg overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
-                <MapView zoneCoordinates={zoneCoordinates} pointsCoordinates={pointsCoordinates} />
+                <MapView
+                    zoneCoordinates={zoneCoordinates}
+                    pointsCoordinates={pointsCoordinates}
+                    center={center}
+                    zoom={zoom}
+                    onCenterChange={onCenterChange}
+                    onZoomChange={onZoomChange}
+                />
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 bg-red-500 text-white p-2 rounded-full z-10"

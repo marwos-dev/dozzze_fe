@@ -19,17 +19,25 @@ interface ZoneCardMediaProps {
     showOverlayMap: boolean;
     setShowOverlayMap: (value: boolean) => void;
     cardHeight: number;
+    mapCenter: LatLngExpression;
+    mapZoom: number;
+    setMapCenter: (center: LatLngExpression) => void;
+    setMapZoom: (zoom: number) => void;
 }
-
 
 export default function ZoneCardMedia({
     showMap,
     selectedImage,
     zoneCoordinates,
-    pointsCoordinates
+    pointsCoordinates,
+    showOverlayMap,
+    setShowOverlayMap,
+    mapCenter,
+    mapZoom,
+    setMapCenter,
+    setMapZoom
 }: ZoneCardMediaProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [showOverlayMap, setShowOverlayMap] = useState(false);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
@@ -38,7 +46,6 @@ export default function ZoneCardMedia({
 
     return (
         <>
-            {/* Vista principal de la tarjeta */}
             <motion.div
                 className="relative w-full h-[220px] sm:h-[250px] mx-auto shadow-md overflow-hidden rounded-t-2xl"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -58,6 +65,10 @@ export default function ZoneCardMedia({
                             <MapView
                                 zoneCoordinates={zoneCoordinates}
                                 pointsCoordinates={pointsCoordinates}
+                                center={mapCenter}
+                                zoom={mapZoom}
+                                onCenterChange={setMapCenter}
+                                onZoomChange={setMapZoom}
                             />
                             <button
                                 onClick={handleExpand}
@@ -88,15 +99,17 @@ export default function ZoneCardMedia({
                 </AnimatePresence>
             </motion.div>
 
-            {/* Modal pantalla completa */}
             <MapModal
                 isOpen={isModalOpen}
                 onClose={closeModal}
                 zoneCoordinates={zoneCoordinates}
                 pointsCoordinates={pointsCoordinates}
+                center={mapCenter}
+                zoom={mapZoom}
+                onCenterChange={setMapCenter}
+                onZoomChange={setMapZoom}
             />
 
-            {/* Overlay sobre toda la tarjeta */}
             {showOverlayMap && (
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -105,9 +118,15 @@ export default function ZoneCardMedia({
                     transition={{ duration: 0.3 }}
                     className="absolute inset-0 z-30 bg-white shadow-xl rounded-2xl overflow-hidden"
                 >
-                    <MapView zoneCoordinates={zoneCoordinates} pointsCoordinates={pointsCoordinates} />
+                    <MapView
+                        zoneCoordinates={zoneCoordinates}
+                        pointsCoordinates={pointsCoordinates}
+                        center={mapCenter}
+                        zoom={mapZoom}
+                        onCenterChange={setMapCenter}
+                        onZoomChange={setMapZoom}
+                    />
 
-                    {/* Botones arriba a la derecha */}
                     <div className="absolute top-2 right-2 flex gap-2 z-50">
                         <button
                             onClick={handleCollapse}
