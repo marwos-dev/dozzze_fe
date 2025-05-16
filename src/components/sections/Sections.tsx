@@ -1,4 +1,7 @@
+"use client"
+
 import Home from "./Home";
+import Properties from "./Properties";
 import Seeker from "./Seeker";
 import ZoneSection from "./Zones";
 
@@ -7,8 +10,11 @@ const Sections = () => {
         <main>
             <Home />
             <ZoneSection />
-            <section className="bg-greenlight py-2" id="seeker">
+            <section className="bg-greenlight p-5" id="seeker">
                 <Seeker />
+            </section>
+            <section className="bg-greenlight p-5" >
+                <Properties />
             </section>
         </main>
     );
