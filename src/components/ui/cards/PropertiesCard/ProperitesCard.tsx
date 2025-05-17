@@ -1,40 +1,38 @@
 'use client';
 
 import { useState } from 'react';
-import { Star, CheckCircle, ArrowRight } from 'lucide-react';
+import { ArrowRight, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Room } from '@/types/Room';
 
 interface PropertiesCardProps {
-    title: string;
-    location: string;
+    id: number;
+    name: string;
+    zone: string;
     description: string;
-    stars: number;
-    tripRating: number;
-    priceGuarantee?: boolean;
+    address: string;
+    cover_image: string;
     images: string[];
-    link: string;
+    rooms?: Room[];
 }
 
 export default function PropertiesCard({
-    title,
-    location,
+    id,
+    name,
+    zone,
     description,
-    stars,
-    tripRating,
-    priceGuarantee = true,
+    cover_image,
     images,
-    link,
+    rooms = [],
 }: PropertiesCardProps) {
-    const totalStars = 5;
-
-    const [mainImage, setMainImage] = useState(images[0]);
+    const [mainImage, setMainImage] = useState(cover_image || images[0]);
     const thumbnails = images.filter((img) => img !== mainImage).slice(0, 3);
     const extraImagesCount = images.length - 1 - thumbnails.length;
-
+    const rating = 4;
     return (
         <div className="bg-dozebg1 rounded-3xl shadow-md overflow-hidden flex flex-col md:flex-row p-3 gap-4 min-h-[240px]">
-            {/* Imágenes - izquierda */}
+            {/* Imagen principal y miniaturas */}
             <div className="flex flex-col w-full md:w-[400px] gap-2">
                 {/* Desktop */}
                 <div className="hidden md:flex gap-2 h-full">
@@ -82,55 +80,47 @@ export default function PropertiesCard({
                     </div>
                 </div>
             </div>
-            {/* Información - centro */}
+
+            {/* Info y botón */}
             <div className="flex flex-col justify-between flex-1 gap-2">
-                <div className="flex flex-col gap-2">
-                    <div className="flex items-center text-dozeblue justify-between">
-                        <h2 className="text-xl font-bold text-dozeblue">{title}</h2>
-                        {priceGuarantee && (
-                            <div className="text-dozeblue flex items-center gap-1">
-                                <CheckCircle className="text-orange-400 w-4 h-4" />
-                                <span className="text-sm">Price Guarantee</span>
-                            </div>
-                        )}
+                <div className="flex flex-col gap-1">
+                    <h2 className="text-xl font-bold text-dozeblue">{name}</h2>
+                    <div className="flex items-center gap-1">
+                        {/* Estrellas */}
+                        {[...Array(5)].map((_, i) => (
+                            <Star
+                                key={i}
+                                className={`w-4 h-4 ${i < rating ? 'text-yellow-400' : 'text-gray-300'
+                                    }`}
+                            />
+                        ))}
+                        <span className="text-xs text-dozeblue font-semibold ml-2">{rating}.0</span>
                     </div>
-
-                    <p className="text-dozeblue font-semibold uppercase text-xs">{location}</p>
-
-                    <div className="flex items-center gap-3">
-                        <div className="flex text-yellow-400">
-                            {[...Array(stars)].map((_, i) => (
-                                <Star key={i} className="w-4 h-4 fill-yellow-400" />
-                            ))}
-                            {[...Array(totalStars - stars)].map((_, i) => (
-                                <Star key={i + stars} className="w-4 h-4 text-gray-300" />
-                            ))}
-                        </div>
-
-                        <div className="flex gap-1 items-center">
-                            {[...Array(tripRating)].map((_, i) => (
-                                <span key={i} className="w-3 h-3 bg-green-600 rounded-full inline-block" />
-                            ))}
-                        </div>
-                    </div>
-
+                    <p className="text-dozeblue font-semibold uppercase text-xs">{zone}</p>
                     <p className="text-dozegray leading-tight">{description}</p>
                 </div>
-                {/* Botón desktop alineado abajo a la derecha */}
-                <div className="hidden md:flex justify-end">
-                    <Link
-                        href={link}
-                        className="mt-2 inline-flex mr-6 justify-center items-center bg-dozeblue text-white px-4 py-1.5 text-sm rounded-full font-medium hover:bg-blue-900 transition"
-                    >
-                        Ver Habitaciones
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                    </Link>
+
+                <div className="flex items-center justify-between mt-2">
+                    <p className="text-sm font-semibold text-dozeblue">
+                        Habitaciones disponibles: {rooms.length}
+                    </p>
+
+                    <div className="hidden md:flex justify-end">
+                        <Link
+                            href={`/properties/${id}`}
+                            className="inline-flex mr-6 justify-center items-center bg-dozeblue text-white px-4 py-1.5 text-sm rounded-full font-medium hover:bg-blue-900 transition"
+                        >
+                            Ver Habitaciones
+                            <ArrowRight className="w-4 h-4 ml-2" />
+                        </Link>
+                    </div>
                 </div>
             </div>
-            {/* Mobile botón al final */}
+
+            {/* Botón mobile */}
             <div className="md:hidden pt-2">
                 <Link
-                    href={link}
+                    href={`/properties/${id}`}
                     className="inline-flex justify-center items-center bg-dozeblue text-white px-4 py-1.5 text-sm rounded-md font-medium w-full hover:bg-blue-900 transition"
                 >
                     Ver Habitaciones
