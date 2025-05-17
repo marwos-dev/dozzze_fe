@@ -7,6 +7,7 @@ import ZoneCardHeader from './ZoneCardHeader';
 import type { PointWithMedia } from '@/types/map';
 
 interface ZoneCardProps {
+    id: number;
     country: string;
     imageUrls: string[];
     zoneCoordinates: LatLngExpression[];
@@ -14,6 +15,7 @@ interface ZoneCardProps {
 }
 
 export default function ZoneCard({
+    id,
     country,
     imageUrls,
     zoneCoordinates,
@@ -63,6 +65,7 @@ export default function ZoneCard({
             />
 
             <ZoneCardFooter
+                id={id}
                 imageUrls={imageUrls}
                 selectedImage={selectedImage}
                 setSelectedImage={setSelectedImage}

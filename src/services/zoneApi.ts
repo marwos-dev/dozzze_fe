@@ -9,4 +9,7 @@ export const fetchZones = async (): Promise<Zone[]> => {
 };
 
 
-
+export const fetchZoneById = async (id: string): Promise<Zone> => {
+  const response = await axios.get(`/zones/${id}/`);
+  return response.data;
+};

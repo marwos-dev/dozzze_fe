@@ -1,7 +1,9 @@
 'use client';
 import Image from "next/image";
+import { useRouter } from 'next/navigation';
 
 interface ZoneCardFooterProps {
+    id: number;
     imageUrls: string[];
     selectedImage: string;
     setSelectedImage: (url: string) => void;
@@ -9,11 +11,14 @@ interface ZoneCardFooterProps {
 }
 
 export default function ZoneCardFooter({
+    id,
     imageUrls,
     selectedImage,
     setSelectedImage,
     setShowMap
 }: ZoneCardFooterProps) {
+    const router = useRouter();
+
     return (
         <div className="bg-dozebg1 mt-1 mb-4 px-4 shadow-md rounded-b-lg">
             {/* Miniaturas */}
@@ -40,7 +45,7 @@ export default function ZoneCardFooter({
             {/* Botón */}
             <div className="mt-2 pb-4">
                 <button
-                    onClick={() => alert('Explorar zona (futuro redireccionamiento)')}
+                    onClick={() => router.push(`/zone/${id}`)}
                     className="bg-dozeblue text-greenlight text-sm px-4 py-2 rounded hover:bg-opacity-90 transition-all ease-in-out duration-300 w-full"
                 >
                     Explorar zona

@@ -46,6 +46,7 @@ export default function ZoneSection() {
                 {zones.map(zone => (
                     <ZoneCard
                         key={zone.id}
+                        id={zone.id}
                         country={zone.name}
                         imageUrls={zone.images}
                         zoneCoordinates={parseAreaToCoordinates(zone.area)}
