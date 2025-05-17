@@ -39,7 +39,7 @@ export default function RoomDetailPage() {
             {/* Servicios */}
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {(room.services ?? []).length > 0 ? (
-                    (room.services ?? []).map((service, i) => (
+                    (room.services ?? []).map((service: string, i: number) => (
                         <li key={i} className="flex items-center gap-2 text-gray-700">
                             <CheckCircle className="text-green-500 w-4 h-4" />
                             {service}
