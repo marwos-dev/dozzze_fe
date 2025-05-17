@@ -3,6 +3,8 @@ export interface Room {
     name: string;
     description: string;
     pax: number;
+    services?: string[];  
+    features?: string[];  
     images: string[];
-    features?: string[];
   }
+  

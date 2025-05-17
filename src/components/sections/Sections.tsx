@@ -10,12 +10,13 @@ const Sections = () => {
         <main>
             <Home />
             <ZoneSection />
-            <section className="bg-greenlight p-5" id="seeker">
-                <Seeker />
-            </section>
             <section className="bg-greenlight p-5" >
                 <Properties />
             </section>
+            <section className="bg-greenlight p-5" id="seeker">
+                <Seeker />
+            </section>
+
         </main>
     );
 };

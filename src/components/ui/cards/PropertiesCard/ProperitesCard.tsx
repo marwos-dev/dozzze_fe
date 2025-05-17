@@ -4,18 +4,8 @@ import { useState } from 'react';
 import { ArrowRight, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Room } from '@/types/Room';
+import { Property } from "@/types/property";
 
-interface PropertiesCardProps {
-    id: number;
-    name: string;
-    zone: string;
-    description: string;
-    address: string;
-    cover_image: string;
-    images: string[];
-    rooms?: Room[];
-}
 
 export default function PropertiesCard({
     id,
@@ -25,7 +15,7 @@ export default function PropertiesCard({
     cover_image,
     images,
     rooms = [],
-}: PropertiesCardProps) {
+}: Property) {
     const [mainImage, setMainImage] = useState(cover_image || images[0]);
     const thumbnails = images.filter((img) => img !== mainImage).slice(0, 3);
     const extraImagesCount = images.length - 1 - thumbnails.length;
