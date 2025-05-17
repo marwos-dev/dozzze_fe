@@ -49,6 +49,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
                     {property.rooms.map((room) => (
                         <RoomCard
                             key={room.id}
+                            id={room.id}
                             name={room.name}
                             description={room.description}
                             pax={room.pax}

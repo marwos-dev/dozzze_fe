@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { ChevronDown, ChevronUp, Users, CheckCircle } from 'lucide-react';
 
 interface RoomCardProps {
+    id: number | string;
     name: string;
     description: string;
     pax: number;
@@ -12,9 +14,10 @@ interface RoomCardProps {
     images: string[];
 }
 
-export default function RoomCard({ name, description, pax, services, images }: RoomCardProps) {
+export default function RoomCard({ id, name, description, pax, services, images }: RoomCardProps) {
     const [expanded, setExpanded] = useState(false);
     const mainImage = images[0] || '/placeholder.jpg';
+    const router = useRouter();
 
     return (
         <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm bg-white">
@@ -65,6 +68,14 @@ export default function RoomCard({ name, description, pax, services, images }: R
                 >
                     {expanded ? 'Mostrar menos' : 'Mostrar más'}
                     {expanded ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
+                </button>
+
+                {/* Botón inspeccionar habitación */}
+                <button
+                    onClick={() => router.push(`/room/${id}`)}
+                    className="mt-4 w-full bg-dozeblue text-greenlight py-2 rounded hover:bg-opacity-90 transition"
+                >
+                    Inspeccionar habitación
                 </button>
             </div>
         </div>
