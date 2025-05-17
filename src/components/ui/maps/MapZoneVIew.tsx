@@ -47,15 +47,17 @@ function SyncMapView({ center, zoom }: { center: LatLngExpression; zoom: number 
         const currentCenter = map.getCenter();
         const currentZoom = map.getZoom();
 
-        const latDiff = Math.abs(currentCenter.lat - (center as any).lat);
-        const lngDiff = Math.abs(currentCenter.lng - (center as any).lng);
+        const newCenter = L.latLng(center);
+
+        const latDiff = Math.abs(currentCenter.lat - newCenter.lat);
+        const lngDiff = Math.abs(currentCenter.lng - newCenter.lng);
         const zoomDiff = Math.abs(currentZoom - zoom);
 
         const centerChanged = latDiff > 0.0001 || lngDiff > 0.0001;
         const zoomChanged = zoomDiff > 0;
 
         if (centerChanged || zoomChanged) {
-            map.setView(center, zoom);
+            map.setView(newCenter, zoom);
         }
     }, [center, zoom, map]);
 
