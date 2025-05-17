@@ -40,7 +40,6 @@ function TrackViewChanges({
     return null;
 }
 
-// 🔁 Nueva implementación: solo sincroniza si el cambio es significativo
 function SyncMapView({ center, zoom }: { center: LatLngExpression; zoom: number }) {
     const map = useMap();
 
@@ -74,7 +73,7 @@ export default function MapZoneView({
     zoneCoordinates,
     pointsCoordinates = [],
     center,
-    zoom,
+    zoom = 10,
     onCenterChange,
     onZoomChange,
 }: MapViewProps) {
