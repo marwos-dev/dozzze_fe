@@ -25,8 +25,12 @@ export const getZoneById = createAsyncThunk(
   async (id: string, thunkAPI) => {
     try {
       return await fetchZoneById(id);
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error: unknown) {
+      let errorMessage = 'Error desconocido';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      return thunkAPI.rejectWithValue(errorMessage);
     }
   }
 );

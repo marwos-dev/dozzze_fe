@@ -19,11 +19,16 @@ export const getPropertyById = createAsyncThunk(
   async (id: string, thunkAPI) => {
     try {
       return await fetchPropertyById(id);
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+    } catch (error: unknown) {
+      let errorMessage = 'Error desconocido';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      return thunkAPI.rejectWithValue(errorMessage);
     }
   }
 );
+
 
 const propertiesSlice = createSlice({
   name: 'properties',
