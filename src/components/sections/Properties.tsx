@@ -13,23 +13,12 @@ export default function Properties() {
     return (
         <section className="max-w-6xl bg-greenlight mx-auto mt-10 p-4 space-y-6">
             {zones?.map((zone) =>
-                zone.properties?.map((property: any) => (
+                zone.properties?.map((property) => (
                     <PropertiesCard
                         key={property.id}
-                        id={property.id}
-                        name={property.name}
+                        {...property}
                         zone={zone.name}
-                        description={property.description || ''}
-                        cover_image={property.cover_image}
-                        images={property.images || []}
-                        rooms={property.rooms?.map((room: any) => ({
-                            id: room.id,
-                            name: room.name,
-                            description: room.description,
-                            pax: room.pax,
-                            images: room.images || [],
-                            features: room.features || [],
-                        }))} address={''} />
+                    />
                 ))
             )}
         </section>
