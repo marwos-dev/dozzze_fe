@@ -23,6 +23,7 @@ export default function RoomCard({
   images,
 }: RoomCardProps) {
   const [expanded, setExpanded] = useState(false);
+  console.log(images, "estas son las imagenes")
   const mainImage = images[0] || "/placeholder.jpg";
   const router = useRouter();
 

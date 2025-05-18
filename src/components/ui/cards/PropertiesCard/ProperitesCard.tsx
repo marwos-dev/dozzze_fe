@@ -19,6 +19,7 @@ export default function PropertiesCard({
   const thumbnails = images.filter((img) => img !== mainImage).slice(0, 3);
   const extraImagesCount = images.length - 1 - thumbnails.length;
   const rating = 4;
+
   return (
     <div className="bg-dozebg1 rounded-3xl shadow-md overflow-hidden flex flex-col md:flex-row p-3 gap-4 min-h-[240px]">
       {/* Imagen principal y miniaturas */}
@@ -36,6 +37,7 @@ export default function PropertiesCard({
                   src={src}
                   alt={`Thumbnail ${i + 1}`}
                   fill
+                  sizes="(max-width: 768px) 70px, 70px"
                   className="object-cover"
                 />
               </button>
@@ -51,6 +53,7 @@ export default function PropertiesCard({
               src={mainImage}
               alt="Main image"
               fill
+              sizes="(max-width: 768px) 100vw, 330px"
               className="object-cover"
             />
           </div>
@@ -63,6 +66,7 @@ export default function PropertiesCard({
               src={mainImage}
               alt="Main image"
               fill
+              sizes="100vw"
               className="object-cover"
             />
           </div>
@@ -77,6 +81,7 @@ export default function PropertiesCard({
                   src={src}
                   alt={`Thumbnail ${i + 1}`}
                   fill
+                  sizes="80px"
                   className="object-cover"
                 />
               </button>
@@ -99,18 +104,15 @@ export default function PropertiesCard({
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                className={`w-4 h-4 ${
-                  i < rating ? "text-yellow-400" : "text-gray-300"
-                }`}
+                className={`w-4 h-4 ${i < rating ? "text-yellow-400" : "text-gray-300"
+                  }`}
               />
             ))}
             <span className="text-xs text-dozeblue font-semibold ml-2">
               {rating}.0
             </span>
           </div>
-          <p className="text-dozeblue font-semibold uppercase text-xs">
-            {zone}
-          </p>
+          <p className="text-dozeblue font-semibold uppercase text-xs">{zone}</p>
           <p className="text-dozegray leading-tight">{description}</p>
         </div>
 
