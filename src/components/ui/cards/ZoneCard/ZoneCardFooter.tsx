@@ -38,6 +38,7 @@ export default function ZoneCardFooter({
               src={url}
               alt={`Miniatura ${index + 1}`}
               fill
+              unoptimized
               style={{ objectFit: "cover" }}
             />
           </div>

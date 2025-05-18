@@ -57,6 +57,7 @@ export default function HomeSlider() {
                 src={src}
                 alt={`Slide ${index + 1}`}
                 fill
+                unoptimized
                 className="object-cover rounded-3xl"
                 priority={isActive}
               />

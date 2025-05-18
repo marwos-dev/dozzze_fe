@@ -92,6 +92,7 @@ export default function ZoneCardMedia({
                 src={selectedImage}
                 alt="Imagen de la zona"
                 fill
+                unoptimized
                 style={{ objectFit: "cover" }}
                 className="rounded-none"
               />

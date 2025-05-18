@@ -36,6 +36,7 @@ export default function PropertiesCard({
                   src={src}
                   alt={`Thumbnail ${i + 1}`}
                   fill
+                  unoptimized
                   className="object-cover"
                 />
               </button>
@@ -51,6 +52,7 @@ export default function PropertiesCard({
               src={mainImage}
               alt="Main image"
               fill
+              unoptimized
               className="object-cover"
             />
           </div>
@@ -63,6 +65,7 @@ export default function PropertiesCard({
               src={mainImage}
               alt="Main image"
               fill
+              unoptimized
               className="object-cover"
             />
           </div>
@@ -77,6 +80,7 @@ export default function PropertiesCard({
                   src={src}
                   alt={`Thumbnail ${i + 1}`}
                   fill
+                  unoptimized
                   className="object-cover"
                 />
               </button>
