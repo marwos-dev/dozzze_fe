@@ -15,9 +15,9 @@ export default function PropertiesCard({
   images,
   rooms = [],
 }: Property) {
-  const [mainImage, setMainImage] = useState(cover_image || images[0]);
-  const thumbnails = images.filter((img) => img !== mainImage).slice(0, 3);
-  const extraImagesCount = images.length - 1 - thumbnails.length;
+  const thumbnails = images.slice(0, 4);
+  const [mainImage, setMainImage] = useState(cover_image || thumbnails[0]);
+  const extraImagesCount = images.length - thumbnails.length;
   const rating = 4;
 
   return (
@@ -31,19 +31,24 @@ export default function PropertiesCard({
               <button
                 key={i}
                 onClick={() => setMainImage(src)}
-                className="relative w-[70px] h-[48px] rounded-xl overflow-hidden border border-white shadow-sm hover:scale-[1.03] transition"
+                className={`relative w-[70px] h-[48px] rounded-xl overflow-hidden border shadow-sm hover:scale-[1.03] transition
+                  ${mainImage === src
+                    ? "border-blue-500 ring-2 ring-blue-400"
+                    : "border-white"
+                  }
+                `}
               >
                 <Image
                   src={src}
                   alt={`Thumbnail ${i + 1}`}
                   fill
-                  sizes="(max-width: 768px) 70px, 70px"
+                  sizes="70px"
                   className="object-cover"
                 />
               </button>
             ))}
             {extraImagesCount > 0 && (
-              <div className="relative w-[70px] h-[48px] rounded-xl overflow-hidden border border-white shadow-sm bg-black/50 flex items-center justify-center text-white text-sm font-semibold">
+              <div className="relative w-[70px] h-[48px] rounded-xl overflow-hidden border border-white shadow-sm bg-black/50 flex items-center justify-center text-white text-sm font-semibold select-none">
                 +{extraImagesCount}
               </div>
             )}
@@ -75,7 +80,12 @@ export default function PropertiesCard({
               <button
                 key={i}
                 onClick={() => setMainImage(src)}
-                className="relative w-[80px] h-[54px] rounded-xl overflow-hidden border border-white shadow-sm hover:scale-[1.03] transition"
+                className={`relative w-[80px] h-[54px] rounded-xl overflow-hidden border shadow-sm hover:scale-[1.03] transition
+                  ${mainImage === src
+                    ? "border-blue-500 ring-2 ring-blue-400"
+                    : "border-white"
+                  }
+                `}
               >
                 <Image
                   src={src}
@@ -87,7 +97,7 @@ export default function PropertiesCard({
               </button>
             ))}
             {extraImagesCount > 0 && (
-              <div className="relative w-[80px] h-[54px] rounded-xl overflow-hidden border border-white shadow-sm bg-black/50 flex items-center justify-center text-white text-sm font-semibold">
+              <div className="relative w-[80px] h-[54px] rounded-xl overflow-hidden border border-white shadow-sm bg-black/50 flex items-center justify-center text-white text-sm font-semibold select-none">
                 +{extraImagesCount}
               </div>
             )}
@@ -96,11 +106,11 @@ export default function PropertiesCard({
       </div>
 
       {/* Info y botón */}
-      <div className="flex flex-col justify-between flex-1 gap-2">
-        <div className="flex flex-col gap-1">
+      <div className="flex flex-col justify-between flex-1 gap-3">
+        {/* Encabezado */}
+        <div>
           <h2 className="text-xl font-bold text-dozeblue">{name}</h2>
-          <div className="flex items-center gap-1">
-            {/* Estrellas */}
+          <div className="flex items-center gap-1 mt-1">
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
@@ -112,19 +122,22 @@ export default function PropertiesCard({
               {rating}.0
             </span>
           </div>
-          <p className="text-dozeblue font-semibold uppercase text-xs">{zone}</p>
-          <p className="text-dozegray leading-tight">{description}</p>
+          <p className="text-dozeblue font-semibold uppercase text-xs mt-1">{zone}</p>
         </div>
 
-        <div className="flex items-center justify-between mt-2">
+        {/* Descripción */}
+        <p className="text-dozegray text-sm leading-snug line-clamp-4">{description}</p>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between mt-auto pt-2">
           <p className="text-sm font-semibold text-dozeblue">
             Habitaciones disponibles: {rooms.length}
           </p>
 
-          <div className="hidden md:flex justify-end">
+          <div className="hidden md:flex">
             <Link
               href={`/properties/${id}`}
-              className="inline-flex mr-6 justify-center items-center bg-dozeblue text-white px-4 py-1.5 text-sm rounded-full font-medium hover:bg-blue-900 transition"
+              className="inline-flex items-center bg-dozeblue text-white px-4 py-1.5 text-sm rounded-full font-medium hover:bg-blue-900 transition"
             >
               Ver Habitaciones
               <ArrowRight className="w-4 h-4 ml-2" />
