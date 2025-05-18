@@ -7,6 +7,7 @@ import { AppDispatch, RootState } from '@/store';
 import { getZoneById, setSelectedZone } from '@/store/zoneSlice';
 import PropertiesCard from '@/components/ui/cards/PropertiesCard/ProperitesCard';
 import { Zone } from '@/types/zone';
+import { Property } from '@/types/property';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -45,7 +46,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
             </h1>
 
             {selectedZone.properties?.length > 0 ? (
-                selectedZone.properties.map((property) => (
+                selectedZone.properties.map((property: Property) => (
                     <PropertiesCard key={property.id} {...property} />
                 ))
             ) : (

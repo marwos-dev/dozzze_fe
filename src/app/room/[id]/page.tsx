@@ -55,7 +55,7 @@ export default function RoomDetailPage() {
                 <div className="mt-8">
                     <h2 className="text-xl font-semibold text-dozeblue mb-2">Galería</h2>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {room.images.slice(1).map((img, i) => (
+                        {room.images.slice(1).map((img: string, i: number) => (
                             <div key={i} className="relative w-full h-40 rounded-lg overflow-hidden">
                                 <Image src={img} alt={`Imagen ${i + 2}`} fill className="object-cover" />
                             </div>

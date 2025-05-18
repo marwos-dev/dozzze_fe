@@ -7,6 +7,7 @@ import { AppDispatch, RootState } from '@/store';
 import { getPropertyById, setProperty } from '@/store/propertiesSlice';
 import RoomCard from '@/components/ui/cards/RoomsCard/RoomCard';
 import { Property } from '@/types/property';
+import { Room } from '@/types/room';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -46,7 +47,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
                 <p className="text-gray-500">No hay habitaciones disponibles para esta propiedad.</p>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {property.rooms.map((room) => (
+                    {property.rooms.map((room: Room) => (
                         <RoomCard
                             key={room.id}
                             id={room.id}
