@@ -1,9 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api',
+  baseURL:
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    "https://dozzzebe-production.up.railway.app/api",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
