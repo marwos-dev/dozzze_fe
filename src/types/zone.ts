@@ -1,11 +1,4 @@
-export interface Room {
-  id: number;
-  name: string;
-  description: string;
-  pax: number;
-  services: string[];
-  images: string[];
-}
+import { Room } from "./room";
 
 export interface Property {
   id: number;

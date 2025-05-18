@@ -4,6 +4,5 @@ export interface Room {
   description: string;
   pax: number;
   services?: string[];
-  features?: string[];
   images: string[];
 }
