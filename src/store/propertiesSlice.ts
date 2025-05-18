@@ -1,6 +1,6 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchPropertyById } from '@/services/propertiesApi';
-import { Property } from '@/types/property';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { fetchPropertyById } from "@/services/propertiesApi";
+import { Property } from "@/types/property";
 
 interface PropertiesState {
   property: Property | null;
@@ -15,12 +15,12 @@ const initialState: PropertiesState = {
 };
 
 export const getPropertyById = createAsyncThunk(
-  'properties/getById',
+  "properties/getById",
   async (id: string, thunkAPI) => {
     try {
       return await fetchPropertyById(id);
     } catch (error: unknown) {
-      let errorMessage = 'Error desconocido';
+      let errorMessage = "Error desconocido";
       if (error instanceof Error) {
         errorMessage = error.message;
       }
@@ -29,9 +29,8 @@ export const getPropertyById = createAsyncThunk(
   }
 );
 
-
 const propertiesSlice = createSlice({
-  name: 'properties',
+  name: "properties",
   initialState,
   reducers: {
     clearProperty: (state) => {
@@ -40,9 +39,9 @@ const propertiesSlice = createSlice({
       state.error = null;
     },
     setProperty: (state, action) => {
-        state.property = action.payload;
-        state.loading = false;
-        state.error = null;
+      state.property = action.payload;
+      state.loading = false;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {

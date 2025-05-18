@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchZones, fetchZoneById } from '@/services/zoneApi';
-import { Zone } from '@/types/zone';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { fetchZones, fetchZoneById } from "@/services/zoneApi";
+import { Zone } from "@/types/zone";
 
 interface ZonesState {
   data: Zone[];
@@ -16,17 +16,17 @@ const initialState: ZonesState = {
   error: null,
 };
 
-export const getZones = createAsyncThunk('zones/fetch', async () => {
+export const getZones = createAsyncThunk("zones/fetch", async () => {
   return await fetchZones();
 });
 
 export const getZoneById = createAsyncThunk(
-  'zones/fetchById',
+  "zones/fetchById",
   async (id: string, thunkAPI) => {
     try {
       return await fetchZoneById(id);
     } catch (error: unknown) {
-      let errorMessage = 'Error desconocido';
+      let errorMessage = "Error desconocido";
       if (error instanceof Error) {
         errorMessage = error.message;
       }
@@ -36,7 +36,7 @@ export const getZoneById = createAsyncThunk(
 );
 
 const zoneSlice = createSlice({
-  name: 'zones',
+  name: "zones",
   initialState,
   reducers: {
     clearSelectedZone: (state) => {
@@ -60,7 +60,7 @@ const zoneSlice = createSlice({
       })
       .addCase(getZones.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Error al cargar zonas';
+        state.error = action.error.message || "Error al cargar zonas";
       })
       .addCase(getZoneById.pending, (state) => {
         state.loading = true;
