@@ -31,7 +31,13 @@ export default function RoomDetailPage() {
     <div className="max-w-4xl mx-auto py-10 px-4">
       {/* Imagen destacada */}
       <div className="relative w-full h-[300px] rounded-xl overflow-hidden shadow-lg">
-        <Image src={mainImage} alt={room.name} fill className="object-cover" />
+        <Image
+          src={mainImage}
+          alt={room.name}
+          fill
+          unoptimized
+          className="object-cover"
+        />
       </div>
 
       {/* Título y descripción */}
@@ -74,6 +80,7 @@ export default function RoomDetailPage() {
                   src={img}
                   alt={`Imagen ${i + 2}`}
                   fill
+                  unoptimized
                   className="object-cover"
                 />
               </div>

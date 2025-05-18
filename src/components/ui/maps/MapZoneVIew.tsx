@@ -109,6 +109,7 @@ export default function MapZoneView({
                       src={url}
                       alt={`Foto ${i + 1}`}
                       fill
+                      unoptimized
                       objectFit="cover"
                       className="rounded"
                     />

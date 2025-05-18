@@ -104,7 +104,9 @@ export default function PropertiesCard({
               <Star
                 key={i}
                 className={`w-4 h-4 ${
-                  i < rating ? "text-yellow-400" : "text-gray-300"
+                  i < rating
+                    ? "text-yellow-400 bg-yellow-400"
+                    : "text-gray-300 bg-gray-300"
                 }`}
               />
             ))}
