@@ -7,7 +7,7 @@ import type { AppDispatch, RootState } from "@/store";
 import ZoneCard from "../ui/cards/ZoneCard/ZoneCard";
 import { extractPoints } from "@/utils/mapUtils/extractPoints";
 import { parseAreaToCoordinates } from "@/utils/mapUtils/parseAreaToCoordiantes";
-
+import Spinner from "@/components/ui/spinners/Spinner";
 export default function ZoneSection() {
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -15,11 +15,13 @@ export default function ZoneSection() {
     loading,
     error,
   } = useSelector((state: RootState) => state.zones);
+
   useEffect(() => {
     dispatch(getZones());
   }, [dispatch]);
 
-  if (loading) return <p className="text-center">Cargando zonas...</p>;
+  if (loading) return <Spinner />;
+
   if (error) return <p className="text-center text-red-500">Error: {error}</p>;
 
   return (

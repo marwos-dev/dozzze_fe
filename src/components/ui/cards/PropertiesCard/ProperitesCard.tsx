@@ -21,7 +21,7 @@ export default function PropertiesCard({
   const rating = 4;
 
   return (
-    <div className="bg-dozebg1 rounded-3xl shadow-md overflow-hidden flex flex-col md:flex-row p-3 gap-4 min-h-[240px]">
+    <div className="bg-dozebg1 rounded-b-3xl rounded-t-xl shadow-md overflow-hidden flex flex-col md:flex-row p-4 gap-4 min-h-[240px]">
       {/* Imagen principal y miniaturas */}
       <div className="flex flex-col w-full md:w-[400px] gap-2">
         {/* Desktop */}
@@ -106,7 +106,7 @@ export default function PropertiesCard({
       </div>
 
       {/* Info y botón */}
-      <div className="flex flex-col justify-between flex-1 gap-3">
+      <div className="flex flex-col justify-between bg-greenlight p-3 rounded-xl flex-1 gap-3">
         {/* Encabezado */}
         <div>
           <h2 className="text-xl font-bold text-dozeblue">{name}</h2>
