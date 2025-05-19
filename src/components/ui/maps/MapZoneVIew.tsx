@@ -71,7 +71,7 @@ function SyncMapView({
 }
 
 const gpsIcon = new L.Icon({
-  iconUrl: "icons/pin.svg",
+  iconUrl: "/icons/pin.svg",
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
@@ -85,6 +85,18 @@ export default function MapZoneView({
   onCenterChange,
   onZoomChange,
 }: MapViewProps) {
+  const handleMarkerClick = (id?: number) => {
+    if (!id) return;
+    const target = document.getElementById(`property-${id}`);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      // Opcional: resaltar visualmente la tarjeta
+      target.classList.add("highlighted");
+      setTimeout(() => target.classList.remove("highlighted"), 1500);
+    }
+  };
+
   return (
     <MapContainer
       center={center}
@@ -96,7 +108,14 @@ export default function MapZoneView({
       <Polygon positions={zoneCoordinates} pathOptions={{ color: "#808080" }} />
 
       {pointsCoordinates.map((point, index) => (
-        <Marker key={index} position={point.position} icon={gpsIcon}>
+        <Marker
+          key={index}
+          position={point.position}
+          icon={gpsIcon}
+          eventHandlers={{
+            click: () => handleMarkerClick(point.id),
+          }}
+        >
           <Popup maxWidth={600}>
             {point.images && point.images.length > 0 ? (
               <div className="flex flex-col gap-3 w-[200px]">
