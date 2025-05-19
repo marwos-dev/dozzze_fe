@@ -8,7 +8,8 @@ export function extractPoints(properties: Zone["properties"]): PointWithMedia[] 
       return {
         id: prop.id,
         position: [coords[1], coords[0]],
-        images: prop.images,
+        coverImage: prop.cover_image,
+        name:prop.name
       };
     });
   }

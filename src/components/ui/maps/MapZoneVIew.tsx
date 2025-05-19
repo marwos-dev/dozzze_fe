@@ -90,10 +90,6 @@ export default function MapZoneView({
     const target = document.getElementById(`property-${id}`);
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "start" });
-
-      // Opcional: resaltar visualmente la tarjeta
-      target.classList.add("highlighted");
-      setTimeout(() => target.classList.remove("highlighted"), 1500);
     }
   };
 
@@ -116,27 +112,25 @@ export default function MapZoneView({
             click: () => handleMarkerClick(point.id),
           }}
         >
-          <Popup maxWidth={600}>
-            {point.images && point.images.length > 0 ? (
-              <div className="flex flex-col gap-3 w-[200px]">
-                {point.images.map((url, i) => (
-                  <div
-                    key={i}
-                    className="relative w-[200px] h-[150px] rounded overflow-hidden"
-                  >
-                    <Image
-                      src={url}
-                      alt={`Foto ${i + 1}`}
-                      fill
-                      objectFit="cover"
-                      className="rounded"
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <span className="text-base">Ubicación registrada</span>
-            )}
+          <Popup maxWidth={250}>
+            <div className="w-[200px] space-y-2 text-center">
+              <p className="text-sm font-semibold">{point.name}</p>
+
+              {point.coverImage ? (
+                <div className="relative w-full h-[120px] rounded overflow-hidden">
+                  <Image
+                    src={point.coverImage}
+                    alt={`Imagen de ${point.name}`}
+                    fill
+                    className="object-cover rounded"
+                  />
+                </div>
+              ) : (
+                <div className="text-xs text-gray-500">Sin imagen</div>
+              )}
+
+              <div className="text-yellow-500 text-sm">★★★★★</div>
+            </div>
           </Popup>
         </Marker>
       ))}

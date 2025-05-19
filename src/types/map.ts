@@ -1,7 +1,9 @@
 import type { LatLngExpression } from "leaflet";
 
 export interface PointWithMedia {
-  id: number; 
+  id?: number;
   position: LatLngExpression;
-  images?: string[];
+  name?: string;
+  coverImage?: string;
+  rating?: number;
 }
