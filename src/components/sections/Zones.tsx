@@ -5,28 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getZones } from "@/store/zoneSlice";
 import type { AppDispatch, RootState } from "@/store";
 import ZoneCard from "../ui/cards/ZoneCard/ZoneCard";
-import type { LatLngExpression } from "leaflet";
-import type { PointWithMedia } from "@/types/map";
-import type { Zone } from "@/types/zone";
-
-function parseAreaToCoordinates(area: string): LatLngExpression[] {
-  try {
-    const parsed = JSON.parse(area);
-    return parsed.coordinates[0].map((coord: number[]) => [coord[1], coord[0]]);
-  } catch {
-    return [];
-  }
-}
-
-function extractPoints(properties: Zone["properties"]): PointWithMedia[] {
-  return properties.map((prop) => {
-    const coords = JSON.parse(prop.location).coordinates;
-    return {
-      position: [coords[1], coords[0]],
-      images: prop.images,
-    };
-  });
-}
+import { extractPoints } from "@/utils/mapUtils/extractPoints";
+import { parseAreaToCoordinates } from "@/utils/mapUtils/parseAreaToCoordiantes";
 
 export default function ZoneSection() {
   const dispatch = useDispatch<AppDispatch>();
