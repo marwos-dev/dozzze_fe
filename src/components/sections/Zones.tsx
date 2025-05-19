@@ -24,8 +24,8 @@ export default function ZoneSection() {
 
   return (
     <div className="relative py-10">
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,_theme(colors.dozebg1)_65%,_theme(colors.greenlight)_75%)]" />
-      <div className="flex flex-wrap justify-center gap-6">
+      <div className="absolute inset-0 -z-10 bg-dozebg2" />
+      <div className="flex flex-wrap justify-center bg-dozebg2 gap-6">
         {zones.map((zone) => (
           <ZoneCard
             key={zone.id}

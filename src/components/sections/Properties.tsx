@@ -15,7 +15,7 @@ export default function Properties() {
   if (error) return <p>Hubo un error al cargar las zonas</p>;
 
   return (
-    <section className="max-w-6xl bg-greenlight mx-auto mt-10 p-4 space-y-6">
+    <section className="max-w-6xl bg-dozebg2 mx-auto mt-10 p-4 space-y-6">
       {zones?.map((zone) =>
         zone.properties?.map((property) => (
           <PropertiesCard key={property.id} {...property} zone={zone.name} />
