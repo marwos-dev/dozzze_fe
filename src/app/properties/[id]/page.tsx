@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { getPropertyById, setProperty } from "@/store/propertiesSlice";
 import RoomCard from "@/components/ui/cards/RoomsCard/RoomCard";
+import PropertyBanner from "@/components/ui/banners/PropertyBanner";
 import { Property } from "@/types/property";
 import { Room } from "@/types/room";
 
@@ -48,28 +49,37 @@ export default function PropertyDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4">
-      <h1 className="text-3xl font-bold text-dozeblue mb-6">{property.name}</h1>
+    // Aquí el wrapper que evita scroll lateral
 
-      {property.rooms?.length === 0 ? (
-        <p className="text-gray-500">
-          No hay habitaciones disponibles para esta propiedad.
-        </p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {property.rooms.map((room: Room) => (
-            <RoomCard
-              key={room.id}
-              id={room.id}
-              name={room.name}
-              description={room.description}
-              pax={room.pax}
-              services={room.services || []}
-              images={room.images || []}
-            />
-          ))}
-        </div>
-      )}
+    <div className="overflow-x-hidden">
+      {/* Banner full width sin scroll lateral */}
+      <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mb-8">
+        <PropertyBanner property={property} />
+      </div>
+      {/* Contenido centrado */}
+      <div className="max-w-6xl mx-auto px-4">
+        {property.rooms?.length === 0 ? (
+          <p className="text-gray-500">
+            No hay habitaciones disponibles para esta propiedad.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {property.rooms.map((room: Room) => (
+              <RoomCard
+                key={room.id}
+                id={room.id}
+                name={room.name}
+                description={room.description}
+                pax={room.pax}
+                services={room.services || []}
+                images={room.images || []}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+
     </div>
   );
 }
