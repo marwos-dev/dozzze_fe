@@ -30,7 +30,7 @@ export default function RoomCard({
     <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm bg-white">
       {/* Header: Imagen y nombre */}
       <div className="relative w-full h-[200px]">
-        <Image src={mainImage} alt={name} fill className="object-cover" />
+        <Image src={mainImage} alt={name} fill className="object-cover" unoptimized/>
         <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/70 to-transparent text-white p-3">
           <h3 className="text-lg font-bold">{name}</h3>
         </div>
