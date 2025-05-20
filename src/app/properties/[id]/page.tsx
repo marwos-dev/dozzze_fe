@@ -9,6 +9,7 @@ import RoomCard from "@/components/ui/cards/RoomsCard/RoomCard";
 import PropertyBanner from "@/components/ui/banners/PropertyBanner";
 import { Property } from "@/types/property";
 import { Room } from "@/types/room";
+import Spinner from "@/components/ui/spinners/Spinner";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -36,21 +37,12 @@ export default function PropertyDetailPage({ params }: PageProps) {
     }
   }, [id, zones, dispatch]);
 
-  if (loading) {
-    return <p className="text-center mt-20 text-lg">Cargando propiedad...</p>;
-  }
-
+  if (loading) return <Spinner />;
   if (error || !property) {
-    return (
-      <p className="text-center mt-20 text-lg text-red-600">
-        Propiedad no encontrada
-      </p>
-    );
+    return <p className="text-center text-red-500">Propiedad no encontrada.</p>;
   }
-
   return (
     // Aquí el wrapper que evita scroll lateral
-
     <div className="overflow-x-hidden">
       {/* Banner full width sin scroll lateral */}
       <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mb-8">
