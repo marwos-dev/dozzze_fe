@@ -23,12 +23,11 @@ export default function RoomCard({
   images,
 }: RoomCardProps) {
   const [expanded, setExpanded] = useState(false);
-  console.log(images, "estas son las imagenes")
-  const mainImage = images[0] || "/placeholder.jpg";
+  const mainImage = images[0] || "/images/img1.jpg";
   const router = useRouter();
 
   return (
-    <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+    <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm bg-dozebg1">
       {/* Header: Imagen y nombre */}
       <div className="relative w-full h-[200px]">
         <Image src={mainImage} alt={name} fill className="object-cover" />

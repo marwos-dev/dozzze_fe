@@ -7,7 +7,7 @@ import type { AppDispatch, RootState } from "@/store";
 import ZoneCard from "../ui/cards/ZoneCard/ZoneCard";
 import { extractPoints } from "@/utils/mapUtils/extractPoints";
 import { parseAreaToCoordinates } from "@/utils/mapUtils/parseAreaToCoordiantes";
-
+import Spinner from "@/components/ui/spinners/Spinner";
 export default function ZoneSection() {
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -15,17 +15,19 @@ export default function ZoneSection() {
     loading,
     error,
   } = useSelector((state: RootState) => state.zones);
+
   useEffect(() => {
     dispatch(getZones());
   }, [dispatch]);
 
-  if (loading) return <p className="text-center">Cargando zonas...</p>;
+  if (loading) return <Spinner />;
+
   if (error) return <p className="text-center text-red-500">Error: {error}</p>;
 
   return (
     <div className="relative py-10">
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,_theme(colors.dozebg1)_65%,_theme(colors.greenlight)_75%)]" />
-      <div className="flex flex-wrap justify-center gap-6">
+      <div className="absolute inset-0 -z-10 bg-dozebg2" />
+      <div className="flex flex-wrap justify-center bg-dozebg2 gap-6">
         {zones.map((zone) => (
           <ZoneCard
             key={zone.id}

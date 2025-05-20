@@ -53,7 +53,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
   const pointsCoordinates = extractPoints(selectedZone.properties);
 
   return (
-    <div className="w-full bg-greenlight mx-auto p-4 space-y-6">
+    <div className="w-full bg-dozebg2 mx-auto p-4 space-y-6">
       <div className="justify-center p-4 rounded-lg">
         <ZoneBanner
           zoneCoordinates={zoneCoordinates}

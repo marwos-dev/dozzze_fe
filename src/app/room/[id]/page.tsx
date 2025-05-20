@@ -74,6 +74,7 @@ export default function RoomDetailPage() {
                   src={img}
                   alt={`Imagen ${i + 2}`}
                   fill
+                  unoptimized
                   className="object-cover"
                 />
               </div>
