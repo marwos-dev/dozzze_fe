@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ChevronDown,
-  ChevronUp,
   ChevronLeft,
   ChevronRight,
   Users,
