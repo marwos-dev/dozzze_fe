@@ -16,8 +16,9 @@ const getMethodIcon = (method: string) => {
 
 export default function PropertyCardActions({ id, communication_methods, roomsCount }: PropertyCardActionsProps) {
     return (
-        <div className="flex flex-col justify-between mt-2 items-start md:items-end w-full md:w-[240px] gap-4">
-            <div className="flex flex-wrap gap-2 w-full justify-start md:justify-end">
+        <div className="flex flex-col items-center md:items-end gap-4 text-center md:text-right w-full h-full">
+            {/* Métodos de contacto */}
+            <div className="flex flex-wrap gap-2 justify-center md:justify-end">
                 {(communication_methods.length > 0 ? communication_methods : ["No disponible"]).map((method, i) => (
                     <span
                         key={i}
@@ -28,17 +29,20 @@ export default function PropertyCardActions({ id, communication_methods, roomsCo
                     </span>
                 ))}
             </div>
-            <div className="flex flex-col items-start md:items-end w-full gap-2">
-                <p className="text-sm font-semibold text-dozeblue text-left md:text-right">
+
+            {/* Habitaciones + botón */}
+            <div className="flex flex-col items-center md:items-end gap-2 w-full">
+                <p className="text-sm font-semibold  text-dozeblue">
                     Habitaciones disponibles: {roomsCount}
                 </p>
                 <Link
                     href={`/properties/${id}`}
-                    className="inline-flex items-center bg-dozeblue mb-1 text-white px-4 py-2 text-sm rounded-full font-medium hover:bg-blue-900 transition"
+                    className="inline-flex items-center bg-dozeblue text-white px-4 py-2 text-sm rounded-full font-medium hover:bg-blue-900 transition mt-0 md:mt-30"
                 >
                     Ver Habitaciones
                     <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
+
             </div>
         </div>
     );

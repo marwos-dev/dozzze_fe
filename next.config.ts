@@ -11,13 +11,19 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'motorbusqueda.s3.amazonaws.com',
+        hostname: 'motorbusqueda.s3.us-east-1.amazonaws.com',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'motorbusqueda.s3.us-east-1.amazonaws.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'motorbusqueda.s3.amazonaws.com',
         port: '',
         pathname: '/**',
       },
