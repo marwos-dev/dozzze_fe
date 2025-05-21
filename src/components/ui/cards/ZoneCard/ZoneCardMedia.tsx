@@ -44,6 +44,8 @@ export default function ZoneCardMedia({
   const handleExpand = () => setShowOverlayMap(true);
   const handleCollapse = () => setShowOverlayMap(false);
 
+  const isValidImage = selectedImage && selectedImage.trim() !== "";
+
   return (
     <>
       <motion.div
@@ -79,7 +81,7 @@ export default function ZoneCardMedia({
                 Expandir
               </button>
             </motion.div>
-          ) : (
+          ) : isValidImage ? (
             <motion.div
               key={selectedImage}
               initial={{ opacity: 0, x: 30 }}
@@ -92,12 +94,12 @@ export default function ZoneCardMedia({
                 src={selectedImage}
                 alt="Imagen de la zona"
                 fill
-                unoptimized
+                sizes="(max-width: 768px) 100vw, 700px"
                 style={{ objectFit: "cover" }}
                 className="rounded-none"
               />
             </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
       </motion.div>
 
