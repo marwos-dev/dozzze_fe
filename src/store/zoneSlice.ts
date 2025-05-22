@@ -16,24 +16,48 @@ const initialState: ZonesState = {
   error: null,
 };
 
-export const getZones = createAsyncThunk("zones/fetch", async () => {
+// Fetch all zones, but avoid fetching if already in state
+export const getZones = createAsyncThunk<
+  Zone[],
+  void,
+  { state: { zones: ZonesState } }
+>("zones/fetch", async (_, thunkAPI) => {
+  const state = thunkAPI.getState();
+  if (state.zones.data.length > 0) {
+    // Evitar el fetch si ya tenemos datos
+    return thunkAPI.rejectWithValue("Ya existen zonas cargadas en el estado");
+  }
   return await fetchZones();
 });
 
-export const getZoneById = createAsyncThunk(
-  "zones/fetchById",
-  async (id: string, thunkAPI) => {
-    try {
-      return await fetchZoneById(id);
-    } catch (error: unknown) {
-      let errorMessage = "Error desconocido";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      return thunkAPI.rejectWithValue(errorMessage);
-    }
+// Fetch one zone by ID, check if it's already selected or in data
+export const getZoneById = createAsyncThunk<
+  Zone,
+  string,
+  { state: { zones: ZonesState }; rejectValue: string }
+>("zones/fetchById", async (id, thunkAPI) => {
+  const state = thunkAPI.getState();
+  const { selectedZone, data } = state.zones;
+
+  if (selectedZone?.id.toString() === id) {
+    return selectedZone;
   }
-);
+
+  const foundZone = data.find((z) => z.id.toString() === id);
+  if (foundZone) {
+    return foundZone;
+  }
+
+  try {
+    return await fetchZoneById(id);
+  } catch (error: unknown) {
+    let errorMessage = "Error desconocido";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
+});
 
 const zoneSlice = createSlice({
   name: "zones",
@@ -59,8 +83,11 @@ const zoneSlice = createSlice({
         state.loading = false;
       })
       .addCase(getZones.rejected, (state, action) => {
+        // Solo mostrar error si no fue por zonas ya cargadas
+        if (action.payload !== "Ya existen zonas cargadas en el estado") {
+          state.error = action.payload as string;
+        }
         state.loading = false;
-        state.error = action.error.message || "Error al cargar zonas";
       })
       .addCase(getZoneById.pending, (state) => {
         state.loading = true;
@@ -72,7 +99,7 @@ const zoneSlice = createSlice({
       })
       .addCase(getZoneById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload || "Error al cargar zona";
       });
   },
 });

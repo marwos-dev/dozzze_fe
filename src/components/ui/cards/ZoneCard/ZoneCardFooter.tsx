@@ -26,8 +26,9 @@ export default function ZoneCardFooter({
         {imageUrls.map((url, index) => (
           <div
             key={index}
-            className={`relative w-20 h-14 rounded-md cursor-pointer overflow-hidden border-2 ${url === selectedImage ? "border-dozeblue" : "border-transparent"
-              }`}
+            className={`relative w-20 h-14 rounded-md cursor-pointer overflow-hidden border-2 ${
+              url === selectedImage ? "border-dozeblue" : "border-transparent"
+            }`}
             onClick={() => {
               setSelectedImage(url);
               setShowMap(false);

@@ -26,6 +26,5 @@ export default function PropertiesCard(props: Property) {
         </div>
       </div>
     </div>
-
   );
 }

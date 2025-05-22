@@ -46,9 +46,10 @@ export default function HomeSlider() {
           const className = isActive
             ? `${baseClass} w-full h-full z-30 scale-100 opacity-100 blur-0`
             : isPrev || isNext
-              ? `${baseClass} w-3/4 h-4/5 z-20 scale-90 opacity-60 blur-sm ${isPrev ? "-translate-x-1/2 left-0" : "translate-x-1/2 right-0"
+            ? `${baseClass} w-3/4 h-4/5 z-20 scale-90 opacity-60 blur-sm ${
+                isPrev ? "-translate-x-1/2 left-0" : "translate-x-1/2 right-0"
               }`
-              : "hidden";
+            : "hidden";
 
           return (
             <div className={className} key={index}>
@@ -59,6 +60,7 @@ export default function HomeSlider() {
                 sizes="(max-width: 768px) 100vw, 700px"
                 className="object-cover rounded-3xl"
                 priority={isActive}
+                unoptimized
               />
             </div>
           );

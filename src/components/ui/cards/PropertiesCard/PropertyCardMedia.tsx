@@ -36,7 +36,7 @@ export default function PropertyCardMedia({ images, coverImage }: PropertyCardMe
                     )}
                 </div>
                 <div className="relative flex-1 rounded-xl overflow-hidden h-[220px]">
-                    <Image src={mainImage} alt="Main image" fill sizes="(max-width: 768px) 100vw, 330px" className="object-cover" />
+                    {/*<Image src={mainImage} alt="Main image" fill sizes="(max-width: 768px) 100vw, 330px" className="object-cover" />*/}
                 </div>
             </div>
 

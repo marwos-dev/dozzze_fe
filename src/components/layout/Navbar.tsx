@@ -16,7 +16,7 @@ export default function Navbar() {
     <nav className="bg-greenlight shadow-md sticky  top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <Link href="#inicio" className="text-xl font-bold text-dozeblue">
+          <Link href="/" className="text-xl font-bold text-dozeblue">
             DOZZZE
           </Link>
 

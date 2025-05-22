@@ -2,14 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Users,
-  CheckCircle,
-} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronDown, ChevronUp, Users, CheckCircle } from "lucide-react";
 
 interface RoomCardProps {
   id: number | string;
@@ -29,67 +23,38 @@ export default function RoomCard({
   images,
 }: RoomCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const [currentImage, setCurrentImage] = useState(0);
-  const hasMultipleImages = images.length > 1;
-  const mainImage = images?.[currentImage] ?? "/images/img1.jpg";
-
-  const formatPax = (count: number) =>
-    `Capacidad: ${count} persona${count !== 1 ? "s" : ""}`;
-
-  const nextImage = () =>
-    setCurrentImage((prev) => (prev + 1) % images.length);
-  const prevImage = () =>
-    setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
+  const mainImage = images[0] || "/placeholder.jpg";
+  const router = useRouter();
 
   return (
-    <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm bg-dozebg1">
-      {/* Slider o imagen única */}
+    <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+      {/* Header: Imagen y nombre */}
       <div className="relative w-full h-[200px]">
         <Image
-          key={mainImage}
           src={mainImage}
-          alt={`${name} - Imagen ${currentImage + 1}`}
+          alt={name}
           fill
-          className="object-cover transition-opacity duration-300"
+          className="object-cover"
+          unoptimized
         />
-
-        {hasMultipleImages && (
-          <>
-            <button
-              onClick={prevImage}
-              className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-1 rounded-full"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={nextImage}
-              className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-1 rounded-full"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </>
-        )}
-
         <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/70 to-transparent text-white p-3">
           <h3 className="text-lg font-bold">{name}</h3>
         </div>
       </div>
 
-      {/* Contenido */}
+      {/* Cuerpo: Descripción, pax, servicios */}
       <div className="p-4 flex flex-col gap-2">
         <p className="text-dozeblue text-sm">{description}</p>
 
         <div className="flex items-center gap-2 text-sm text-gray-700">
           <Users className="w-4 h-4" />
-          <span>{formatPax(pax)}</span>
+          <span>
+            Capacidad: {pax} persona{pax > 1 ? "s" : ""}
+          </span>
         </div>
 
-        {/* Servicios expandibles */}
-        <div
-          className={`transition-all duration-300 ease-in-out ${expanded ? "max-h-[500px] opacity-100 mt-2" : "max-h-0 opacity-0 overflow-hidden"
-            }`}
-        >
-          <div className="flex flex-col gap-1">
+        {expanded && (
+          <div className="flex flex-col gap-1 mt-2">
             <h4 className="font-semibold text-sm text-dozeblue">Servicios:</h4>
             <ul className="text-sm text-gray-600 list-none flex flex-col gap-1">
               {services.length > 0 ? (
@@ -104,29 +69,28 @@ export default function RoomCard({
               )}
             </ul>
           </div>
-        </div>
+        )}
 
-        {/* Botón mostrar más / menos */}
+        {/* Botón expandir/colapsar */}
         <button
           onClick={() => setExpanded(!expanded)}
-          aria-expanded={expanded}
-          className="mt-3 self-start bg-greenlight text-dozeblue px-3 py-1.5 text-sm rounded-full flex items-center gap-1 hover:bg-blue-100 transition"
+          className="mt-2 inline-flex items-center text-sm text-blue-600 hover:underline"
         >
           {expanded ? "Mostrar menos" : "Mostrar más"}
-          <span
-            className={`transform transition-transform duration-200 ${expanded ? "rotate-180" : ""
-              }`}
-          >
-            <ChevronDown className="w-4 h-4" />
-          </span>
+          {expanded ? (
+            <ChevronUp className="w-4 h-4 ml-1" />
+          ) : (
+            <ChevronDown className="w-4 h-4 ml-1" />
+          )}
         </button>
 
-        {/* Botón de inspección */}
-        <Link href={`/room/${id}`}>
-          <button className="mt-4 w-full bg-dozeblue text-greenlight py-2 rounded hover:bg-opacity-90 transition">
-            Inspeccionar habitación
-          </button>
-        </Link>
+        {/* Botón inspeccionar habitación */}
+        <button
+          onClick={() => router.push(`/room/${id}`)}
+          className="mt-4 w-full bg-dozeblue text-greenlight py-2 rounded hover:bg-opacity-90 transition"
+        >
+          Inspeccionar habitación
+        </button>
       </div>
     </div>
   );
