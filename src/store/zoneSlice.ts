@@ -33,23 +33,18 @@ export const getZones = createAsyncThunk<
 // Fetch one zone by ID, check if it's already selected or in data
 export const getZoneById = createAsyncThunk<
   Zone,
-  string,
+  number,
   { state: { zones: ZonesState }; rejectValue: string }
 >("zones/fetchById", async (id, thunkAPI) => {
   const state = thunkAPI.getState();
-  const { selectedZone, data } = state.zones;
-
-  if (selectedZone?.id.toString() === id) {
-    return selectedZone;
-  }
-
-  const foundZone = data.find((z) => z.id.toString() === id);
+  const { data } = state.zones;
+  const foundZone = data.find((z) => z.id === id);
   if (foundZone) {
     return foundZone;
   }
 
   try {
-    return await fetchZoneById(id);
+    return await fetchZoneById(Number(id));
   } catch (error: unknown) {
     let errorMessage = "Error desconocido";
     if (error instanceof Error) {
@@ -67,9 +62,12 @@ const zoneSlice = createSlice({
       state.selectedZone = null;
     },
     setSelectedZone: (state, action) => {
-      state.selectedZone = action.payload;
-      state.loading = false;
-      state.error = null;
+      const foundZone = state.data.find((z) => z.id === action.payload);
+      if (foundZone) {
+          state.selectedZone = foundZone;
+          state.loading = false;
+          state.error = null;
+      }
     },
   },
   extraReducers: (builder) => {

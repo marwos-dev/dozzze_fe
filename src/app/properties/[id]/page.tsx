@@ -3,16 +3,15 @@
 import { use, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { getPropertyById, setProperty } from "@/store/propertiesSlice";
+import { getPropertyById } from "@/store/propertiesSlice";
 import { setRoomsForProperty } from "@/store/roomsSlice";
 import RoomCard from "@/components/ui/cards/RoomsCard/RoomCard";
 import PropertyBanner from "@/components/ui/banners/PropertyBanner";
-import { Property } from "@/types/property";
 import { Room } from "@/types/room";
 import Spinner from "@/components/ui/spinners/Spinner";
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: number }>;
 }
 
 export default function PropertyDetailPage({ params }: PageProps) {
@@ -25,7 +24,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
   const zones = useSelector((state: RootState) => state.zones.data);
 
   useEffect(() => {
-    if (!selectedProperty) {
+    if (!selectedProperty && id) {
       dispatch(getPropertyById(id));
     }
   }, [id, zones, dispatch, selectedProperty]);

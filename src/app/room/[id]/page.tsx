@@ -19,7 +19,7 @@ export default function RoomDetailPage() {
 
   useEffect(() => {
     if (id) {
-      dispatch(getRoomById(id as string));
+      dispatch(getRoomById(Number(id)));
     }
   }, [id, dispatch]);
 

@@ -7,43 +7,43 @@ import { Room } from "@/types/room";
 import { RootState } from "../store"; // Asegúrate que este sea el path correcto
 
 interface RoomsState {
-  data: Record<string, Room[]>; // Record[propertyId, Room[]]
+  roomsByProperty: Record<number, Room[]>; // Record[propertyId, Room[]]
   selectedRoom: Room | null;
   loading: boolean;
   error: string | null;
 }
 
 interface GetRoomsRequest {
-  zoneId?: string;
-  propertyId?: string;
+  zoneId?: number;
+  propertyId?: number;
 }
 
 interface FetchRoomsResponse {
-  zoneId?: string;
-  propertyId: string;
+  zoneId?: number;
+  propertyId: number;
   rooms: Room[];
 }
 
 const initialState: RoomsState = {
-  data: {},
+  roomsByProperty: {},
   selectedRoom: null,
   loading: false,
   error: null,
 };
 
 // Get single room by ID
-export const getRoomById = createAsyncThunk<Room, string, { state: RootState }>(
+export const getRoomById = createAsyncThunk<Room, number, { state: RootState }>(
   "rooms/getById",
   async (id, thunkAPI) => {
     const state = thunkAPI.getState();
-    const allRooms = Object.values(state.rooms.data).flat();
-    const foundRoom = allRooms.find((room) => room.id.toString() === id);
+    const allRooms = Object.values(state.rooms.roomsByProperty).flat();
+    const foundRoom = allRooms.find((room) => room.id === id);
 
     if (foundRoom) {
       return foundRoom;
     }
 
-    return await fetchRoomById(id);
+    return await fetchRoomById(Number(id));
   }
 );
 
@@ -58,7 +58,7 @@ export const fetchRooms = createAsyncThunk<
   }
 
   const state = thunkAPI.getState();
-  const roomsExist = state.rooms.data[propertyId];
+  const roomsExist = state.rooms.roomsByProperty[propertyId];
 
   if (roomsExist) {
     return {
@@ -69,7 +69,7 @@ export const fetchRooms = createAsyncThunk<
   }
 
   try {
-    const rooms = await apiGetRooms(zoneId, propertyId);
+    const rooms = await apiGetRooms(Number(zoneId), Number(propertyId));
     return { zoneId, propertyId, rooms };
   } catch (error: unknown) {
     let errorMessage = "Error desconocido";
@@ -87,18 +87,18 @@ const roomsSlice = createSlice({
     },
     setRoomsForProperty(
       state,
-      action: PayloadAction<{ propertyId: string; rooms: Room[] }>
+      action: PayloadAction<{ propertyId: number; rooms: Room[] }>
     ) {
       const { propertyId, rooms } = action.payload;
-      state.data[propertyId] = rooms;
+      state.roomsByProperty[propertyId] = rooms;
     },
-    clearRoomsForProperty(state, action: PayloadAction<string>) {
+    clearRoomsForProperty(state, action: PayloadAction<number>) {
       const propertyId = action.payload;
-      delete state.data[propertyId];
+      delete state.roomsByProperty[propertyId];
     },
     setSelectedRoom(state, action: PayloadAction<number>) {
       const roomId = action.payload;
-      const allRooms = Object.values(state.data).flat();
+      const allRooms = Object.values(state.roomsByProperty).flat();
       const foundRoom = allRooms.find((room) => room.id === roomId);
       if (foundRoom) {
         state.selectedRoom = foundRoom;
@@ -113,7 +113,7 @@ const roomsSlice = createSlice({
       })
       .addCase(fetchRooms.fulfilled, (state, action) => {
         const { propertyId, rooms } = action.payload;
-        state.data[propertyId] = rooms;
+        state.roomsByProperty[propertyId] = rooms;
         state.loading = false;
         state.error = null;
       })

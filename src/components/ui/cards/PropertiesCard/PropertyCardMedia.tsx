@@ -43,7 +43,7 @@ export default function PropertyCardMedia({ images, coverImage }: PropertyCardMe
             {/* Mobile */}
             <div className="md:hidden flex flex-col gap-2">
                 <div className="relative w-full h-[180px] rounded-xl overflow-hidden">
-                    <Image src={mainImage} alt="Main image" fill className="object-cover" />
+                    {/*<Image src={mainImage} alt="Main image" fill className="object-cover" />*/}
                 </div>
                 <div className="flex gap-2">
                     {thumbnails.map((src, i) => (
