@@ -64,9 +64,9 @@ const zoneSlice = createSlice({
     setSelectedZone: (state, action) => {
       const foundZone = state.data.find((z) => z.id === action.payload);
       if (foundZone) {
-          state.selectedZone = foundZone;
-          state.loading = false;
-          state.error = null;
+        state.selectedZone = foundZone;
+        state.loading = false;
+        state.error = null;
       }
     },
   },

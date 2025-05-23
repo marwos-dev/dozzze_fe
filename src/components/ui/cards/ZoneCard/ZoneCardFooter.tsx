@@ -1,11 +1,9 @@
 "use client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import {setSelectedZone} from "@/store/zoneSlice";
+import { setSelectedZone } from "@/store/zoneSlice";
 import { AppDispatch } from "@/store";
 import { useDispatch } from "react-redux";
-
-
 
 interface ZoneCardFooterProps {
   id: number;
@@ -24,7 +22,6 @@ export default function ZoneCardFooter({
 }: ZoneCardFooterProps) {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-
 
   return (
     <div className="bg-dozebg1 mt-1 mb-4 px-4 shadow-md rounded-b-lg">
@@ -57,7 +54,7 @@ export default function ZoneCardFooter({
         <button
           onClick={() => {
             dispatch(setSelectedZone(id));
-            router.push(`/zone/${id}`)
+            router.push(`/zone/${id}`);
           }}
           className="bg-dozeblue text-greenlight text-sm px-4 py-2 rounded hover:bg-opacity-90 transition-all ease-in-out duration-300 w-full"
         >
