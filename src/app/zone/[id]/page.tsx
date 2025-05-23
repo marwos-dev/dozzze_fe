@@ -4,17 +4,16 @@ import { use } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { getZoneById, setSelectedZone } from "@/store/zoneSlice";
+import { getZoneById } from "@/store/zoneSlice";
 import PropertiesCard from "@/components/ui/cards/PropertiesCard/ProperitesCard";
 import ZoneBanner from "@/components/ui/banners/ZoneBanner";
 import { parseAreaToCoordinates } from "@/utils/mapUtils/parseAreaToCoordiantes";
 import { extractPoints } from "@/utils/mapUtils/extractPoints";
 
-import type { Zone } from "@/types/zone";
 import { Property } from "@/types/property";
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: number }>;
 }
 
 export default function ZoneDetailPage({ params }: PageProps) {
@@ -25,24 +24,18 @@ export default function ZoneDetailPage({ params }: PageProps) {
     selectedZone,
     loading,
     error,
-    data: zones,
   } = useSelector((state: RootState) => state.zones);
 
   useEffect(() => {
-    const existingZone: Zone | undefined = zones.find(
-      (zone) => String(zone.id) === id
-    );
-
-    if (existingZone) {
-      dispatch(setSelectedZone(existingZone));
-    } else {
+    if (!selectedZone) {
       dispatch(getZoneById(id));
     }
-  }, [id, zones, dispatch]);
+  }, [id, dispatch, selectedZone]);
 
-  if (loading)
+  if (loading || !selectedZone)
     return <p className="text-center mt-20 text-lg">Cargando zona...</p>;
-  if (error || !selectedZone)
+
+  if (error)
     return (
       <p className="text-center mt-20 text-lg text-red-600">
         Zona no encontrada

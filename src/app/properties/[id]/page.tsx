@@ -1,44 +1,44 @@
 "use client";
 
-import { use } from "react";
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { getPropertyById, setProperty } from "@/store/propertiesSlice";
+import { getPropertyById } from "@/store/propertiesSlice";
+import { setRoomsForProperty } from "@/store/roomsSlice";
 import RoomCard from "@/components/ui/cards/RoomsCard/RoomCard";
 import PropertyBanner from "@/components/ui/banners/PropertyBanner";
-import { Property } from "@/types/property";
 import { Room } from "@/types/room";
 import Spinner from "@/components/ui/spinners/Spinner";
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: number }>;
 }
 
 export default function PropertyDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const dispatch = useDispatch<AppDispatch>();
 
-  const { property, loading, error } = useSelector(
+  const { selectedProperty, loading, error } = useSelector(
     (state: RootState) => state.properties
   );
   const zones = useSelector((state: RootState) => state.zones.data);
 
   useEffect(() => {
-    const allProperties = zones.flatMap((zone) => zone.properties || []);
-    const found: Property | undefined = allProperties.find(
-      (p) => String(p.id) === id
-    );
-
-    if (found) {
-      dispatch(setProperty(found));
-    } else {
+    if (!selectedProperty && id) {
       dispatch(getPropertyById(id));
     }
-  }, [id, zones, dispatch]);
+  }, [id, zones, dispatch, selectedProperty]);
 
-  if (loading) return <Spinner />;
-  if (error || !property) {
+  useEffect(() => {
+    if (selectedProperty?.rooms && selectedProperty?.rooms.length > 0) {
+      const rooms = selectedProperty.rooms || [];
+      dispatch(setRoomsForProperty({ propertyId: id, rooms }));
+    }
+  }, [dispatch, selectedProperty, id]);
+
+  if (loading || !selectedProperty) return <Spinner />;
+
+  if (error) {
     return <p className="text-center text-red-500">Propiedad no encontrada.</p>;
   }
   return (
@@ -46,17 +46,17 @@ export default function PropertyDetailPage({ params }: PageProps) {
     <div className="overflow-x-hidden">
       {/* Banner full width sin scroll lateral */}
       <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mb-8">
-        <PropertyBanner property={property} />
+        <PropertyBanner property={selectedProperty} />
       </div>
       {/* Contenido centrado */}
       <div className="max-w-6xl mx-auto px-4">
-        {property.rooms?.length === 0 ? (
+        {selectedProperty.rooms?.length === 0 ? (
           <p className="text-gray-500">
             No hay habitaciones disponibles para esta propiedad.
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {property.rooms.map((room: Room) => (
+            {selectedProperty.rooms.map((room: Room) => (
               <RoomCard
                 key={room.id}
                 id={room.id}
@@ -70,8 +70,6 @@ export default function PropertyDetailPage({ params }: PageProps) {
           </div>
         )}
       </div>
-
-
     </div>
   );
 }

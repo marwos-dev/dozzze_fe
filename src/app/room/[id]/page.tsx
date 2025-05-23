@@ -1,44 +1,52 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getRoomById } from "@/store/roomsSlice";
 import Image from "next/image";
 import { CheckCircle, Users } from "lucide-react";
-import type { RootState } from "@/store";
-import { useState } from "react";
+import { AppDispatch, RootState } from "@/store";
+import { useState, useEffect } from "react";
+import Spinner from "@/components/ui/spinners/Spinner";
 
 export default function RoomDetailPage() {
   const { id } = useParams();
-  const roomId = typeof id === "string" ? id : id?.[0];
-
-  const { property, loading, error } = useSelector(
-    (state: RootState) => state.properties
+  // const dispatch = useDispatch<AppDispatch>();
+  const { selectedRoom, loading, error } = useSelector(
+    (state: RootState) => state.rooms
   );
-  const room = property?.rooms?.find((r) => String(r.id) === roomId);
+  const dispatch = useDispatch<AppDispatch>();
 
-  const services = room?.services ?? [];
-  const images = room?.images ?? [];
+  useEffect(() => {
+    if (id) {
+      dispatch(getRoomById(Number(id)));
+    }
+  }, [id, dispatch]);
 
-  const [selectedImage, setSelectedImage] = useState(images[0] || "/placeholder.jpg");
+  const services = selectedRoom?.services ?? [];
+  const images = selectedRoom?.images ?? [];
 
-  if (loading)
-    return <p className="text-center text-dozeblue">Cargando habitación...</p>;
-  if (error || !property)
+  const [selectedImage, setSelectedImage] = useState(
+    images[0] || "/placeholder.jpg"
+  );
+
+  if (loading) return <Spinner />;
+  if (error || !selectedRoom)
     return (
       <p className="text-center text-red-500">Error cargando habitación</p>
     );
-  if (!room)
+  if (!selectedRoom)
     return (
       <p className="text-center text-gray-500">Habitación no encontrada</p>
     );
 
   return (
-    <div className="max-w-5xl mx-auto py-10 px-4 bg-dozebg1 rounded-xl shadow-md">
+    <div className="max-w-5xl mx-auto py-10 px-4 bg-dozebg1 rounded-xl shadow-md mt-10">
       {/* Imagen principal */}
       <div className="relative w-full h-[300px] rounded-xl overflow-hidden shadow">
         <Image
           src={selectedImage}
-          alt={room.name}
+          alt={selectedRoom.name}
           fill
           className="object-cover"
           unoptimized
@@ -52,10 +60,9 @@ export default function RoomDetailPage() {
             <button
               key={i}
               onClick={() => setSelectedImage(img)}
-              className={`relative w-28 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 ${selectedImage === img
-                  ? "border-dozeblue"
-                  : "border-transparent"
-                }`}
+              className={`relative w-28 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 ${
+                selectedImage === img ? "border-dozeblue" : "border-transparent"
+              }`}
             >
               <Image
                 src={img}
@@ -71,13 +78,16 @@ export default function RoomDetailPage() {
 
       {/* Info básica */}
       <div className="mt-6 space-y-3">
-        <h1 className="text-3xl font-bold text-dozeblue">{room.name}</h1>
-        <p className="text-gray-700">{room.description}</p>
+        <h1 className="text-3xl font-bold text-dozeblue">
+          {selectedRoom.name}
+        </h1>
+        <p className="text-gray-700">{selectedRoom.description}</p>
 
         <div className="flex items-center gap-2 text-gray-700">
           <Users className="w-5 h-5" />
           <span>
-            Capacidad: {room.pax} persona{room.pax > 1 ? "s" : ""}
+            Capacidad: {selectedRoom.pax} persona
+            {selectedRoom.pax > 1 ? "s" : ""}
           </span>
         </div>
       </div>

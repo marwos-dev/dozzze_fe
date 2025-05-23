@@ -1,4 +1,4 @@
-import { Room } from "./room";
+import { Property } from "./property";
 
 export interface Zone {
   id: number;
@@ -7,16 +7,5 @@ export interface Zone {
   area: string;
   cover_image: string | null;
   images: string[];
-  properties: {
-    id: number;
-    name: string;
-    zone: string;
-    description: string;
-    address: string;
-    cover_image: string;
-    images: string[];
-    rooms: Room[];
-    communication_methods: string[];
-    location: string;
-  }[];
+  properties: Property[];
 }
