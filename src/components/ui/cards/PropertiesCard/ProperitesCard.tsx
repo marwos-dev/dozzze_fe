@@ -18,11 +18,15 @@ export default function PropertiesCard(props: Property) {
 
   return (
     <div className="bg-dozebg1 max-w-6xl rounded-3xl mx-1 m-2 md:mx-2 shadow-md overflow-hidden p-4 flex flex-col md:flex-row gap-4">
-      <PropertyCardMedia
-        images={props.images}
-        coverImage={props.cover_image}
-        onImageClick={openModalAtIndex} 
-      />
+      <div 
+        style={{ backgroundColor: "#e6e4ff" }}
+        className="rounded-3xl p-2">
+        <PropertyCardMedia
+          images={props.images}
+          coverImage={props.cover_image}
+          onImageClick={openModalAtIndex} 
+        />
+      </div>
 
       <div className="flex flex-col md:flex-row flex-1 gap-4">
         <div className="flex-1">

@@ -80,11 +80,6 @@ export default function PropertyCardMedia({
                 if (onImageClick) onImageClick(images.indexOf(src));
               }}
               className={`relative w-[80px] h-[54px] rounded-xl overflow-hidden border shadow-sm hover:scale-[1.03] transition
-                ${
-                  mainImage === src
-                    ? "border-blue-500 ring-2 ring-blue-400"
-                    : "border-white"
-                }
               `}
             >
               <Image
