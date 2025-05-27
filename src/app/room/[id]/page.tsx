@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useParams } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import { getRoomById } from "@/store/roomsSlice";
-import Image from "next/image";
-import { CheckCircle, Users } from "lucide-react";
-import { AppDispatch, RootState } from "@/store";
-import { useState, useEffect } from "react";
-import Spinner from "@/components/ui/spinners/Spinner";
-import ImageGalleryModal from "@/components/ui/modals/ImageGaleryModal";
+import { useParams } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { getRoomById } from '@/store/roomsSlice';
+import Image from 'next/image';
+import { CheckCircle, Users } from 'lucide-react';
+import { AppDispatch, RootState } from '@/store';
+import { useState, useEffect, useMemo } from 'react';
+import Spinner from '@/components/ui/spinners/Spinner';
+import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
 
 export default function RoomDetailPage() {
   const { id } = useParams();
@@ -24,9 +24,9 @@ export default function RoomDetailPage() {
   }, [id, dispatch]);
 
   const services = selectedRoom?.services ?? [];
-  const images = selectedRoom?.images ?? [];
+  const images = useMemo(() => selectedRoom?.images ?? [], [selectedRoom]);
 
-  const [selectedImage, setSelectedImage] = useState(images[0] || "/placeholder.jpg");
+  const [selectedImage, setSelectedImage] = useState(images[0] || '/placeholder.jpg');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -51,7 +51,6 @@ export default function RoomDetailPage() {
     <div className="max-w-5xl mx-auto py-10 px-4 bg-dozebg1 rounded-xl shadow-md mt-10">
       {/* Galería */}
       <div className="bg-gray-100 p-5 rounded-xl shadow-inner">
-        {/* Imagen principal */}
         <div
           className="relative w-full h-[300px] rounded-xl overflow-hidden shadow-md cursor-pointer"
           onClick={() => openLightbox(images.indexOf(selectedImage))}
@@ -65,7 +64,6 @@ export default function RoomDetailPage() {
           />
         </div>
 
-        {/* Miniaturas */}
         {images.length > 1 && (
           <div className="mt-4 flex overflow-x-auto gap-3 pb-2">
             {images.map((img, i) => (
@@ -77,8 +75,8 @@ export default function RoomDetailPage() {
                 }}
                 className={`relative w-28 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:opacity-90 ${
                   selectedImage === img
-                    ? "border-dozeblue ring-2 ring-dozeblue"
-                    : "border-transparent"
+                    ? 'border-dozeblue ring-2 ring-dozeblue'
+                    : 'border-transparent'
                 }`}
               >
                 <Image
@@ -94,18 +92,16 @@ export default function RoomDetailPage() {
         )}
       </div>
 
-      {/* Info básica */}
+      {/* Info */}
       <div className="mt-8 space-y-3">
-        <h1 className="text-3xl font-bold text-dozeblue">
-          {selectedRoom.name}
-        </h1>
+        <h1 className="text-3xl font-bold text-dozeblue">{selectedRoom.name}</h1>
         <p className="text-gray-700">{selectedRoom.description}</p>
 
         <div className="flex items-center gap-2 text-gray-700">
           <Users className="w-5 h-5" />
           <span>
             Capacidad: {selectedRoom.pax} persona
-            {selectedRoom.pax > 1 ? "s" : ""}
+            {selectedRoom.pax > 1 ? 's' : ''}
           </span>
         </div>
       </div>

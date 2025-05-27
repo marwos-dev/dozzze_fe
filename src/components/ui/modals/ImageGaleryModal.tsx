@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useCallback, useState } from "react";
-import Image from "next/image";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useCallback, useState } from 'react';
+import Image from 'next/image';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Props {
   images: string[];
@@ -17,26 +17,31 @@ export default function ImageGalleryModal({
 }: Props) {
   const [index, setIndex] = useState(initialIndex);
 
-  const showPrev = () =>
-    setIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  const showNext = () =>
-    setIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  const showPrev = useCallback(
+    () => setIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1)),
+    [images.length]
+  );
+
+  const showNext = useCallback(
+    () => setIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1)),
+    [images.length]
+  );
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight") showNext();
-      if (e.key === "ArrowLeft") showPrev();
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight') showNext();
+      if (e.key === 'ArrowLeft') showPrev();
     },
-    [onClose, images.length]
+    [onClose, showNext, showPrev]
   );
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    document.body.style.overflow = "hidden";
+    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "auto";
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'auto';
     };
   }, [handleKeyDown]);
 
@@ -44,7 +49,6 @@ export default function ImageGalleryModal({
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      {/* Imagen */}
       <div className="relative w-full max-w-4xl h-[80vh] px-6">
         <Image
           src={images[index]}
@@ -55,7 +59,6 @@ export default function ImageGalleryModal({
         />
       </div>
 
-      {/* Botones navegación */}
       <button
         onClick={showPrev}
         className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 p-2 rounded-full text-white"
@@ -69,7 +72,6 @@ export default function ImageGalleryModal({
         <ChevronRight className="w-6 h-6" />
       </button>
 
-      {/* Cerrar */}
       <button
         onClick={onClose}
         className="absolute top-6 right-6 text-white hover:text-red-400"
