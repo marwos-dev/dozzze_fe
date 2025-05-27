@@ -16,7 +16,7 @@ export default function PropertyCardInfo({
   rating = 4,
 }: PropertyCardInfoProps) {
   return (
-    <div className="flex flex-col justify-between flex-1 gap-2 bg-greenlight p-4  h-[270px] rounded-2xl">
+    <div className="flex flex-col justify-between flex-1 gap-2 bg-greenlight p-4  h-[270px] rounded-xl">
       <div className="flex flex-col gap-1">
         <h2 className="text-xl font-bold text-dozeblue">{name}</h2>
         <p className="text-dozeblue text-sm">
