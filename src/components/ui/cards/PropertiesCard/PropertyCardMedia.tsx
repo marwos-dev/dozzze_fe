@@ -18,7 +18,7 @@ export default function PropertyCardMedia({
   const [mainImage, setMainImage] = useState(coverImage || thumbnails[0]);
   const extraImagesCount = images.length - thumbnails.length;
 
-  const mainImageIndex = images.indexOf(mainImage);
+  const mainImageIndex = images.findIndex((img) => img === mainImage);
 
   return (
     <div className="flex flex-col w-full md:w-[330px] gap-2 md:h-full">
@@ -27,26 +27,28 @@ export default function PropertyCardMedia({
         {/* Thumbnails */}
         <div
           style={{ backgroundColor: "#a5b1d3" }}
-          className="flex flex-col rounded-xl gap-2 p-2 justify-between"
+          className="flex flex-col rounded-xl gap-2 p-2 justify-start"
         >
-          {thumbnails.map((src, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                setMainImage(src);
-                if (onImageClick) onImageClick(images.indexOf(src));
-              }}
-              className="relative w-[70px] h-[55px] rounded-xl overflow-hidden border shadow-sm hover:scale-[1.03] transition"
-            >
-              <Image
-                src={src}
-                alt={`Thumbnail ${i + 1}`}
-                fill
-                sizes="70px"
-                className="object-cover"
-              />
-            </button>
-          ))}
+          {thumbnails.map((src, i) => {
+            const isSelected = src === mainImage;
+            return (
+              <button
+                key={i}
+                onClick={() => setMainImage(src)}
+                className={`relative w-[70px] h-[55px] rounded-xl overflow-hidden border shadow-sm hover:scale-[1.03] transition ${
+                  isSelected ? "ring-2 ring-white" : ""
+                }`}
+              >
+                <Image
+                  src={src}
+                  alt={`Thumbnail ${i + 1}`}
+                  fill
+                  sizes="70px"
+                  className="object-cover"
+                />
+              </button>
+            );
+          })}
           {extraImagesCount > 0 && (
             <div className="relative w-[70px] h-[55px] rounded-xl overflow-hidden border border-white shadow-sm bg-black/50 flex items-center justify-center text-white text-sm font-semibold">
               +{extraImagesCount}
@@ -81,23 +83,25 @@ export default function PropertyCardMedia({
           style={{ backgroundColor: "#a5b1d3" }}
           className="flex gap-2 p-2 rounded-xl"
         >
-          {thumbnails.map((src, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                setMainImage(src);
-                if (onImageClick) onImageClick(images.indexOf(src));
-              }}
-              className="relative w-[80px] h-[54px] rounded-xl overflow-hidden border shadow-sm hover:scale-[1.03] transition"
-            >
-              <Image
-                src={src}
-                alt={`Thumbnail ${i + 1}`}
-                fill
-                className="object-cover"
-              />
-            </button>
-          ))}
+          {thumbnails.map((src, i) => {
+            const isSelected = src === mainImage;
+            return (
+              <button
+                key={i}
+                onClick={() => setMainImage(src)}
+                className={`relative w-[80px] h-[54px] rounded-xl overflow-hidden border shadow-sm hover:scale-[1.03] transition ${
+                  isSelected ? "ring-2 ring-white" : ""
+                }`}
+              >
+                <Image
+                  src={src}
+                  alt={`Thumbnail ${i + 1}`}
+                  fill
+                  className="object-cover"
+                />
+              </button>
+            );
+          })}
           {extraImagesCount > 0 && (
             <div className="relative w-[80px] h-[54px] rounded-xl overflow-hidden border border-white shadow-sm bg-black/50 flex items-center justify-center text-white text-sm font-semibold">
               +{extraImagesCount}
