@@ -10,6 +10,7 @@ import TextInput from "../ui/inputs/TextInput";
 import DateInput from "../ui/inputs/DateInput";
 import SelectInput from "../ui/inputs/SelectInput";
 import { RangeKeyDict } from "react-date-range";
+import ModalBooking from "@/components/ui/modals/FNSBookingModal";
 
 export default function Seeker() {
   const [destination, setDestination] = useState("");
@@ -20,6 +21,7 @@ export default function Seeker() {
       key: "selection",
     },
   ]);
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [rooms, setRooms] = useState(1);
   const [guests, setGuests] = useState(2);
   const [promoCode, setPromoCode] = useState("");
@@ -116,7 +118,17 @@ export default function Seeker() {
         >
           Buscar
         </button>
-      </form>
-    </motion.section>
+      </form> 
+      <div className="mt-6 text-center">
+  <button
+    onClick={() => setShowBookingModal(true)}
+    className="text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition"
+  >
+    Ver motor de reservas
+  </button>
+</div>
+<ModalBooking isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} />
+          </motion.section>
+    
   );
 }
