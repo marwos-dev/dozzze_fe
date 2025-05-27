@@ -8,10 +8,10 @@ import { CheckCircle, Users } from "lucide-react";
 import { AppDispatch, RootState } from "@/store";
 import { useState, useEffect } from "react";
 import Spinner from "@/components/ui/spinners/Spinner";
+import ImageGalleryModal from "@/components/ui/modals/ImageGaleryModal";
 
 export default function RoomDetailPage() {
   const { id } = useParams();
-  // const dispatch = useDispatch<AppDispatch>();
   const { selectedRoom, loading, error } = useSelector(
     (state: RootState) => state.rooms
   );
@@ -26,58 +26,76 @@ export default function RoomDetailPage() {
   const services = selectedRoom?.services ?? [];
   const images = selectedRoom?.images ?? [];
 
-  const [selectedImage, setSelectedImage] = useState(
-    images[0] || "/placeholder.jpg"
-  );
+  const [selectedImage, setSelectedImage] = useState(images[0] || "/placeholder.jpg");
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  useEffect(() => {
+    if (images.length > 0) {
+      setSelectedImage(images[0]);
+    }
+  }, [images]);
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
 
   if (loading) return <Spinner />;
   if (error || !selectedRoom)
     return (
       <p className="text-center text-red-500">Error cargando habitación</p>
     );
-  if (!selectedRoom)
-    return (
-      <p className="text-center text-gray-500">Habitación no encontrada</p>
-    );
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4 bg-dozebg1 rounded-xl shadow-md mt-10">
-      {/* Imagen principal */}
-      <div className="relative w-full h-[300px] rounded-xl overflow-hidden shadow">
-        <Image
-          src={selectedImage}
-          alt={selectedRoom.name}
-          fill
-          className="object-cover"
-          unoptimized
-        />
+      {/* Galería */}
+      <div className="bg-gray-100 p-5 rounded-xl shadow-inner">
+        {/* Imagen principal */}
+        <div
+          className="relative w-full h-[300px] rounded-xl overflow-hidden shadow-md cursor-pointer"
+          onClick={() => openLightbox(images.indexOf(selectedImage))}
+        >
+          <Image
+            src={selectedImage}
+            alt={selectedRoom.name}
+            fill
+            className="object-cover transition-opacity duration-300"
+            unoptimized
+          />
+        </div>
+
+        {/* Miniaturas */}
+        {images.length > 1 && (
+          <div className="mt-4 flex overflow-x-auto gap-3 pb-2">
+            {images.map((img, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  setSelectedImage(img);
+                  openLightbox(i);
+                }}
+                className={`relative w-28 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:opacity-90 ${
+                  selectedImage === img
+                    ? "border-dozeblue ring-2 ring-dozeblue"
+                    : "border-transparent"
+                }`}
+              >
+                <Image
+                  src={img}
+                  alt={`Miniatura ${i + 1}`}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Miniaturas */}
-      {images.length > 1 && (
-        <div className="mt-4 flex overflow-x-auto gap-3 pb-2">
-          {images.map((img, i) => (
-            <button
-              key={i}
-              onClick={() => setSelectedImage(img)}
-              className={`relative w-28 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 ${
-                selectedImage === img ? "border-dozeblue" : "border-transparent"
-              }`}
-            >
-              <Image
-                src={img}
-                alt={`Miniatura ${i + 1}`}
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* Info básica */}
-      <div className="mt-6 space-y-3">
+      <div className="mt-8 space-y-3">
         <h1 className="text-3xl font-bold text-dozeblue">
           {selectedRoom.name}
         </h1>
@@ -111,6 +129,15 @@ export default function RoomDetailPage() {
           )}
         </ul>
       </div>
+
+      {/* Lightbox */}
+      {lightboxOpen && (
+        <ImageGalleryModal
+          images={images}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
     </div>
   );
 }
