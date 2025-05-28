@@ -66,32 +66,32 @@ export default function RoomDetailPage() {
         </div>
 
         {/* Miniaturas */}
-        {images.length > 1 && (
-          <div className="mt-4 flex overflow-x-auto gap-3 pb-2">
-            {images.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  setSelectedImage(img);
-                  openLightbox(i);
-                }}
-                className={`relative w-28 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:opacity-90 ${
-                  selectedImage === img
-                    ? "border-dozeblue ring-2 ring-dozeblue"
-                    : "border-transparent"
-                }`}
-              >
-                <Image
-                  src={img}
-                  alt={`Miniatura ${i + 1}`}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-              </button>
-            ))}
-          </div>
-        )}
+     {images.length > 1 && (
+  <div className="mt-4 flex overflow-x-auto gap-3 pb-2">
+    {images.map((img, i) => (
+      <button
+        key={i}
+        onClick={() => {
+          setSelectedImage(img);
+        }}
+        className={`relative w-28 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:opacity-90 ${
+          selectedImage === img
+            ? "border-dozeblue ring-2 ring-dozeblue"
+            : "border-transparent"
+        }`}
+      >
+        <Image
+          src={img}
+          alt={`Miniatura ${i + 1}`}
+          fill
+          className="object-cover"
+          unoptimized
+        />
+      </button>
+    ))}
+  </div>
+)}
+
       </div>
 
       {/* Info básica */}
