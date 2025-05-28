@@ -116,7 +116,22 @@ export default function Seeker() {
         >
           Buscar
         </button>
-      </form>
-    </motion.section>
+      </form> 
+       <div className="mt-6 text-center">
+        <button
+          onClick={() =>
+            window.open(
+              '/fns-booking-frame',
+              '_blank',
+              'width=500,height=700,scrollbars=yes,resizable=yes'
+            )
+          }
+          className="text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition"
+        >
+          Expandi tu busqueda
+        </button>
+      </div>
+          </motion.section>
+    
   );
 }
