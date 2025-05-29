@@ -2,26 +2,23 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { MapPin, BedDouble, DoorOpen } from 'lucide-react';
+import { Zone } from '@/types/zone';
+import { Property } from '@/types/property';
+import { Room } from '@/types/room';
 
 interface Props {
-  zones: any[];
-  hotels: any[];
-  filteredRooms: any[];
+  zones: Zone[];
+  hotels: Property[];
+  filteredRooms: Room[];
   uniqueServices: string[];
   selectedZoneId: number | null;
   selectedHotelId: number | null;
   selectedRoomId: number | null;
   selectedServices: string[];
-  promoCode: string;
-  rooms: number;
-  guests: number;
   setSelectedZoneId: (id: number | null) => void;
   setSelectedHotelId: (id: number | null) => void;
   setSelectedRoomId: (id: number | null) => void;
   setSelectedServices: (services: string[]) => void;
-  setPromoCode: (code: string) => void;
-  setRooms: (n: number) => void;
-  setGuests: (n: number) => void;
 }
 
 export default function SeekerFilters({
@@ -33,16 +30,10 @@ export default function SeekerFilters({
   selectedHotelId,
   selectedRoomId,
   selectedServices,
-  promoCode,
-  rooms,
-  guests,
   setSelectedZoneId,
   setSelectedHotelId,
   setSelectedRoomId,
   setSelectedServices,
-  setPromoCode,
-  setRooms,
-  setGuests,
 }: Props) {
   const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

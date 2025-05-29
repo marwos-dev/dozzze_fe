@@ -18,9 +18,6 @@ export default function Seeker({ initialFilterOpen = false }: SeekerProps) {
   const [selectedHotelId, setSelectedHotelId] = useState<number | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [promoCode, setPromoCode] = useState('');
-  const [rooms, setRooms] = useState(1);
-  const [guests, setGuests] = useState(2);
   const [isFilterOpen, setIsFilterOpen] = useState(initialFilterOpen);
 
   const selectedZone = zones.find((z) => z.id === selectedZoneId);
@@ -113,16 +110,10 @@ export default function Seeker({ initialFilterOpen = false }: SeekerProps) {
           selectedHotelId={selectedHotelId}
           selectedRoomId={selectedRoomId}
           selectedServices={selectedServices}
-          promoCode={promoCode}
-          rooms={rooms}
-          guests={guests}
           setSelectedZoneId={setSelectedZoneId}
           setSelectedHotelId={setSelectedHotelId}
           setSelectedRoomId={setSelectedRoomId}
           setSelectedServices={setSelectedServices}
-          setPromoCode={setPromoCode}
-          setRooms={setRooms}
-          setGuests={setGuests}
         />
       </div>
 
@@ -169,8 +160,6 @@ export default function Seeker({ initialFilterOpen = false }: SeekerProps) {
         selectedHotel={selectedHotel}
         filteredRooms={filteredRooms}
         filteredRoomsByServices={filteredRoomsByServices}
-        promoCode={promoCode}
-        guests={guests}
       />
     </motion.section>
   );

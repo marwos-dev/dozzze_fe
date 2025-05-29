@@ -4,18 +4,17 @@ import PropertiesCard from '@/components/ui/cards/PropertiesCard/ProperitesCard'
 import RoomCard from '@/components/ui/cards/RoomsCard/RoomCard';
 import { Property } from '@/types/property';
 import { Room } from '@/types/room';
+import { Zone } from '@/types/zone';
 
 interface Props {
-  zones: any[];
+  zones: Zone[];
   selectedZoneId: number | null;
   selectedHotelId: number | null;
   selectedRoomId: number | null;
   selectedServices: string[];
-  selectedHotel: any | undefined;
-  filteredRooms: any[];
-  filteredRoomsByServices: any[];
-  promoCode: string;
-  guests: number;
+  selectedHotel: Property | undefined;
+  filteredRooms: Room[];
+  filteredRoomsByServices: Room[];
 }
 
 export default function SeekerResults({
@@ -25,10 +24,6 @@ export default function SeekerResults({
   selectedRoomId,
   selectedServices,
   selectedHotel,
-  filteredRooms,
-  filteredRoomsByServices,
-  promoCode,
-  guests,
 }: Props) {
   const filteredZones = selectedZoneId
     ? zones.filter((zone) => zone.id === selectedZoneId)
