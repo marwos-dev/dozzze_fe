@@ -91,7 +91,7 @@ export default function SeekerFilters({
           <DoorOpen className="inline w-4 h-4 mr-1" />
           Servicios
         </label>
-        <div className="flex flex-col max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-2">
+        <div className="flex flex-col min-h-[3.5rem] max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-2">
           {uniqueServices.map((service) => (
             <label
               key={service}
@@ -129,11 +129,17 @@ export default function SeekerFilters({
           className="w-full border border-gray-300 rounded-lg p-2"
         >
           <option value="">Todas las categorías</option>
-          {filteredRooms.map((room) => (
-            <option key={room.id} value={room.id}>
-              {room.name}
-            </option>
-          ))}
+          {filteredRooms
+            .filter((room) =>
+              selectedServices.every((service) =>
+                room.services?.includes(service)
+              )
+            )
+            .map((room) => (
+              <option key={room.id} value={room.id}>
+                {room.name}
+              </option>
+            ))}
         </select>
       </div>
     </form>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { motion } from 'framer-motion';
@@ -19,43 +19,57 @@ export default function Seeker() {
   const [guests, setGuests] = useState(2);
 
   const selectedZone = zones.find((z) => z.id === selectedZoneId);
-  const hotels = selectedZoneId
-    ? selectedZone?.properties || []
-    : zones.flatMap((z) => z.properties);
+
+  const hotels = useMemo(() => {
+    return selectedZoneId
+      ? selectedZone?.properties || []
+      : zones.flatMap((z) => z.properties);
+  }, [selectedZoneId, selectedZone, zones]);
 
   const selectedHotel = hotels.find((h) => h.id === selectedHotelId);
 
-  const allRooms = zones.flatMap((z) =>
-    z.properties.flatMap((p) =>
-      p.rooms.map((r) => ({ ...r, propertyId: p.id }))
-    )
-  );
+  const allRooms = useMemo(() => {
+    return zones.flatMap((z) =>
+      z.properties.flatMap((p) =>
+        p.rooms.map((r) => ({ ...r, propertyId: p.id }))
+      )
+    );
+  }, [zones]);
 
-  const filteredRooms = selectedHotelId
-    ? allRooms.filter((room) => room.propertyId === selectedHotelId)
-    : selectedZoneId
-      ? allRooms.filter((room) =>
-          hotels.some((hotel) => hotel.id === room.propertyId)
-        )
-      : allRooms;
+  const filteredRooms = useMemo(() => {
+    if (selectedHotelId) {
+      return allRooms.filter((room) => room.propertyId === selectedHotelId);
+    }
+    if (selectedZoneId) {
+      return allRooms.filter((room) =>
+        hotels.some((hotel) => hotel.id === room.propertyId)
+      );
+    }
+    return allRooms;
+  }, [selectedHotelId, selectedZoneId, allRooms, hotels]);
 
-  const filteredRoomsByServices =
-    selectedServices.length > 0
-      ? filteredRooms.filter((room) =>
-          selectedServices.every((srv) => room.services?.includes(srv))
-        )
-      : filteredRooms;
+  const filteredRoomsByServices = useMemo(() => {
+    if (selectedServices.length > 0) {
+      return filteredRooms.filter((room) =>
+        selectedServices.every((srv) => room.services?.includes(srv))
+      );
+    }
+    return filteredRooms;
+  }, [selectedServices, filteredRooms]);
 
-  const uniqueServices = Array.from(
-    new Set(filteredRooms.flatMap((room) => room.services || []))
-  );
+  const uniqueServices = useMemo(() => {
+    return Array.from(
+      new Set(filteredRooms.flatMap((room) => room.services || []))
+    );
+  }, [filteredRooms]);
 
+  // Reseteos al cambiar filtros para evitar inconsistencia
   useEffect(() => {
     if (selectedZoneId && !hotels.some((h) => h.id === selectedHotelId)) {
       setSelectedHotelId(null);
       setSelectedRoomId(null);
     }
-  }, [selectedZoneId]);
+  }, [selectedZoneId, hotels, selectedHotelId]);
 
   useEffect(() => {
     if (
@@ -64,13 +78,22 @@ export default function Seeker() {
     ) {
       setSelectedRoomId(null);
     }
-  }, [selectedHotelId]);
+  }, [selectedHotelId, filteredRooms, selectedRoomId]);
 
   useEffect(() => {
-    setSelectedServices((curr) =>
-      curr.filter((srv) => uniqueServices.includes(srv))
-    );
-  }, [filteredRooms, uniqueServices]);
+    setSelectedServices((curr) => {
+      const filtered = curr.filter((srv) => uniqueServices.includes(srv));
+      if (filtered.length !== curr.length) {
+        return filtered;
+      }
+      return curr;
+    });
+  }, [uniqueServices]);
+
+  // Si cambian los servicios, resetea categoría (habitación)
+  useEffect(() => {
+    setSelectedRoomId(null);
+  }, [selectedServices]);
 
   return (
     <motion.section
@@ -103,6 +126,7 @@ export default function Seeker() {
         setRooms={setRooms}
         setGuests={setGuests}
       />
+
       {/* Botón expandir */}
       <div className="mt-6 text-center">
         <button
