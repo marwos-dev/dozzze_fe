@@ -1,137 +1,136 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import { MapPin, Percent } from "lucide-react";
-import { Range } from "react-date-range";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
-import TextInput from "../ui/inputs/TextInput";
-import DateInput from "../ui/inputs/DateInput";
-import SelectInput from "../ui/inputs/SelectInput";
-import { RangeKeyDict } from "react-date-range";
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { motion } from 'framer-motion';
+import SeekerFilters from '@/components/ui/seeker/SeekerFilter';
+import SeekerResults from '@/components/ui/seeker/SeekerResult';
 
 export default function Seeker() {
-  const [destination, setDestination] = useState("");
-  const [dateRange, setDateRange] = useState<Range[]>([
-    {
-      startDate: new Date(),
-      endDate: new Date(),
-      key: "selection",
-    },
-  ]);
+  const { data: zones } = useSelector((state: RootState) => state.zones);
+
+  const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
+  const [selectedHotelId, setSelectedHotelId] = useState<number | null>(null);
+  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [promoCode, setPromoCode] = useState('');
   const [rooms, setRooms] = useState(1);
   const [guests, setGuests] = useState(2);
-  const [promoCode, setPromoCode] = useState("");
-  const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
 
-  const calendarRef = useRef<HTMLDivElement>(null);
+  const selectedZone = zones.find((z) => z.id === selectedZoneId);
+  const hotels = selectedZoneId
+    ? selectedZone?.properties || []
+    : zones.flatMap((z) => z.properties);
 
-  const handleDateChange = (item: RangeKeyDict) => {
-    setDateRange([item.selection]);
-  };
+  const selectedHotel = hotels.find((h) => h.id === selectedHotelId);
+
+  const allRooms = zones.flatMap((z) =>
+    z.properties.flatMap((p) =>
+      p.rooms.map((r) => ({ ...r, propertyId: p.id }))
+    )
+  );
+
+  const filteredRooms = selectedHotelId
+    ? allRooms.filter((room) => room.propertyId === selectedHotelId)
+    : selectedZoneId
+      ? allRooms.filter((room) =>
+          hotels.some((hotel) => hotel.id === room.propertyId)
+        )
+      : allRooms;
+
+  const filteredRoomsByServices =
+    selectedServices.length > 0
+      ? filteredRooms.filter((room) =>
+          selectedServices.every((srv) => room.services?.includes(srv))
+        )
+      : filteredRooms;
+
+  const uniqueServices = Array.from(
+    new Set(filteredRooms.flatMap((room) => room.services || []))
+  );
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isDatePopoverOpen &&
-        calendarRef.current &&
-        !calendarRef.current.contains(event.target as Node)
-      ) {
-        setIsDatePopoverOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isDatePopoverOpen]);
+    if (selectedZoneId && !hotels.some((h) => h.id === selectedHotelId)) {
+      setSelectedHotelId(null);
+      setSelectedRoomId(null);
+    }
+  }, [selectedZoneId]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const requestData = { destination, dateRange, rooms, guests, promoCode };
-    console.log("Datos a enviar:", requestData);
-  };
+  useEffect(() => {
+    if (
+      selectedHotelId &&
+      !filteredRooms.some((r) => r.id === selectedRoomId)
+    ) {
+      setSelectedRoomId(null);
+    }
+  }, [selectedHotelId]);
+
+  useEffect(() => {
+    setSelectedServices((curr) =>
+      curr.filter((srv) => uniqueServices.includes(srv))
+    );
+  }, [filteredRooms, uniqueServices]);
 
   return (
     <motion.section
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="mx-auto w-full max-w-5xl rounded-2xl bg-dozebg1 shadow-xl px-4 py-6 sm:px-6 lg:px-10 mb-10 -mt-6"
+      className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-10 text-dozeblue bg-white rounded-2xl shadow-lg mb-10"
     >
-      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-dozeblue mb-6 text-center">
+      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6">
         Encontrá tu alojamiento ideal
       </h2>
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end"
-      >
-        <div className="col-span-1 sm:col-span-2 lg:col-span-1">
-          <TextInput
-            label="Destino"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            placeholder="Ingrese su destino"
-            Icon={MapPin}
-          />
-        </div>
-        <div className="col-span-1 sm:col-span-2 lg:col-span-1">
-          <DateInput
-            dateRange={dateRange}
-            onDateChange={handleDateChange}
-            isPopoverOpen={isDatePopoverOpen}
-            setIsPopoverOpen={setIsDatePopoverOpen}
-            calendarRef={calendarRef}
-          />
-        </div>
-        <div className="col-span-1 sm:col-span-2 lg:col-span-1">
-          <SelectInput
-            label="Habitaciones"
-            value={rooms}
-            setValue={setRooms}
-            min={1}
-            max={10}
-          />
-        </div>
-        <div className="col-span-1 sm:col-span-2 lg:col-span-1">
-          <SelectInput
-            label="Huéspedes"
-            value={guests}
-            setValue={setGuests}
-            min={1}
-            max={10}
-          />
-        </div>
-        <div className="col-span-1 sm:col-span-2 lg:col-span-1">
-          <TextInput
-            label="Código promocional"
-            value={promoCode}
-            onChange={(e) => setPromoCode(e.target.value)}
-            placeholder="Ingrese su código promocional"
-            Icon={Percent}
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-dozeblue text-white py-2 px-4 rounded-full hover:bg-dozeblue-dark"
-        >
-          Buscar
-        </button>
-      </form> 
-       <div className="mt-6 text-center">
+
+      <SeekerFilters
+        zones={zones}
+        hotels={hotels}
+        filteredRooms={filteredRooms}
+        uniqueServices={uniqueServices}
+        selectedZoneId={selectedZoneId}
+        selectedHotelId={selectedHotelId}
+        selectedRoomId={selectedRoomId}
+        selectedServices={selectedServices}
+        promoCode={promoCode}
+        rooms={rooms}
+        guests={guests}
+        setSelectedZoneId={setSelectedZoneId}
+        setSelectedHotelId={setSelectedHotelId}
+        setSelectedRoomId={setSelectedRoomId}
+        setSelectedServices={setSelectedServices}
+        setPromoCode={setPromoCode}
+        setRooms={setRooms}
+        setGuests={setGuests}
+      />
+      {/* Botón expandir */}
+      <div className="mt-6 text-center">
         <button
           onClick={() =>
             window.open(
               '/fns-booking-frame',
               '_blank',
-              'width=500,height=700,scrollbars=yes,resizable=yes'
+              'width=600,height=700,scrollbars=yes,resizable=yes'
             )
           }
-          className="text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition"
+          className="text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium"
         >
-          Expandi tu busqueda
+          Expandí tu búsqueda
         </button>
       </div>
-          </motion.section>
-    
+
+      <SeekerResults
+        zones={zones}
+        selectedZoneId={selectedZoneId}
+        selectedHotelId={selectedHotelId}
+        selectedRoomId={selectedRoomId}
+        selectedServices={selectedServices}
+        selectedHotel={selectedHotel}
+        filteredRooms={filteredRooms}
+        filteredRoomsByServices={filteredRoomsByServices}
+        promoCode={promoCode}
+        guests={guests}
+      />
+    </motion.section>
   );
 }

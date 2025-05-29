@@ -1,20 +1,24 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getZones } from "@/store/zoneSlice";
-import type { AppDispatch, RootState } from "@/store";
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getZones } from '@/store/zoneSlice';
+import type { AppDispatch, RootState } from '@/store';
 
-import Home from "./Home";
-import ZoneSection from "./Zones";
-import Properties from "./Properties";
-import Seeker from "./Seeker";
-import Spinner from "@/components/ui/spinners/Spinner";
-import { Zone } from "@/types/zone";
+import Home from './Home';
+import ZoneSection from './Zones';
+import Properties from './Properties';
+import Seeker from './Seeker';
+import Spinner from '@/components/ui/spinners/Spinner';
+import { Zone } from '@/types/zone';
 
 const Sections = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { data: zones, loading, error } = useSelector((state: RootState) => state.zones);
+  const {
+    data: zones,
+    loading,
+    error,
+  } = useSelector((state: RootState) => state.zones);
 
   useEffect(() => {
     dispatch(getZones());
