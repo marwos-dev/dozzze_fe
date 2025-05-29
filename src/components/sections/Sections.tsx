@@ -7,7 +7,6 @@ import type { AppDispatch, RootState } from '@/store';
 
 import Home from './Home';
 import ZoneSection from './Zones';
-import Properties from './Properties';
 import Seeker from './Seeker';
 import Spinner from '@/components/ui/spinners/Spinner';
 import { Zone } from '@/types/zone';

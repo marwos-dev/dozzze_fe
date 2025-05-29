@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { X } from 'lucide-react';
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ export default function FilterModal({
         className="absolute top-4 right-4 text-gray-600 hover:text-dozeblue"
         aria-label="Cerrar modal"
       >
-        ✕
+        <X size={28} />
       </button>
       {children}
     </div>

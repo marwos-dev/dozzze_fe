@@ -102,12 +102,6 @@ export default function Navbar() {
             <h2 className="text-xl font-semibold text-dozeblue">
               Buscar alojamiento
             </h2>
-            <button
-              onClick={() => setSearchOpen(false)}
-              className="text-gray-600 hover:text-dozeblue"
-            >
-              <X size={28} />
-            </button>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             <Seeker />
