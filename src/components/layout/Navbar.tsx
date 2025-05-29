@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Menu, X, Search } from 'lucide-react';
+import Seeker from '@/components/sections/Seeker';
 import FilterModal from '@/components/ui/modals/FilterModal';
 
 const navLinks = [
@@ -94,8 +95,25 @@ export default function Navbar() {
         />
       )}
 
-      {/* Modal de búsqueda */}
-      <FilterModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      {/* Modal de búsqueda usando FilterModal */}
+      <FilterModal isOpen={searchOpen} onClose={() => setSearchOpen(false)}>
+        <div className="flex flex-col h-full">
+          <div className="flex justify-between items-center p-4 border-b">
+            <h2 className="text-xl font-semibold text-dozeblue">
+              Buscar alojamiento
+            </h2>
+            <button
+              onClick={() => setSearchOpen(false)}
+              className="text-gray-600 hover:text-dozeblue"
+            >
+              <X size={28} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <Seeker />
+          </div>
+        </div>
+      </FilterModal>
     </nav>
   );
 }
