@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import SeekerFilters from '@/components/ui/seeker/SeekerFilter';
 import SeekerResults from '@/components/ui/seeker/SeekerResult';
 import AnimatedButton from '../ui/buttons/AnimatedButton';
+import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 
 export default function Seeker() {
   const { data: zones } = useSelector((state: RootState) => state.zones);
@@ -18,6 +19,7 @@ export default function Seeker() {
   const [promoCode, setPromoCode] = useState('');
   const [rooms, setRooms] = useState(1);
   const [guests, setGuests] = useState(2);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const selectedZone = zones.find((z) => z.id === selectedZoneId);
 
@@ -64,7 +66,6 @@ export default function Seeker() {
     );
   }, [filteredRooms]);
 
-  // Reseteos al cambiar filtros para evitar inconsistencia
   useEffect(() => {
     if (selectedZoneId && !hotels.some((h) => h.id === selectedHotelId)) {
       setSelectedHotelId(null);
@@ -84,14 +85,10 @@ export default function Seeker() {
   useEffect(() => {
     setSelectedServices((curr) => {
       const filtered = curr.filter((srv) => uniqueServices.includes(srv));
-      if (filtered.length !== curr.length) {
-        return filtered;
-      }
-      return curr;
+      return filtered.length !== curr.length ? filtered : curr;
     });
   }, [uniqueServices]);
 
-  // Si cambian los servicios, resetea categoría (habitación)
   useEffect(() => {
     setSelectedRoomId(null);
   }, [selectedServices]);
@@ -103,44 +100,62 @@ export default function Seeker() {
       transition={{ duration: 0.4 }}
       className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-10 text-dozeblue bg-white rounded-2xl shadow-lg mb-10"
     >
-      <SeekerFilters
-        zones={zones}
-        hotels={hotels}
-        filteredRooms={filteredRooms}
-        uniqueServices={uniqueServices}
-        selectedZoneId={selectedZoneId}
-        selectedHotelId={selectedHotelId}
-        selectedRoomId={selectedRoomId}
-        selectedServices={selectedServices}
-        promoCode={promoCode}
-        rooms={rooms}
-        guests={guests}
-        setSelectedZoneId={setSelectedZoneId}
-        setSelectedHotelId={setSelectedHotelId}
-        setSelectedRoomId={setSelectedRoomId}
-        setSelectedServices={setSelectedServices}
-        setPromoCode={setPromoCode}
-        setRooms={setRooms}
-        setGuests={setGuests}
-      />
+      {/* Filtros visibles en desktop y toggleables en mobile */}
+      <div className={`${isFilterOpen ? 'block' : 'hidden'} md:block`}>
+        <SeekerFilters
+          zones={zones}
+          hotels={hotels}
+          filteredRooms={filteredRooms}
+          uniqueServices={uniqueServices}
+          selectedZoneId={selectedZoneId}
+          selectedHotelId={selectedHotelId}
+          selectedRoomId={selectedRoomId}
+          selectedServices={selectedServices}
+          promoCode={promoCode}
+          rooms={rooms}
+          guests={guests}
+          setSelectedZoneId={setSelectedZoneId}
+          setSelectedHotelId={setSelectedHotelId}
+          setSelectedRoomId={setSelectedRoomId}
+          setSelectedServices={setSelectedServices}
+          setPromoCode={setPromoCode}
+          setRooms={setRooms}
+          setGuests={setGuests}
+        />
+      </div>
 
-      {/* Botón expandir */}
-      <div className="mt-6 text-center">
-        <div className="inline-flex gap-4">
-          <button
-            onClick={() =>
-              window.open(
-                '/fns-booking-frame',
-                '_blank',
-                'width=600,height=700,scrollbars=yes,resizable=yes'
-              )
-            }
-            className="text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium"
-          >
-            Expandí tu búsqueda
-          </button>
-          <AnimatedButton text="Conoce Nuestras Zonas" sectionId="#zones" />
-        </div>
+      {/* Botones adicionales */}
+      <div className="flex flex-wrap justify-center pt-4 gap-4">
+        <button
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
+          className="min-w-[220px] text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium flex items-center justify-center gap-2 md:hidden"
+        >
+          <SlidersHorizontal className="w-5 h-5" />
+          {isFilterOpen ? 'Ocultar filtros' : 'Mostrar filtros'}
+          {isFilterOpen ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
+        </button>
+        <button
+          onClick={() =>
+            window.open(
+              '/fns-booking-frame',
+              '_blank',
+              'width=600,height=700,scrollbars=yes,resizable=yes'
+            )
+          }
+          className="min-w-[220px] text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium text-center"
+        >
+          Expandí tu búsqueda
+        </button>
+
+        <AnimatedButton
+          text="Conocé Nuestras Zonas"
+          sectionId="#zones"
+          className="min-w-[220px]"
+        />
       </div>
 
       <SeekerResults
