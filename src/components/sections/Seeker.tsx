@@ -8,8 +8,10 @@ import SeekerFilters from '@/components/ui/seeker/SeekerFilter';
 import SeekerResults from '@/components/ui/seeker/SeekerResult';
 import AnimatedButton from '../ui/buttons/AnimatedButton';
 import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
-
-export default function Seeker() {
+type SeekerProps = {
+  initialFilterOpen?: boolean;
+};
+export default function Seeker({ initialFilterOpen = false }: SeekerProps) {
   const { data: zones } = useSelector((state: RootState) => state.zones);
 
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
@@ -19,7 +21,7 @@ export default function Seeker() {
   const [promoCode, setPromoCode] = useState('');
   const [rooms, setRooms] = useState(1);
   const [guests, setGuests] = useState(2);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(initialFilterOpen);
 
   const selectedZone = zones.find((z) => z.id === selectedZoneId);
 

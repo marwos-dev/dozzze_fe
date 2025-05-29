@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import { MapPin, BedDouble, DoorOpen } from 'lucide-react';
 
 interface Props {
@@ -43,6 +44,22 @@ export default function SeekerFilters({
   setRooms,
   setGuests,
 }: Props) {
+  const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsServiceDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
       {/* Zona */}
@@ -86,35 +103,47 @@ export default function SeekerFilters({
       </div>
 
       {/* Servicios */}
-      <div>
-        <label className="text-sm font-medium mb-2 block">
+      <div className="relative" ref={dropdownRef}>
+        <label className="text-sm font-medium mb-1 block">
           <DoorOpen className="inline w-4 h-4 mr-1" />
           Servicios
         </label>
-        <div className="flex flex-col min-h-[3.5rem] max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-2">
-          {uniqueServices.map((service) => (
-            <label
-              key={service}
-              className="inline-flex items-center space-x-2 cursor-pointer py-1"
-            >
-              <input
-                type="checkbox"
-                checked={selectedServices.includes(service)}
-                onChange={() => {
-                  if (selectedServices.includes(service)) {
-                    setSelectedServices(
-                      selectedServices.filter((s) => s !== service)
-                    );
-                  } else {
-                    setSelectedServices([...selectedServices, service]);
-                  }
-                }}
-                className="w-5 h-5 text-dozeblue rounded border-gray-300"
-              />
-              <span>{service}</span>
-            </label>
-          ))}
-        </div>
+        <button
+          type="button"
+          onClick={() => setIsServiceDropdownOpen((prev) => !prev)}
+          className="w-full border border-gray-300 rounded-lg p-2 text-left"
+        >
+          {selectedServices.length > 0
+            ? `Seleccionados: ${selectedServices.length}`
+            : 'Seleccioná servicios'}
+        </button>
+
+        {isServiceDropdownOpen && (
+          <div className="absolute z-20 mt-2 w-full max-h-48 overflow-y-auto border border-gray-300 bg-white rounded-lg shadow-md p-2">
+            {uniqueServices.map((service) => (
+              <label
+                key={service}
+                className="flex items-center space-x-2 cursor-pointer py-1"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedServices.includes(service)}
+                  onChange={() => {
+                    if (selectedServices.includes(service)) {
+                      setSelectedServices(
+                        selectedServices.filter((s) => s !== service)
+                      );
+                    } else {
+                      setSelectedServices([...selectedServices, service]);
+                    }
+                  }}
+                  className="w-4 h-4 text-dozeblue rounded border-gray-300"
+                />
+                <span>{service}</span>
+              </label>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Categoría */}
