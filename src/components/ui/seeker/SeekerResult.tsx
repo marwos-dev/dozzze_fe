@@ -30,32 +30,48 @@ export default function SeekerResults({
   promoCode,
   guests,
 }: Props) {
+  const filteredZones = selectedZoneId
+    ? zones.filter((zone) => zone.id === selectedZoneId)
+    : zones;
+
+  // Mostrar solo habitaciones filtradas por servicios, sin hotel seleccionado
+  const showRoomsOnly =
+    !selectedHotelId && selectedServices.length > 0 && !selectedHotel;
+
   return (
     <div className="mt-10">
-      {/* Sin hotel seleccionado: mostrar propiedades */}
-      {!selectedHotelId && (
+      {/* Mostrar RoomCards si hay servicios seleccionados pero ningún hotel */}
+      {showRoomsOnly && (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredZones.flatMap((zone) =>
+            zone.properties.flatMap((property: Property) =>
+              property.rooms
+                .filter((room: Room) =>
+                  selectedServices.every((srv) => room.services?.includes(srv))
+                )
+                .map((room: Room) => (
+                  <RoomCard
+                    key={room.id}
+                    {...room}
+                    services={room.services ?? []}
+                  />
+                ))
+            )
+          )}
+        </div>
+      )}
+
+      {/* Sin hotel seleccionado y sin filtros de servicio: mostrar propiedades */}
+      {!selectedHotelId && !showRoomsOnly && (
         <div className="flex flex-col gap-6">
-          {zones.flatMap((zone) =>
+          {filteredZones.flatMap((zone) =>
             zone.properties
               .filter((property: Property) => {
-                if (selectedZoneId && zone.id !== selectedZoneId) return false;
-
-                // Filtrar por habitación seleccionada (categoría)
+                // Filtrar por categoría de habitación
                 if (
                   selectedRoomId &&
                   !property.rooms.some(
                     (room: Room) => room.id === selectedRoomId
-                  )
-                )
-                  return false;
-
-                // Filtrar por servicios (al menos una habitación debe cumplir todos los servicios)
-                if (
-                  selectedServices.length > 0 &&
-                  !property.rooms.some((room: Room) =>
-                    selectedServices.every((srv) =>
-                      room.services?.includes(srv)
-                    )
                   )
                 )
                   return false;
@@ -71,7 +87,7 @@ export default function SeekerResults({
         </div>
       )}
 
-      {/* Hotel seleccionado: mostrar habitaciones filtradas */}
+      {/* Hotel seleccionado: mostrar habitaciones de ese hotel */}
       {selectedHotel && (
         <div>
           <h3 className="text-lg font-semibold text-dozeblue mb-4">
@@ -94,6 +110,15 @@ export default function SeekerResults({
                 />
               ))}
           </div>
+
+          {/* Si no hay habitaciones que coincidan */}
+          {selectedHotel.rooms.filter((room: Room) =>
+            selectedServices.every((srv) => room.services?.includes(srv))
+          ).length === 0 && (
+            <p className="text-muted-foreground mt-4">
+              No hay habitaciones que coincidan con los servicios seleccionados.
+            </p>
+          )}
         </div>
       )}
     </div>

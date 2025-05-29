@@ -1,6 +1,6 @@
-"use client";
-import HomeSlider from "@/components/sliders/HomeSlider";
-import AnimatedButton from "../ui/buttons/AnimatedButton";
+'use client';
+import HomeSlider from '@/components/sliders/HomeSlider';
+import AnimatedButton from '../ui/buttons/AnimatedButton';
 
 export default function Home() {
   return (
@@ -14,7 +14,7 @@ export default function Home() {
           Espacios cómodos, naturales y flexibles. Reservá por días y personas
           fácilmente.
         </p>
-        <AnimatedButton text="Reservar ahora" sectionId="#seeker" />
+        <AnimatedButton text="Busca tu lugar" sectionId="#seeker" />
       </div>
 
       {/* Slider a la derecha */}

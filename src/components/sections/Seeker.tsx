@@ -6,6 +6,7 @@ import { RootState } from '@/store';
 import { motion } from 'framer-motion';
 import SeekerFilters from '@/components/ui/seeker/SeekerFilter';
 import SeekerResults from '@/components/ui/seeker/SeekerResult';
+import AnimatedButton from '../ui/buttons/AnimatedButton';
 
 export default function Seeker() {
   const { data: zones } = useSelector((state: RootState) => state.zones);
@@ -102,10 +103,6 @@ export default function Seeker() {
       transition={{ duration: 0.4 }}
       className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-10 text-dozeblue bg-white rounded-2xl shadow-lg mb-10"
     >
-      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6">
-        Encontrá tu alojamiento ideal
-      </h2>
-
       <SeekerFilters
         zones={zones}
         hotels={hotels}
@@ -129,18 +126,21 @@ export default function Seeker() {
 
       {/* Botón expandir */}
       <div className="mt-6 text-center">
-        <button
-          onClick={() =>
-            window.open(
-              '/fns-booking-frame',
-              '_blank',
-              'width=600,height=700,scrollbars=yes,resizable=yes'
-            )
-          }
-          className="text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium"
-        >
-          Expandí tu búsqueda
-        </button>
+        <div className="inline-flex gap-4">
+          <button
+            onClick={() =>
+              window.open(
+                '/fns-booking-frame',
+                '_blank',
+                'width=600,height=700,scrollbars=yes,resizable=yes'
+              )
+            }
+            className="text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium"
+          >
+            Expandí tu búsqueda
+          </button>
+          <AnimatedButton text="Conoce Nuestras Zonas" sectionId="#zones" />
+        </div>
       </div>
 
       <SeekerResults
