@@ -19,6 +19,7 @@ interface Props {
   setSelectedHotelId: (id: number | null) => void;
   setSelectedRoomId: (id: number | null) => void;
   setSelectedServices: (services: string[]) => void;
+  loading: boolean;
 }
 
 export default function SeekerFilters({
@@ -34,6 +35,7 @@ export default function SeekerFilters({
   setSelectedHotelId,
   setSelectedRoomId,
   setSelectedServices,
+  loading,
 }: Props) {
   const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -50,6 +52,20 @@ export default function SeekerFilters({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  if (loading) {
+    // Skeletons
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-4 items-end">
+        {Array.from({ length: 4 }).map((_, idx) => (
+          <div key={idx} className="space-y-2">
+            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+            <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">

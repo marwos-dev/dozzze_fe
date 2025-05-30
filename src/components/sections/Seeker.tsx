@@ -118,6 +118,7 @@ export default function Seeker({
           setSelectedHotelId={setSelectedHotelId}
           setSelectedRoomId={setSelectedRoomId}
           setSelectedServices={setSelectedServices}
+          loading={loading}
         />
       </div>
 
