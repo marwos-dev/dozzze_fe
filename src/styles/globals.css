@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --background: #e6e4ff;
@@ -12,7 +12,6 @@
   /*--font-mono: var(--font-geist-mono);*/
 }
 
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -21,8 +20,27 @@ body {
 
 @theme {
   --color-greenlight: #a5b1d3;
-  --color-dozeblue:#1E3A8A;
-  --color-dozegray:#808080;
+  --color-dozeblue: #1e3a8a;
+  --color-dozegray: #808080;
   --color-dozebg1: #f8f8f6;
-  --color-dozebg2:#e6e4ff;
+  --color-dozebg2: #e6e4ff;
+}
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    to right,
+    rgba(229, 231, 235, 0.2) 0%,
+    rgba(229, 231, 235, 0.5) 50%,
+    rgba(229, 231, 235, 0.2) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
