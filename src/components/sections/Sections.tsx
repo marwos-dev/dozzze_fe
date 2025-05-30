@@ -38,7 +38,7 @@ const Sections = () => {
               estadía
             </p>
           </div>
-          <Seeker />
+          <Seeker loading={loading} />
         </section>
         <section className="p-5" id="seeker"></section>
         <ZoneSection zones={zones as Zone[]} loading={loading} />{' '}

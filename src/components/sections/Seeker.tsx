@@ -10,8 +10,12 @@ import AnimatedButton from '../ui/buttons/AnimatedButton';
 import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 type SeekerProps = {
   initialFilterOpen?: boolean;
+  loading: boolean;
 };
-export default function Seeker({ initialFilterOpen = false }: SeekerProps) {
+export default function Seeker({
+  initialFilterOpen = false,
+  loading,
+}: SeekerProps) {
   const { data: zones } = useSelector((state: RootState) => state.zones);
 
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
@@ -160,6 +164,7 @@ export default function Seeker({ initialFilterOpen = false }: SeekerProps) {
         selectedHotel={selectedHotel}
         filteredRooms={filteredRooms}
         filteredRoomsByServices={filteredRoomsByServices}
+        loading={loading}
       />
     </motion.section>
   );

@@ -104,7 +104,7 @@ export default function Navbar() {
             </h2>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
-            <Seeker />
+            <Seeker loading={false} />
           </div>
         </div>
       </FilterModal>
