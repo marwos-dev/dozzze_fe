@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 const images = [
-  "/images/Homesection/img1.jpg",
-  "/images/Homesection/img2.jpg",
-  "/images/Homesection/img3.jpg",
+  '/images/HomeSection/img1.jpg',
+  '/images/HomeSection/img2.jpg',
+  '/images/HomeSection/img3.jpg',
 ];
 
 export default function HomeSlider() {
@@ -41,15 +41,15 @@ export default function HomeSlider() {
           const isNext = index === (currentIndex + 1) % images.length;
 
           const baseClass =
-            "absolute transition-all duration-700 ease-in-out rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.2)] overflow-hidden";
+            'absolute transition-all duration-700 ease-in-out rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.2)] overflow-hidden';
 
           const className = isActive
             ? `${baseClass} w-full h-full z-30 scale-100 opacity-100 blur-0`
             : isPrev || isNext
-            ? `${baseClass} w-3/4 h-4/5 z-20 scale-90 opacity-60 blur-sm ${
-                isPrev ? "-translate-x-1/2 left-0" : "translate-x-1/2 right-0"
-              }`
-            : "hidden";
+              ? `${baseClass} w-3/4 h-4/5 z-20 scale-90 opacity-60 blur-sm ${
+                  isPrev ? '-translate-x-1/2 left-0' : 'translate-x-1/2 right-0'
+                }`
+              : 'hidden';
 
           return (
             <div className={className} key={index}>
