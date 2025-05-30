@@ -8,16 +8,13 @@ import type { AppDispatch, RootState } from '@/store';
 import Home from './Home';
 import ZoneSection from './Zones';
 import Seeker from './Seeker';
-import Spinner from '@/components/ui/spinners/Spinner';
 import { Zone } from '@/types/zone';
 
 const Sections = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    data: zones,
-    loading,
-    error,
-  } = useSelector((state: RootState) => state.zones);
+  const { data: zones, loading } = useSelector(
+    (state: RootState) => state.zones
+  );
 
   useEffect(() => {
     dispatch(getZones());
