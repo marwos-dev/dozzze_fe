@@ -5,6 +5,7 @@ import RoomCard from '@/components/ui/cards/RoomsCard/RoomCard';
 import { Property } from '@/types/property';
 import { Room } from '@/types/room';
 import { Zone } from '@/types/zone';
+import PropertiesCardSkeleton from '../skeletons/PropertyCardSkeleton';
 
 interface Props {
   zones: Zone[];
@@ -15,6 +16,7 @@ interface Props {
   selectedHotel: Property | undefined;
   filteredRooms: Room[];
   filteredRoomsByServices: Room[];
+  loading: boolean;
 }
 
 export default function SeekerResults({
@@ -24,6 +26,7 @@ export default function SeekerResults({
   selectedRoomId,
   selectedServices,
   selectedHotel,
+  loading,
 }: Props) {
   const filteredZones = selectedZoneId
     ? zones.filter((zone) => zone.id === selectedZoneId)
@@ -32,6 +35,16 @@ export default function SeekerResults({
   // Mostrar solo habitaciones filtradas por servicios, sin hotel seleccionado
   const showRoomsOnly =
     !selectedHotelId && selectedServices.length > 0 && !selectedHotel;
+  if (loading) {
+    // Mostrar skeletons mientras carga
+    return (
+      <div className="flex flex-col gap-6">
+        <PropertiesCardSkeleton />
+        <PropertiesCardSkeleton />
+        <PropertiesCardSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="mt-10">
