@@ -143,29 +143,31 @@ export default function SeekerFilters({
         )}
       </div>
 
-      {/* Categoría */}
+      {/* Tipo */}
       <div>
         <label className="text-sm font-medium mb-1 block">
           <DoorOpen className="inline w-4 h-4 mr-1" />
-          Categoría
+          Tipo
         </label>
         <select
           value={selectedRoomId ?? ''}
           onChange={(e) => setSelectedRoomId(Number(e.target.value) || null)}
           className="w-full border border-gray-300 rounded-lg p-2"
         >
-          <option value="">Todas las categorías</option>
-          {filteredRooms
-            .filter((room) =>
-              selectedServices.every((service) =>
-                room.services?.includes(service)
-              )
-            )
-            .map((room) => (
-              <option key={room.id} value={room.id}>
-                {room.name}
-              </option>
-            ))}
+          <option value="">Tipos</option>
+          {[
+            ...new Set(
+              filteredRooms
+                .filter((room) =>
+                  selectedServices.every((type) => room.type?.includes(type))
+                )
+                .map((room) => room.type)
+            ),
+          ].map((type, index) => (
+            <option key={index} value={index}>
+              {type}
+            </option>
+          ))}
         </select>
       </div>
     </form>

@@ -6,4 +6,5 @@ export interface Room {
   services?: string[];
   images: string[];
   property_id: number;
+  type: string;
 }
