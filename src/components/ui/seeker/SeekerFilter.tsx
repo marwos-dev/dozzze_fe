@@ -55,16 +55,6 @@ export default function SeekerFilters({
 
   if (loading) {
     // Skeletons
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-4 items-end">
-        {Array.from({ length: 4 }).map((_, idx) => (
-          <div key={idx} className="space-y-2">
-            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-            <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
-          </div>
-        ))}
-      </div>
-    );
   }
 
   return (
