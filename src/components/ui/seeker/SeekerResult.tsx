@@ -13,9 +13,12 @@ interface Props {
   selectedHotelId: number | null;
   selectedRoomId: number | null;
   selectedServices: string[];
+  selectedType: string[];
   selectedHotel: Property | undefined;
   filteredRooms: Room[];
   filteredRoomsByServices: Room[];
+  filteredRoomsByType: Room[];
+
   loading: boolean;
 }
 
@@ -25,6 +28,7 @@ export default function SeekerResults({
   selectedHotelId,
   selectedRoomId,
   selectedServices,
+  selectedType,
   selectedHotel,
   loading,
 }: Props) {
@@ -32,11 +36,12 @@ export default function SeekerResults({
     ? zones.filter((zone) => zone.id === selectedZoneId)
     : zones;
 
-  // Mostrar solo habitaciones filtradas por servicios, sin hotel seleccionado
   const showRoomsOnly =
-    !selectedHotelId && selectedServices.length > 0 && !selectedHotel;
+    !selectedHotelId &&
+    (selectedServices.length > 0 || selectedType.length > 0) &&
+    !selectedHotel;
+
   if (loading) {
-    // Mostrar skeletons mientras carga
     return (
       <div className="flex flex-col gap-6">
         <PropertiesCardSkeleton />
@@ -46,15 +51,25 @@ export default function SeekerResults({
 
   return (
     <div className="mt-10">
-      {/* Mostrar RoomCards si hay servicios seleccionados pero ningún hotel */}
+      {/* Mostrar RoomCards si hay servicios o tipos seleccionados pero ningún hotel */}
       {showRoomsOnly && (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredZones.flatMap((zone) =>
             zone.properties.flatMap((property: Property) =>
               property.rooms
-                .filter((room: Room) =>
-                  selectedServices.every((srv) => room.services?.includes(srv))
-                )
+                .filter((room: Room) => {
+                  const servicesMatch =
+                    selectedServices.length === 0 ||
+                    selectedServices.every((srv) =>
+                      room.services?.includes(srv)
+                    );
+
+                  const typeMatch =
+                    selectedType.length === 0 ||
+                    selectedType.every((typ) => room.type?.includes(typ));
+
+                  return servicesMatch && typeMatch;
+                })
                 .map((room: Room) => (
                   <RoomCard
                     key={room.id}
@@ -67,21 +82,20 @@ export default function SeekerResults({
         </div>
       )}
 
-      {/* Sin hotel seleccionado y sin filtros de servicio: mostrar propiedades */}
+      {/* Mostrar propiedades si no hay filtros de servicios ni tipos ni hotel seleccionado */}
       {!selectedHotelId && !showRoomsOnly && (
         <div className="flex flex-col gap-6">
           {filteredZones.flatMap((zone) =>
             zone.properties
               .filter((property: Property) => {
-                // Filtrar por categoría de habitación
                 if (
                   selectedRoomId &&
                   !property.rooms.some(
                     (room: Room) => room.id === selectedRoomId
                   )
-                )
+                ) {
                   return false;
-
+                }
                 return true;
               })
               .map((property: Property) => (
@@ -93,20 +107,16 @@ export default function SeekerResults({
         </div>
       )}
 
-      {/* Hotel seleccionado: mostrar habitaciones de ese hotel */}
-      {selectedHotel && (
-        <div>
+      {/* Hotel seleccionado: mostrar habitaciones filtradas por servicios */}
+      {selectedHotel && selectedServices.length > 0 && (
+        <div className="mb-10">
           <h3 className="text-lg font-semibold text-dozeblue mb-4">
-            Habitaciones disponibles en {selectedHotel.name}:
+            Habitaciones disponibles en {selectedHotel.name} (Servicios):
           </h3>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {selectedHotel.rooms
               .filter((room: Room) =>
-                selectedServices.length === 0
-                  ? true
-                  : selectedServices.every((srv) =>
-                      room.services?.includes(srv)
-                    )
+                selectedServices.every((srv) => room.services?.includes(srv))
               )
               .map((room: Room) => (
                 <RoomCard
@@ -116,8 +126,6 @@ export default function SeekerResults({
                 />
               ))}
           </div>
-
-          {/* Si no hay habitaciones que coincidan */}
           {selectedHotel.rooms.filter((room: Room) =>
             selectedServices.every((srv) => room.services?.includes(srv))
           ).length === 0 && (
@@ -125,6 +133,49 @@ export default function SeekerResults({
               No hay habitaciones que coincidan con los servicios seleccionados.
             </p>
           )}
+        </div>
+      )}
+
+      {/* Hotel seleccionado: mostrar habitaciones filtradas por tipo */}
+      {selectedHotel && selectedType.length > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold text-dozeblue mb-4">
+            Habitaciones disponibles en {selectedHotel.name} (Tipos):
+          </h3>
+          {selectedType.map((type) => {
+            const filteredRooms = selectedHotel.rooms.filter((room: Room) =>
+              room.type?.includes(type)
+            );
+            if (filteredRooms.length === 0) {
+              return (
+                <div key={type} className="mb-6">
+                  <h4 className="text-md font-semibold text-dozeblue">
+                    Tipo: {type}
+                  </h4>
+                  <p className="text-muted-foreground">
+                    No hay habitaciones de este tipo disponibles.
+                  </p>
+                </div>
+              );
+            }
+
+            return (
+              <div key={type} className="mb-8">
+                <h4 className="text-md font-semibold text-dozeblue mb-2">
+                  Tipo: {type}
+                </h4>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {filteredRooms.map((room: Room) => (
+                    <RoomCard
+                      key={room.id}
+                      {...room}
+                      services={room.services ?? []}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

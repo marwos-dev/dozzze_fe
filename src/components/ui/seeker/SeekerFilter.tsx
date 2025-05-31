@@ -11,14 +11,18 @@ interface Props {
   hotels: Property[];
   filteredRooms: Room[];
   uniqueServices: string[];
+  uniqueType: string[];
   selectedZoneId: number | null;
   selectedHotelId: number | null;
   selectedRoomId: number | null;
   selectedServices: string[];
+  selectedType: string[];
   setSelectedZoneId: (id: number | null) => void;
   setSelectedHotelId: (id: number | null) => void;
   setSelectedRoomId: (id: number | null) => void;
   setSelectedServices: (services: string[]) => void;
+  setSelectedType: (type: string[]) => void;
+
   loading: boolean;
 }
 
@@ -27,14 +31,17 @@ export default function SeekerFilters({
   hotels,
   filteredRooms,
   uniqueServices,
+  uniqueType,
   selectedZoneId,
   selectedHotelId,
   selectedRoomId,
   selectedServices,
+  selectedType,
   setSelectedZoneId,
   setSelectedHotelId,
   setSelectedRoomId,
   setSelectedServices,
+  setSelectedType,
   loading,
 }: Props) {
   const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
@@ -150,21 +157,15 @@ export default function SeekerFilters({
           Tipo
         </label>
         <select
-          value={selectedRoomId ?? ''}
-          onChange={(e) => setSelectedRoomId(Number(e.target.value) || null)}
+          value={selectedType[0] ?? ''}
+          onChange={(e) =>
+            setSelectedType(e.target.value ? [e.target.value] : [])
+          }
           className="w-full border border-gray-300 rounded-lg p-2"
         >
-          <option value="">Tipos</option>
-          {[
-            ...new Set(
-              filteredRooms
-                .filter((room) =>
-                  selectedServices.every((type) => room.type?.includes(type))
-                )
-                .map((room) => room.type)
-            ),
-          ].map((type, index) => (
-            <option key={index} value={index}>
+          <option value="">Todos los tipos</option>
+          {uniqueType.map((type) => (
+            <option key={type} value={type}>
               {type}
             </option>
           ))}
