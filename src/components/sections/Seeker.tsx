@@ -22,6 +22,8 @@ export default function Seeker({
   const [selectedHotelId, setSelectedHotelId] = useState<number | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedType, setSelectedType] = useState<string[]>([]);
+
   const [isFilterOpen, setIsFilterOpen] = useState(initialFilterOpen);
 
   const selectedZone = zones.find((z) => z.id === selectedZoneId);
@@ -63,9 +65,24 @@ export default function Seeker({
     return filteredRooms;
   }, [selectedServices, filteredRooms]);
 
+  const filteredRoomsByType = useMemo(() => {
+    if (selectedType.length > 0) {
+      return filteredRooms.filter((room) =>
+        selectedType.includes(room.type ?? '')
+      );
+    }
+    return filteredRooms;
+  }, [selectedType, filteredRooms]);
+
   const uniqueServices = useMemo(() => {
     return Array.from(
       new Set(filteredRooms.flatMap((room) => room.services || []))
+    );
+  }, [filteredRooms]);
+
+  const uniqueType = useMemo(() => {
+    return Array.from(
+      new Set(filteredRooms.flatMap((room) => room.type || []))
     );
   }, [filteredRooms]);
 
@@ -95,6 +112,19 @@ export default function Seeker({
   useEffect(() => {
     setSelectedRoomId(null);
   }, [selectedServices]);
+  useEffect(() => {
+    setSelectedType((curr) => {
+      const filtered = curr.filter((srv) => uniqueType.includes(srv));
+      return filtered.length !== curr.length ? filtered : curr;
+    });
+  }, [uniqueType]);
+
+  useEffect(() => {
+    setSelectedRoomId(null);
+  }, [selectedServices]);
+  useEffect(() => {
+    setSelectedRoomId(null);
+  }, [selectedType]);
 
   return (
     <motion.section
@@ -110,14 +140,17 @@ export default function Seeker({
           hotels={hotels}
           filteredRooms={filteredRooms}
           uniqueServices={uniqueServices}
+          uniqueType={uniqueType}
           selectedZoneId={selectedZoneId}
           selectedHotelId={selectedHotelId}
           selectedRoomId={selectedRoomId}
           selectedServices={selectedServices}
+          selectedType={selectedType}
           setSelectedZoneId={setSelectedZoneId}
           setSelectedHotelId={setSelectedHotelId}
           setSelectedRoomId={setSelectedRoomId}
           setSelectedServices={setSelectedServices}
+          setSelectedType={setSelectedType}
           loading={loading}
         />
       </div>
@@ -162,9 +195,11 @@ export default function Seeker({
         selectedHotelId={selectedHotelId}
         selectedRoomId={selectedRoomId}
         selectedServices={selectedServices}
+        selectedType={selectedType}
         selectedHotel={selectedHotel}
         filteredRooms={filteredRooms}
         filteredRoomsByServices={filteredRoomsByServices}
+        filteredRoomsByType={filteredRoomsByType}
         loading={loading}
       />
     </motion.section>

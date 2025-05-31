@@ -11,30 +11,34 @@ interface Props {
   hotels: Property[];
   filteredRooms: Room[];
   uniqueServices: string[];
+  uniqueType: string[];
   selectedZoneId: number | null;
   selectedHotelId: number | null;
   selectedRoomId: number | null;
   selectedServices: string[];
+  selectedType: string[];
   setSelectedZoneId: (id: number | null) => void;
   setSelectedHotelId: (id: number | null) => void;
   setSelectedRoomId: (id: number | null) => void;
   setSelectedServices: (services: string[]) => void;
+  setSelectedType: (type: string[]) => void;
+
   loading: boolean;
 }
 
 export default function SeekerFilters({
   zones,
   hotels,
-  filteredRooms,
   uniqueServices,
+  uniqueType,
   selectedZoneId,
   selectedHotelId,
-  selectedRoomId,
   selectedServices,
+  selectedType,
   setSelectedZoneId,
   setSelectedHotelId,
-  setSelectedRoomId,
   setSelectedServices,
+  setSelectedType,
   loading,
 }: Props) {
   const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
@@ -55,16 +59,6 @@ export default function SeekerFilters({
 
   if (loading) {
     // Skeletons
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-4 items-end">
-        {Array.from({ length: 4 }).map((_, idx) => (
-          <div key={idx} className="space-y-2">
-            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-            <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
-          </div>
-        ))}
-      </div>
-    );
   }
 
   return (
@@ -153,29 +147,25 @@ export default function SeekerFilters({
         )}
       </div>
 
-      {/* Categoría */}
+      {/* Tipo */}
       <div>
         <label className="text-sm font-medium mb-1 block">
           <DoorOpen className="inline w-4 h-4 mr-1" />
-          Categoría
+          Tipo
         </label>
         <select
-          value={selectedRoomId ?? ''}
-          onChange={(e) => setSelectedRoomId(Number(e.target.value) || null)}
+          value={selectedType[0] ?? ''}
+          onChange={(e) =>
+            setSelectedType(e.target.value ? [e.target.value] : [])
+          }
           className="w-full border border-gray-300 rounded-lg p-2"
         >
-          <option value="">Todas las categorías</option>
-          {filteredRooms
-            .filter((room) =>
-              selectedServices.every((service) =>
-                room.services?.includes(service)
-              )
-            )
-            .map((room) => (
-              <option key={room.id} value={room.id}>
-                {room.name}
-              </option>
-            ))}
+          <option value="">Todos los tipos</option>
+          {uniqueType.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
         </select>
       </div>
     </form>
