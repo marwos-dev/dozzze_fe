@@ -26,8 +26,9 @@ export default function Seeker({
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<string[]>([]);
   const [selectedPax, setSelectedPax] = useState<number | null>(null);
-
   const [isFilterOpen, setIsFilterOpen] = useState(initialFilterOpen);
+
+  const [showNoResultsMessage, setShowNoResultsMessage] = useState(false);
 
   const selectedZone = zones.find((z) => z.id === selectedZoneId);
 
@@ -47,6 +48,7 @@ export default function Seeker({
     );
   }, [zones]);
 
+  // 🚫 Sin filtro de pax (para servicios y tipos)
   const filterableRooms = useMemo(() => {
     let rooms = allRooms;
 
@@ -61,6 +63,7 @@ export default function Seeker({
     return rooms;
   }, [selectedHotelId, selectedZoneId, allRooms, hotels]);
 
+  // ✅ Filtro con pax
   const filteredRooms = useMemo(() => {
     return selectedPax !== null
       ? filterableRooms.filter((room) => room.pax === selectedPax)
@@ -91,6 +94,7 @@ export default function Seeker({
     return Array.from(new Set(filterableRooms.flatMap((r) => r.type ?? [])));
   }, [filterableRooms]);
 
+  // 🔁 Reset hotel/room si ya no son válidos
   useEffect(() => {
     if (selectedZoneId && !hotels.some((h) => h.id === selectedHotelId)) {
       setSelectedHotelId(null);
@@ -107,6 +111,7 @@ export default function Seeker({
     }
   }, [selectedHotelId, filteredRooms, selectedRoomId]);
 
+  // 🔁 Limpiar filtros inválidos
   useEffect(() => {
     setSelectedServices((curr) =>
       curr.filter((srv) => uniqueServices.includes(srv))
@@ -116,6 +121,17 @@ export default function Seeker({
   useEffect(() => {
     setSelectedType((curr) => curr.filter((typ) => uniqueType.includes(typ)));
   }, [uniqueType]);
+
+  // ⚠️ Mostrar mensaje si no hay habitaciones para el pax indicado
+  useEffect(() => {
+    if (selectedPax !== null && filteredRooms.length === 0) {
+      setShowNoResultsMessage(true);
+      setTimeout(() => {
+        setSelectedPax(null);
+        setShowNoResultsMessage(false);
+      }, 2500);
+    }
+  }, [filteredRooms, selectedPax]);
 
   return (
     <motion.section
@@ -180,6 +196,13 @@ export default function Seeker({
           className="min-w-[220px]"
         />
       </div>
+
+      {showNoResultsMessage && (
+        <p className="text-center text-red-600 font-medium my-4">
+          No hay habitaciones para esa cantidad de personas. Mostrando todas las
+          disponibles.
+        </p>
+      )}
 
       <SeekerResults
         zones={zones}

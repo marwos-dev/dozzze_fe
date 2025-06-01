@@ -1,6 +1,6 @@
-// SeekerResults.tsx
 'use client';
 
+import { motion } from 'framer-motion';
 import PropertiesCard from '@/components/ui/cards/PropertiesCard/ProperitesCard';
 import RoomCard from '@/components/ui/cards/RoomsCard/RoomCard';
 import { Property } from '@/types/property';
@@ -22,6 +22,21 @@ interface Props {
   filteredRoomsByType: Room[];
   loading: boolean;
 }
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
 
 export default function SeekerResults({
   zones,
@@ -60,7 +75,12 @@ export default function SeekerResults({
     <div className="mt-10">
       {/* Mostrar RoomCards si hay filtros sin hotel seleccionado */}
       {showRoomsOnly && (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {filteredZones.flatMap((zone) =>
             zone.properties.flatMap((property: Property) =>
               property.rooms
@@ -81,20 +101,23 @@ export default function SeekerResults({
                   return servicesMatch && typeMatch && paxMatch;
                 })
                 .map((room: Room) => (
-                  <RoomCard
-                    key={room.id}
-                    {...room}
-                    services={room.services ?? []}
-                  />
+                  <motion.div key={room.id} variants={cardVariants}>
+                    <RoomCard {...room} services={room.services ?? []} />
+                  </motion.div>
                 ))
             )
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* Mostrar propiedades si no hay filtros activos */}
       {!selectedHotelId && !showRoomsOnly && (
-        <div className="flex flex-col gap-6">
+        <motion.div
+          className="flex flex-col gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {filteredZones.flatMap((zone) =>
             zone.properties
               .filter((property: Property) => {
@@ -109,12 +132,12 @@ export default function SeekerResults({
                 return true;
               })
               .map((property: Property) => (
-                <div key={property.id} className="w-full">
+                <motion.div key={property.id} variants={cardVariants}>
                   <PropertiesCard {...property} zone={zone.name} />
-                </div>
+                </motion.div>
               ))
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* Hotel seleccionado: mostrar habitaciones */}
@@ -123,7 +146,12 @@ export default function SeekerResults({
           <h3 className="text-lg font-semibold text-dozeblue mb-4">
             Habitaciones disponibles en {selectedHotel.name}:
           </h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <motion.div
+            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             {selectedHotel.rooms
               .filter((room: Room) => {
                 const serviceOk =
@@ -139,13 +167,11 @@ export default function SeekerResults({
                 return serviceOk && typeOk && paxOk;
               })
               .map((room: Room) => (
-                <RoomCard
-                  key={room.id}
-                  {...room}
-                  services={room.services ?? []}
-                />
+                <motion.div key={room.id} variants={cardVariants}>
+                  <RoomCard {...room} services={room.services ?? []} />
+                </motion.div>
               ))}
-          </div>
+          </motion.div>
 
           {selectedHotel.rooms.filter((room: Room) => {
             const serviceOk =

@@ -62,7 +62,7 @@ export default function SeekerFilters({
   return (
     <form className="flex flex-wrap items-center justify-start gap-4 pb-4">
       {/* Zona */}
-      <div className="flex flex-col min-w-[180px]">
+      <div className="flex flex-col md:ml-10 min-w-[180px]">
         <label className="text-sm font-medium mb-1 flex items-center gap-1">
           <MapPin className="w-4 h-4" /> Zona
         </label>
