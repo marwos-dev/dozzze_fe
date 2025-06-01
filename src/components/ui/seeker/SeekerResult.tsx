@@ -1,3 +1,4 @@
+// SeekerResults.tsx
 'use client';
 
 import PropertiesCard from '@/components/ui/cards/PropertiesCard/ProperitesCard';
@@ -14,11 +15,11 @@ interface Props {
   selectedRoomId: number | null;
   selectedServices: string[];
   selectedType: string[];
+  selectedPax: number | null;
   selectedHotel: Property | undefined;
   filteredRooms: Room[];
   filteredRoomsByServices: Room[];
   filteredRoomsByType: Room[];
-
   loading: boolean;
 }
 
@@ -29,7 +30,11 @@ export default function SeekerResults({
   selectedRoomId,
   selectedServices,
   selectedType,
+  selectedPax,
   selectedHotel,
+  filteredRooms,
+  filteredRoomsByServices,
+  filteredRoomsByType,
   loading,
 }: Props) {
   const filteredZones = selectedZoneId
@@ -38,7 +43,9 @@ export default function SeekerResults({
 
   const showRoomsOnly =
     !selectedHotelId &&
-    (selectedServices.length > 0 || selectedType.length > 0) &&
+    (selectedServices.length > 0 ||
+      selectedType.length > 0 ||
+      selectedPax !== null) &&
     !selectedHotel;
 
   if (loading) {
@@ -51,7 +58,7 @@ export default function SeekerResults({
 
   return (
     <div className="mt-10">
-      {/* Mostrar RoomCards si hay servicios o tipos seleccionados pero ningún hotel */}
+      {/* Mostrar RoomCards si hay filtros sin hotel seleccionado */}
       {showRoomsOnly && (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredZones.flatMap((zone) =>
@@ -68,7 +75,10 @@ export default function SeekerResults({
                     selectedType.length === 0 ||
                     selectedType.every((typ) => room.type?.includes(typ));
 
-                  return servicesMatch && typeMatch;
+                  const paxMatch =
+                    selectedPax === null || room.pax === selectedPax;
+
+                  return servicesMatch && typeMatch && paxMatch;
                 })
                 .map((room: Room) => (
                   <RoomCard
@@ -82,7 +92,7 @@ export default function SeekerResults({
         </div>
       )}
 
-      {/* Mostrar propiedades si no hay filtros de servicios ni tipos ni hotel seleccionado */}
+      {/* Mostrar propiedades si no hay filtros activos */}
       {!selectedHotelId && !showRoomsOnly && (
         <div className="flex flex-col gap-6">
           {filteredZones.flatMap((zone) =>
@@ -107,71 +117,50 @@ export default function SeekerResults({
         </div>
       )}
 
-      {/* Hotel seleccionado: mostrar habitaciones filtradas por servicios */}
-      {selectedHotel &&
-        selectedServices.length === 0 &&
-        selectedType.length === 0 && (
-          <div className="mb-10">
-            <h3 className="text-lg font-semibold text-dozeblue mb-4">
-              Habitaciones disponibles en {selectedHotel.name}:
-            </h3>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {selectedHotel.rooms.map((room: Room) => (
+      {/* Hotel seleccionado: mostrar habitaciones */}
+      {selectedHotel && (
+        <div className="mb-10">
+          <h3 className="text-lg font-semibold text-dozeblue mb-4">
+            Habitaciones disponibles en {selectedHotel.name}:
+          </h3>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {selectedHotel.rooms
+              .filter((room: Room) => {
+                const serviceOk =
+                  selectedServices.length === 0 ||
+                  selectedServices.every((srv) => room.services?.includes(srv));
+
+                const typeOk =
+                  selectedType.length === 0 ||
+                  selectedType.includes(room.type ?? '');
+
+                const paxOk = selectedPax === null || room.pax === selectedPax;
+
+                return serviceOk && typeOk && paxOk;
+              })
+              .map((room: Room) => (
                 <RoomCard
                   key={room.id}
                   {...room}
                   services={room.services ?? []}
                 />
               ))}
-            </div>
-            {selectedHotel.rooms.length === 0 && (
-              <p className="text-muted-foreground mt-4">
-                Este hotel no tiene habitaciones disponibles.
-              </p>
-            )}
           </div>
-        )}
 
-      {/* Hotel seleccionado: mostrar habitaciones filtradas por tipo */}
-      {selectedHotel && selectedType.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold text-dozeblue mb-4">
-            Habitaciones disponibles en {selectedHotel.name} (Tipos):
-          </h3>
-          {selectedType.map((type) => {
-            const filteredRooms = selectedHotel.rooms.filter((room: Room) =>
-              room.type?.includes(type)
-            );
-            if (filteredRooms.length === 0) {
-              return (
-                <div key={type} className="mb-6">
-                  <h4 className="text-md font-semibold text-dozeblue">
-                    Tipo: {type}
-                  </h4>
-                  <p className="text-muted-foreground">
-                    No hay habitaciones de este tipo disponibles.
-                  </p>
-                </div>
-              );
-            }
-
-            return (
-              <div key={type} className="mb-8">
-                <h4 className="text-md font-semibold text-dozeblue mb-2">
-                  Tipo: {type}
-                </h4>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredRooms.map((room: Room) => (
-                    <RoomCard
-                      key={room.id}
-                      {...room}
-                      services={room.services ?? []}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+          {selectedHotel.rooms.filter((room: Room) => {
+            const serviceOk =
+              selectedServices.length === 0 ||
+              selectedServices.every((srv) => room.services?.includes(srv));
+            const typeOk =
+              selectedType.length === 0 ||
+              selectedType.includes(room.type ?? '');
+            const paxOk = selectedPax === null || room.pax === selectedPax;
+            return serviceOk && typeOk && paxOk;
+          }).length === 0 && (
+            <p className="text-muted-foreground mt-4">
+              No hay habitaciones que coincidan con los filtros seleccionados.
+            </p>
+          )}
         </div>
       )}
     </div>
