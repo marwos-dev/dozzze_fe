@@ -108,33 +108,29 @@ export default function SeekerResults({
       )}
 
       {/* Hotel seleccionado: mostrar habitaciones filtradas por servicios */}
-      {selectedHotel && selectedServices.length > 0 && (
-        <div className="mb-10">
-          <h3 className="text-lg font-semibold text-dozeblue mb-4">
-            Habitaciones disponibles en {selectedHotel.name} (Servicios):
-          </h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {selectedHotel.rooms
-              .filter((room: Room) =>
-                selectedServices.every((srv) => room.services?.includes(srv))
-              )
-              .map((room: Room) => (
+      {selectedHotel &&
+        selectedServices.length === 0 &&
+        selectedType.length === 0 && (
+          <div className="mb-10">
+            <h3 className="text-lg font-semibold text-dozeblue mb-4">
+              Habitaciones disponibles en {selectedHotel.name}:
+            </h3>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {selectedHotel.rooms.map((room: Room) => (
                 <RoomCard
                   key={room.id}
                   {...room}
                   services={room.services ?? []}
                 />
               ))}
+            </div>
+            {selectedHotel.rooms.length === 0 && (
+              <p className="text-muted-foreground mt-4">
+                Este hotel no tiene habitaciones disponibles.
+              </p>
+            )}
           </div>
-          {selectedHotel.rooms.filter((room: Room) =>
-            selectedServices.every((srv) => room.services?.includes(srv))
-          ).length === 0 && (
-            <p className="text-muted-foreground mt-4">
-              No hay habitaciones que coincidan con los servicios seleccionados.
-            </p>
-          )}
-        </div>
-      )}
+        )}
 
       {/* Hotel seleccionado: mostrar habitaciones filtradas por tipo */}
       {selectedHotel && selectedType.length > 0 && (
