@@ -8,10 +8,12 @@ import SeekerFilters from '@/components/ui/seeker/SeekerFilter';
 import SeekerResults from '@/components/ui/seeker/SeekerResult';
 import AnimatedButton from '../ui/buttons/AnimatedButton';
 import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
+
 type SeekerProps = {
   initialFilterOpen?: boolean;
   loading: boolean;
 };
+
 export default function Seeker({
   initialFilterOpen = false,
   loading,
@@ -23,8 +25,10 @@ export default function Seeker({
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<string[]>([]);
-
+  const [selectedPax, setSelectedPax] = useState<number | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(initialFilterOpen);
+
+  const [showNoResultsMessage, setShowNoResultsMessage] = useState(false);
 
   const selectedZone = zones.find((z) => z.id === selectedZoneId);
 
@@ -44,48 +48,53 @@ export default function Seeker({
     );
   }, [zones]);
 
-  const filteredRooms = useMemo(() => {
+  // 🚫 Sin filtro de pax (para servicios y tipos)
+  const filterableRooms = useMemo(() => {
+    let rooms = allRooms;
+
     if (selectedHotelId) {
-      return allRooms.filter((room) => room.propertyId === selectedHotelId);
-    }
-    if (selectedZoneId) {
-      return allRooms.filter((room) =>
+      rooms = rooms.filter((room) => room.propertyId === selectedHotelId);
+    } else if (selectedZoneId) {
+      rooms = rooms.filter((room) =>
         hotels.some((hotel) => hotel.id === room.propertyId)
       );
     }
-    return allRooms;
+
+    return rooms;
   }, [selectedHotelId, selectedZoneId, allRooms, hotels]);
 
+  // ✅ Filtro con pax
+  const filteredRooms = useMemo(() => {
+    return selectedPax !== null
+      ? filterableRooms.filter((room) => room.pax === selectedPax)
+      : filterableRooms;
+  }, [filterableRooms, selectedPax]);
+
   const filteredRoomsByServices = useMemo(() => {
-    if (selectedServices.length > 0) {
-      return filteredRooms.filter((room) =>
-        selectedServices.every((srv) => room.services?.includes(srv))
-      );
-    }
-    return filteredRooms;
+    return selectedServices.length > 0
+      ? filteredRooms.filter((room) =>
+          selectedServices.every((srv) => room.services?.includes(srv))
+        )
+      : filteredRooms;
   }, [selectedServices, filteredRooms]);
 
   const filteredRoomsByType = useMemo(() => {
-    if (selectedType.length > 0) {
-      return filteredRooms.filter((room) =>
-        selectedType.includes(room.type ?? '')
-      );
-    }
-    return filteredRooms;
+    return selectedType.length > 0
+      ? filteredRooms.filter((room) => selectedType.includes(room.type ?? ''))
+      : filteredRooms;
   }, [selectedType, filteredRooms]);
 
   const uniqueServices = useMemo(() => {
     return Array.from(
-      new Set(filteredRooms.flatMap((room) => room.services || []))
+      new Set(filterableRooms.flatMap((r) => r.services ?? []))
     );
-  }, [filteredRooms]);
+  }, [filterableRooms]);
 
   const uniqueType = useMemo(() => {
-    return Array.from(
-      new Set(filteredRooms.flatMap((room) => room.type || []))
-    );
-  }, [filteredRooms]);
+    return Array.from(new Set(filterableRooms.flatMap((r) => r.type ?? [])));
+  }, [filterableRooms]);
 
+  // 🔁 Reset hotel/room si ya no son válidos
   useEffect(() => {
     if (selectedZoneId && !hotels.some((h) => h.id === selectedHotelId)) {
       setSelectedHotelId(null);
@@ -102,29 +111,27 @@ export default function Seeker({
     }
   }, [selectedHotelId, filteredRooms, selectedRoomId]);
 
+  // 🔁 Limpiar filtros inválidos
   useEffect(() => {
-    setSelectedServices((curr) => {
-      const filtered = curr.filter((srv) => uniqueServices.includes(srv));
-      return filtered.length !== curr.length ? filtered : curr;
-    });
+    setSelectedServices((curr) =>
+      curr.filter((srv) => uniqueServices.includes(srv))
+    );
   }, [uniqueServices]);
 
   useEffect(() => {
-    setSelectedRoomId(null);
-  }, [selectedServices]);
-  useEffect(() => {
-    setSelectedType((curr) => {
-      const filtered = curr.filter((srv) => uniqueType.includes(srv));
-      return filtered.length !== curr.length ? filtered : curr;
-    });
+    setSelectedType((curr) => curr.filter((typ) => uniqueType.includes(typ)));
   }, [uniqueType]);
 
+  // ⚠️ Mostrar mensaje si no hay habitaciones para el pax indicado
   useEffect(() => {
-    setSelectedRoomId(null);
-  }, [selectedServices]);
-  useEffect(() => {
-    setSelectedRoomId(null);
-  }, [selectedType]);
+    if (selectedPax !== null && filteredRooms.length === 0) {
+      setShowNoResultsMessage(true);
+      setTimeout(() => {
+        setSelectedPax(null);
+        setShowNoResultsMessage(false);
+      }, 2500);
+    }
+  }, [filteredRooms, selectedPax]);
 
   return (
     <motion.section
@@ -133,7 +140,6 @@ export default function Seeker({
       transition={{ duration: 0.4 }}
       className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-10 text-dozeblue bg-white rounded-2xl shadow-lg mb-10"
     >
-      {/* Filtros visibles en desktop y toggleables en mobile */}
       <div className={`${isFilterOpen ? 'block' : 'hidden'} md:block`}>
         <SeekerFilters
           zones={zones}
@@ -146,16 +152,17 @@ export default function Seeker({
           selectedRoomId={selectedRoomId}
           selectedServices={selectedServices}
           selectedType={selectedType}
+          selectedPax={selectedPax}
           setSelectedZoneId={setSelectedZoneId}
           setSelectedHotelId={setSelectedHotelId}
           setSelectedRoomId={setSelectedRoomId}
           setSelectedServices={setSelectedServices}
           setSelectedType={setSelectedType}
+          setSelectedPax={setSelectedPax}
           loading={loading}
         />
       </div>
 
-      {/* Botones adicionales */}
       <div className="flex flex-wrap justify-center pt-4 gap-4">
         <button
           onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -169,6 +176,7 @@ export default function Seeker({
             <ChevronDown className="w-4 h-4" />
           )}
         </button>
+
         <button
           onClick={() =>
             window.open(
@@ -189,6 +197,13 @@ export default function Seeker({
         />
       </div>
 
+      {showNoResultsMessage && (
+        <p className="text-center text-red-600 font-medium my-4">
+          No hay habitaciones para esa cantidad de personas. Mostrando todas las
+          disponibles.
+        </p>
+      )}
+
       <SeekerResults
         zones={zones}
         selectedZoneId={selectedZoneId}
@@ -196,6 +211,7 @@ export default function Seeker({
         selectedRoomId={selectedRoomId}
         selectedServices={selectedServices}
         selectedType={selectedType}
+        selectedPax={selectedPax}
         selectedHotel={selectedHotel}
         filteredRooms={filteredRooms}
         filteredRoomsByServices={filteredRoomsByServices}

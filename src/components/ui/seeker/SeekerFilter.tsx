@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MapPin, BedDouble, DoorOpen } from 'lucide-react';
+import { MapPin, BedDouble, DoorOpen, Minus, Plus } from 'lucide-react';
 import { Zone } from '@/types/zone';
 import { Property } from '@/types/property';
 import { Room } from '@/types/room';
@@ -17,12 +17,13 @@ interface Props {
   selectedRoomId: number | null;
   selectedServices: string[];
   selectedType: string[];
+  selectedPax: number | null;
   setSelectedZoneId: (id: number | null) => void;
   setSelectedHotelId: (id: number | null) => void;
   setSelectedRoomId: (id: number | null) => void;
   setSelectedServices: (services: string[]) => void;
   setSelectedType: (type: string[]) => void;
-
+  setSelectedPax: (pax: number | null) => void;
   loading: boolean;
 }
 
@@ -35,11 +36,12 @@ export default function SeekerFilters({
   selectedHotelId,
   selectedServices,
   selectedType,
+  selectedPax,
   setSelectedZoneId,
   setSelectedHotelId,
   setSelectedServices,
   setSelectedType,
-  loading,
+  setSelectedPax,
 }: Props) {
   const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -57,22 +59,17 @@ export default function SeekerFilters({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  if (loading) {
-    // Skeletons
-  }
-
   return (
-    <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+    <form className="flex flex-wrap items-center justify-start gap-4 pb-4">
       {/* Zona */}
-      <div>
-        <label className="text-sm font-medium mb-1 block">
-          <MapPin className="inline w-4 h-4 mr-1" />
-          Zona
+      <div className="flex flex-col md:ml-10 min-w-[180px]">
+        <label className="text-sm font-medium mb-1 flex items-center gap-1">
+          <MapPin className="w-4 h-4" /> Zona
         </label>
         <select
           value={selectedZoneId ?? ''}
           onChange={(e) => setSelectedZoneId(Number(e.target.value) || null)}
-          className="w-full border border-gray-300 rounded-lg p-2"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
         >
           <option value="">Todas las zonas</option>
           {zones.map((zone) => (
@@ -84,15 +81,14 @@ export default function SeekerFilters({
       </div>
 
       {/* Hotel */}
-      <div>
-        <label className="text-sm font-medium mb-1 block">
-          <BedDouble className="inline w-4 h-4 mr-1" />
-          Hotel
+      <div className="flex flex-col min-w-[180px]">
+        <label className="text-sm font-medium mb-1 flex items-center gap-1">
+          <BedDouble className="w-4 h-4" /> Hotel
         </label>
         <select
           value={selectedHotelId ?? ''}
           onChange={(e) => setSelectedHotelId(Number(e.target.value) || null)}
-          className="w-full border border-gray-300 rounded-lg p-2"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
         >
           <option value="">Todos los hoteles</option>
           {hotels.map((hotel) => (
@@ -104,15 +100,14 @@ export default function SeekerFilters({
       </div>
 
       {/* Servicios */}
-      <div className="relative" ref={dropdownRef}>
-        <label className="text-sm font-medium mb-1 block">
-          <DoorOpen className="inline w-4 h-4 mr-1" />
-          Servicios
+      <div className="flex flex-col min-w-[180px] relative" ref={dropdownRef}>
+        <label className="text-sm font-medium mb-1 flex items-center gap-1">
+          <DoorOpen className="w-4 h-4" /> Servicios
         </label>
         <button
           type="button"
           onClick={() => setIsServiceDropdownOpen((prev) => !prev)}
-          className="w-full border border-gray-300 rounded-lg p-2 text-left"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-left"
         >
           {selectedServices.length > 0
             ? `Seleccionados: ${selectedServices.length}`
@@ -120,11 +115,11 @@ export default function SeekerFilters({
         </button>
 
         {isServiceDropdownOpen && (
-          <div className="absolute z-20 mt-2 w-full max-h-48 overflow-y-auto border border-gray-300 bg-white rounded-lg shadow-md p-2">
+          <div className="absolute top-[100%] left-0 mt-2 w-full max-h-48 overflow-y-auto border border-gray-300 bg-white rounded-lg shadow-lg p-2 z-50">
             {uniqueServices.map((service) => (
               <label
                 key={service}
-                className="flex items-center space-x-2 cursor-pointer py-1"
+                className="flex items-center gap-2 py-1 cursor-pointer text-sm"
               >
                 <input
                   type="checkbox"
@@ -138,7 +133,7 @@ export default function SeekerFilters({
                       setSelectedServices([...selectedServices, service]);
                     }
                   }}
-                  className="w-4 h-4 text-dozeblue rounded border-gray-300"
+                  className="w-4 h-4 rounded border-gray-300"
                 />
                 <span>{service}</span>
               </label>
@@ -148,17 +143,16 @@ export default function SeekerFilters({
       </div>
 
       {/* Tipo */}
-      <div>
-        <label className="text-sm font-medium mb-1 block">
-          <DoorOpen className="inline w-4 h-4 mr-1" />
-          Tipo
+      <div className="flex flex-col min-w-[180px]">
+        <label className="text-sm font-medium mb-1 flex items-center gap-1">
+          <DoorOpen className="w-4 h-4" /> Tipo
         </label>
         <select
           value={selectedType[0] ?? ''}
           onChange={(e) =>
             setSelectedType(e.target.value ? [e.target.value] : [])
           }
-          className="w-full border border-gray-300 rounded-lg p-2"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
         >
           <option value="">Todos los tipos</option>
           {uniqueType.map((type) => (
@@ -167,6 +161,40 @@ export default function SeekerFilters({
             </option>
           ))}
         </select>
+      </div>
+
+      {/* Personas */}
+      <div className="flex flex-col min-w-[180px]">
+        <label className="text-sm font-medium mb-1 flex items-center gap-1">
+          <BedDouble className="w-4 h-4" /> Personas
+        </label>
+        <div className="flex items-center border border-gray-300 rounded-lg px-2 py-2 gap-3 justify-between">
+          <button
+            type="button"
+            onClick={() =>
+              setSelectedPax(
+                selectedPax && selectedPax > 1 ? selectedPax - 1 : 1
+              )
+            }
+            className="p-1 hover:bg-gray-100 rounded"
+          >
+            <Minus className="w-4 h-4" />
+          </button>
+          <span className="text-sm font-medium whitespace-nowrap">
+            {selectedPax ?? 1} persona{(selectedPax ?? 1) > 1 ? 's' : ''}
+          </span>
+          <button
+            type="button"
+            onClick={() =>
+              setSelectedPax(
+                (selectedPax ?? 1) < 6 ? (selectedPax ?? 1) + 1 : 6
+              )
+            }
+            className="p-1 hover:bg-gray-100 rounded"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </form>
   );
