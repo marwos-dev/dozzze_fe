@@ -47,9 +47,6 @@ export default function SeekerResults({
   selectedType,
   selectedPax,
   selectedHotel,
-  filteredRooms,
-  filteredRoomsByServices,
-  filteredRoomsByType,
   loading,
 }: Props) {
   const filteredZones = selectedZoneId
