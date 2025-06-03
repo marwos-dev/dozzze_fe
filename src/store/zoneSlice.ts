@@ -2,13 +2,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchZones, fetchZoneById } from '@/services/zoneApi';
 import { Zone } from '@/types/zone';
 
-interface ZoneWithTimestamp extends Zone {
-  lastFetched?: number;
-}
-
 interface ZonesState {
   data: Zone[];
-  selectedZone: ZoneWithTimestamp | null;
+  selectedZone: Zone | null;
   loading: boolean;
   error: string | null;
 }
@@ -20,6 +16,7 @@ const initialState: ZonesState = {
   error: null,
 };
 
+// Obtener todas las zonas (solo si no están ya en el estado)
 export const getZones = createAsyncThunk<
   Zone[],
   void,
@@ -32,41 +29,21 @@ export const getZones = createAsyncThunk<
   return await fetchZones();
 });
 
+// Obtener una zona por ID (sin verificar timestamps)
 export const getZoneById = createAsyncThunk<
-  ZoneWithTimestamp,
+  Zone,
   number,
   { state: { zones: ZonesState }; rejectValue: string }
 >('zones/fetchById', async (id, thunkAPI) => {
   const state = thunkAPI.getState();
-  const { selectedZone } = state.zones;
-
-  const STALE_TIME = 5 * 60 * 1000; // 5 minutos
-
-  // Si ya está seleccionada y no está vencida, no hace falta refetch
-  if (
-    selectedZone &&
-    selectedZone.id === id &&
-    selectedZone.lastFetched &&
-    Date.now() - selectedZone.lastFetched < STALE_TIME
-  ) {
-    return thunkAPI.rejectWithValue('Zona actual ya cargada recientemente');
-  }
-
-  // Buscar en cache general (`data`)
   const cachedZone = state.zones.data.find((z) => z.id === id);
   if (cachedZone) {
-    return {
-      ...cachedZone,
-      lastFetched: Date.now(),
-    };
+    return cachedZone;
   }
 
   try {
     const zone = await fetchZoneById(id);
-    return {
-      ...zone,
-      lastFetched: Date.now(),
-    };
+    return zone;
   } catch (error: unknown) {
     let errorMessage = 'Error desconocido';
     if (error instanceof Error) {
@@ -86,10 +63,7 @@ const zoneSlice = createSlice({
     setSelectedZone: (state, action) => {
       const foundZone = state.data.find((z) => z.id === action.payload);
       if (foundZone) {
-        state.selectedZone = {
-          ...foundZone,
-          lastFetched: Date.now(),
-        };
+        state.selectedZone = foundZone;
         state.loading = false;
         state.error = null;
       }
@@ -120,13 +94,6 @@ const zoneSlice = createSlice({
         state.loading = false;
       })
       .addCase(getZoneById.rejected, (state, action) => {
-        if (
-          typeof action.payload === 'string' &&
-          action.payload.includes('recientemente')
-        ) {
-          // No es error real, solo info
-          return;
-        }
         state.loading = false;
         state.error = action.payload || 'Error al cargar zona';
       });
