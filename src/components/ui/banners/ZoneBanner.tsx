@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import dynamic from "next/dynamic";
-import { useState } from "react";
-import type { LatLngExpression } from "leaflet";
-import type { PointWithMedia } from "@/types/map";
-import { motion } from "framer-motion";
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
+import type { LatLngExpression } from 'leaflet';
+import type { PointWithMedia } from '@/types/map';
+import { motion } from 'framer-motion';
 
-const MapView = dynamic(() => import("../maps/MapZoneVIew"), { ssr: false });
+const MapView = dynamic(() => import('../maps/MapZoneVIew'), { ssr: false });
 
 interface ZoneBannerProps {
   zoneCoordinates: LatLngExpression[];
@@ -22,8 +22,7 @@ export default function ZoneBanner({
   const [mapZoom, setMapZoom] = useState(13);
 
   return (
-    <div className="relative w-full h-[320px] sm:h-[400px] bg-gray-100 rounded-none shadow-md overflow-hidden">
-      {/* Mapa normal */}
+    <div className="relative w-full h-full bg-gray-100 rounded-xl shadow-md overflow-hidden">
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
