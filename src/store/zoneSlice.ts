@@ -16,7 +16,6 @@ const initialState: ZonesState = {
   error: null,
 };
 
-// Obtener todas las zonas (solo si no están ya en el estado)
 export const getZones = createAsyncThunk<
   Zone[],
   void,
@@ -29,7 +28,6 @@ export const getZones = createAsyncThunk<
   return await fetchZones();
 });
 
-// Obtener una zona por ID (sin verificar timestamps)
 export const getZoneById = createAsyncThunk<
   Zone,
   number,
