@@ -1,10 +1,14 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchZones, fetchZoneById } from "@/services/zoneApi";
-import { Zone } from "@/types/zone";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { fetchZones, fetchZoneById } from '@/services/zoneApi';
+import { Zone } from '@/types/zone';
+
+interface ZoneWithTimestamp extends Zone {
+  lastFetched?: number;
+}
 
 interface ZonesState {
   data: Zone[];
-  selectedZone: Zone | null;
+  selectedZone: ZoneWithTimestamp | null;
   loading: boolean;
   error: string | null;
 }
@@ -16,37 +20,55 @@ const initialState: ZonesState = {
   error: null,
 };
 
-// Fetch all zones, but avoid fetching if already in state
 export const getZones = createAsyncThunk<
   Zone[],
   void,
   { state: { zones: ZonesState } }
->("zones/fetch", async (_, thunkAPI) => {
+>('zones/fetch', async (_, thunkAPI) => {
   const state = thunkAPI.getState();
   if (state.zones.data.length > 0) {
-    // Evitar el fetch si ya tenemos datos
-    return thunkAPI.rejectWithValue("Ya existen zonas cargadas en el estado");
+    return thunkAPI.rejectWithValue('Ya existen zonas cargadas en el estado');
   }
   return await fetchZones();
 });
 
-// Fetch one zone by ID, check if it's already selected or in data
 export const getZoneById = createAsyncThunk<
-  Zone,
+  ZoneWithTimestamp,
   number,
   { state: { zones: ZonesState }; rejectValue: string }
->("zones/fetchById", async (id, thunkAPI) => {
+>('zones/fetchById', async (id, thunkAPI) => {
   const state = thunkAPI.getState();
-  const { data } = state.zones;
-  const foundZone = data.find((z) => z.id === id);
-  if (foundZone) {
-    return foundZone;
+  const { selectedZone } = state.zones;
+
+  const STALE_TIME = 5 * 60 * 1000; // 5 minutos
+
+  // Si ya está seleccionada y no está vencida, no hace falta refetch
+  if (
+    selectedZone &&
+    selectedZone.id === id &&
+    selectedZone.lastFetched &&
+    Date.now() - selectedZone.lastFetched < STALE_TIME
+  ) {
+    return thunkAPI.rejectWithValue('Zona actual ya cargada recientemente');
+  }
+
+  // Buscar en cache general (`data`)
+  const cachedZone = state.zones.data.find((z) => z.id === id);
+  if (cachedZone) {
+    return {
+      ...cachedZone,
+      lastFetched: Date.now(),
+    };
   }
 
   try {
-    return await fetchZoneById(Number(id));
+    const zone = await fetchZoneById(id);
+    return {
+      ...zone,
+      lastFetched: Date.now(),
+    };
   } catch (error: unknown) {
-    let errorMessage = "Error desconocido";
+    let errorMessage = 'Error desconocido';
     if (error instanceof Error) {
       errorMessage = error.message;
     }
@@ -55,7 +77,7 @@ export const getZoneById = createAsyncThunk<
 });
 
 const zoneSlice = createSlice({
-  name: "zones",
+  name: 'zones',
   initialState,
   reducers: {
     clearSelectedZone: (state) => {
@@ -64,7 +86,10 @@ const zoneSlice = createSlice({
     setSelectedZone: (state, action) => {
       const foundZone = state.data.find((z) => z.id === action.payload);
       if (foundZone) {
-        state.selectedZone = foundZone;
+        state.selectedZone = {
+          ...foundZone,
+          lastFetched: Date.now(),
+        };
         state.loading = false;
         state.error = null;
       }
@@ -81,8 +106,7 @@ const zoneSlice = createSlice({
         state.loading = false;
       })
       .addCase(getZones.rejected, (state, action) => {
-        // Solo mostrar error si no fue por zonas ya cargadas
-        if (action.payload !== "Ya existen zonas cargadas en el estado") {
+        if (action.payload !== 'Ya existen zonas cargadas en el estado') {
           state.error = action.payload as string;
         }
         state.loading = false;
@@ -96,8 +120,15 @@ const zoneSlice = createSlice({
         state.loading = false;
       })
       .addCase(getZoneById.rejected, (state, action) => {
+        if (
+          typeof action.payload === 'string' &&
+          action.payload.includes('recientemente')
+        ) {
+          // No es error real, solo info
+          return;
+        }
         state.loading = false;
-        state.error = action.payload || "Error al cargar zona";
+        state.error = action.payload || 'Error al cargar zona';
       });
   },
 });
