@@ -1,10 +1,10 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   fetchRoomById,
   getRooms as apiGetRooms,
-} from "@/services/propertiesApi";
-import { Room } from "@/types/room";
-import { RootState } from "../store"; // Asegúrate que este sea el path correcto
+} from '@/services/propertiesApi';
+import { Room } from '@/types/room';
+import { RootState } from '../store'; // Asegúrate que este sea el path correcto
 
 interface RoomsState {
   roomsByProperty: Record<number, Room[]>; // Record[propertyId, Room[]]
@@ -33,7 +33,7 @@ const initialState: RoomsState = {
 
 // Get single room by ID
 export const getRoomById = createAsyncThunk<Room, number, { state: RootState }>(
-  "rooms/getById",
+  'rooms/getById',
   async (id, thunkAPI) => {
     const state = thunkAPI.getState();
     const allRooms = Object.values(state.rooms.roomsByProperty).flat();
@@ -52,9 +52,9 @@ export const fetchRooms = createAsyncThunk<
   FetchRoomsResponse,
   GetRoomsRequest,
   { state: RootState; rejectValue: string }
->("rooms/fetchByProperty", async ({ zoneId, propertyId }, thunkAPI) => {
+>('rooms/fetchByProperty', async ({ zoneId, propertyId }, thunkAPI) => {
   if (!propertyId) {
-    return thunkAPI.rejectWithValue("propertyId es requerido");
+    return thunkAPI.rejectWithValue('propertyId es requerido');
   }
 
   const state = thunkAPI.getState();
@@ -69,17 +69,17 @@ export const fetchRooms = createAsyncThunk<
   }
 
   try {
-    const rooms = await apiGetRooms(Number(zoneId), Number(propertyId));
+    const rooms = await apiGetRooms(Number(propertyId));
     return { zoneId, propertyId, rooms };
   } catch (error: unknown) {
-    let errorMessage = "Error desconocido";
+    let errorMessage = 'Error desconocido';
     if (error instanceof Error) errorMessage = error.message;
     return thunkAPI.rejectWithValue(errorMessage);
   }
 });
 
 const roomsSlice = createSlice({
-  name: "rooms",
+  name: 'rooms',
   initialState,
   reducers: {
     clearSelectedRoom(state) {
@@ -119,7 +119,7 @@ const roomsSlice = createSlice({
       })
       .addCase(fetchRooms.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Error al cargar habitaciones";
+        state.error = action.payload || 'Error al cargar habitaciones';
       })
       .addCase(getRoomById.pending, (state) => {
         state.loading = true;
@@ -131,7 +131,7 @@ const roomsSlice = createSlice({
       })
       .addCase(getRoomById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Error al cargar habitación";
+        state.error = action.error.message || 'Error al cargar habitación';
       });
   },
 });
