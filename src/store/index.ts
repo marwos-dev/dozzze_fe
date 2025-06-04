@@ -1,14 +1,17 @@
-import { configureStore } from "@reduxjs/toolkit";
-import zoneReducer from "./zoneSlice";
-import propertiesReducer from "./propertiesSlice";
-import roomsReducer from "./roomsSlice";
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+
+import zoneReducer from './zoneSlice';
+import propertiesReducer from './propertiesSlice';
+import roomsReducer from './roomsSlice';
+
+const rootReducer = combineReducers({
+  zones: zoneReducer,
+  properties: propertiesReducer,
+  rooms: roomsReducer,
+});
 
 export const store = configureStore({
-  reducer: {
-    zones: zoneReducer,
-    properties: propertiesReducer,
-    rooms: roomsReducer,
-  },
+  reducer: rootReducer,
 });
 
 export type RootState = ReturnType<typeof store.getState>;

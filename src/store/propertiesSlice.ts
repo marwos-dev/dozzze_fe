@@ -1,9 +1,12 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fetchPropertyById } from "@/services/propertiesApi";
-import { Property } from "@/types/property";
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { fetchPropertyById } from '@/services/propertiesApi';
+import { Property } from '@/types/property';
+import { RootState, AppDispatch } from '@/store';
+import { fetchRooms } from './roomsSlice';
+import { Zone } from '@/types/zone';
 
 interface PropertiesState {
-  propertiesByZone: Record<number, Property[]>; // agrupadas por zone_id
+  propertiesByZone: Record<number, Property[]>;
   selectedProperty: Property | null;
   loading: boolean;
   error: string | null;
@@ -16,34 +19,54 @@ const initialState: PropertiesState = {
   error: null,
 };
 
-// ✅ AsyncThunk: busca primero en el state antes de hacer fetch
+// Obtener propiedad por ID con cache desde zones, luego local y luego API
 export const getPropertyById = createAsyncThunk<
   Property,
   number,
-  { state: { properties: PropertiesState }; rejectValue: string }
->("properties/getById", async (id, thunkAPI) => {
-  const state = thunkAPI.getState().properties;
+  { state: RootState; rejectValue: string }
+>('properties/getById', async (propertyId, thunkAPI) => {
+  const state = thunkAPI.getState();
 
-  // Buscar en todos los arrays de propiedades por id
-  const allProperties = Object.values(state.propertiesByZone).flat();
-  const cachedProperty = allProperties.find((prop) => prop.id === id);
+  // Buscar en zonas (properties de cada zone)
+  const allZoneProperties = state.zones.data.flatMap((zone: Zone) =>
+    Array.isArray(zone.properties) ? zone.properties : []
+  );
+  const fromZone = allZoneProperties.find(
+    (p: { id: number }) => p.id === propertyId
+  );
+  if (fromZone) return fromZone;
 
-  if (cachedProperty) {
-    return cachedProperty;
-  }
+  // Buscar en cache local del slice
+  const allCached: Property[] = Object.values(
+    state.properties.propertiesByZone
+  ).flat() as Property[];
+  const fromCache = allCached.find((p) => p.id === propertyId);
+  if (fromCache) return fromCache;
 
+  // Fetch desde API
   try {
-    const fetchedProperty = await fetchPropertyById(id);
-    return fetchedProperty;
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido";
-    return thunkAPI.rejectWithValue(errorMessage);
+    const fetched = await fetchPropertyById(propertyId);
+    return fetched;
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
+    return thunkAPI.rejectWithValue(errorMsg);
+  }
+});
+
+// Thunk combinado: carga propiedad + habitaciones
+export const loadFullPropertyById = createAsyncThunk<
+  void,
+  number,
+  { dispatch: AppDispatch; state: RootState }
+>('properties/loadFull', async (propertyId, { dispatch }) => {
+  const result = await dispatch(getPropertyById(propertyId));
+  if (getPropertyById.fulfilled.match(result)) {
+    dispatch(fetchRooms({ propertyId }));
   }
 });
 
 const propertiesSlice = createSlice({
-  name: "properties",
+  name: 'properties',
   initialState,
   reducers: {
     clearSelectedProperty(state) {
@@ -64,8 +87,7 @@ const propertiesSlice = createSlice({
       state.propertiesByZone[zoneId] = properties;
     },
     clearPropertiesForZone(state, action: PayloadAction<number>) {
-      const zoneId = action.payload;
-      delete state.propertiesByZone[zoneId];
+      delete state.propertiesByZone[action.payload];
     },
   },
   extraReducers: (builder) => {
@@ -80,21 +102,18 @@ const propertiesSlice = createSlice({
         state.loading = false;
         state.error = null;
 
-        // Guardar la propiedad dentro de su zona si no estaba
         const zoneId = property.zone_id;
-        if (!state.propertiesByZone[zoneId]) {
-          state.propertiesByZone[zoneId] = [];
-        }
-        const exists = state.propertiesByZone[zoneId].some(
-          (p) => p.id === property.id
-        );
-        if (!exists) {
-          state.propertiesByZone[zoneId].push(property);
+        if (zoneId) {
+          const current = state.propertiesByZone[zoneId] || [];
+          const alreadyStored = current.some((p) => p.id === property.id);
+          if (!alreadyStored) {
+            state.propertiesByZone[zoneId] = [...current, property];
+          }
         }
       })
       .addCase(getPropertyById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload ?? "Error al cargar propiedad";
+        state.error = action.payload ?? 'Error al cargar propiedad';
       });
   },
 });

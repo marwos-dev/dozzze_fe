@@ -1,34 +1,28 @@
-"use server";
-import axios from "./axios";
-import { Property } from "@/types/property";
-import { Room } from "@/types/room";
+'use server';
 
+import axios from './axios';
+import { Property } from '@/types/property';
+import { Room } from '@/types/room';
+
+// Obtener propiedad por ID
 export const fetchPropertyById = async (id: number): Promise<Property> => {
   const response = await axios.get(`/properties/${id}`);
   return response.data;
 };
 
-export const getRooms = async (
-  zoneId?: number,
-  propertyId?: number
-): Promise<Room[]> => {
-  let url = "/properties/rooms";
-  if (zoneId) {
-    url += `?zone_id=${zoneId}`;
-  }
-
-  if (propertyId) {
-    url += zoneId ? `&property_id=${propertyId}` : `?property_id=${propertyId}`;
-  }
-  const response = await axios.get(url);
+// ✅ Corregido: obtener habitaciones de propiedad específica
+export const getRooms = async (propertyId: number): Promise<Room[]> => {
+  const response = await axios.get(`/properties/${propertyId}/rooms`);
   return response.data;
 };
 
+// Obtener habitación por ID
 export const fetchRoomById = async (id: number): Promise<Room> => {
   const response = await axios.get(`/properties/rooms/${id}`);
   return response.data;
 };
 
+// Obtener propiedades por zona
 export const getPropertiesByZoneId = async (
   id: number
 ): Promise<Property[]> => {
