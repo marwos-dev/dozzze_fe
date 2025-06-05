@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { loadFullPropertyById } from '@/store/propertiesSlice';
 import RoomCard from '@/components/ui/cards/RoomsCard/RoomCard';
-import Spinner from '@/components/ui/spinners/Spinner';
 import PropertyBanner from '@/components/ui/banners/PropertyBanner';
 import { selectFilteredRoomsForProperty } from '@/store/selectors/roomsSelectors';
 import { Minus, Plus, ChevronDown } from 'lucide-react';
