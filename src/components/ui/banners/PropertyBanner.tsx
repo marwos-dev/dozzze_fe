@@ -116,7 +116,7 @@ export default function PropertyBanner({
           <div className="flex flex-col mr-2 md:items-end">
             <Link
               href={`/properties/${property.id}`}
-              className="inline-flex items-center text-dozeblue px-4 py-2 rounded-full text-sm bg-greenlight transition mt-2"
+              className="flex justify-center items-center text-dozeblue px-4 py-2 rounded-full text-sm bg-greenlight transition mt-2 w-full sm:w-auto text-center"
             >
               Términos y Condiciones
               <ArrowRight className="w-4 h-4 ml-2" />

@@ -176,7 +176,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
                         }
                         className="w-4 h-4"
                       />
-                      <span>{service}</span>
+                      <span className="text-dozeblue">{service}</span>
                     </label>
                   ))}
                 </div>
