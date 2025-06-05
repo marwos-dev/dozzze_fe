@@ -11,7 +11,7 @@ import { parseAreaToCoordinates } from '@/utils/mapUtils/parseAreaToCoordiantes'
 import { extractPoints } from '@/utils/mapUtils/extractPoints';
 import { Property } from '@/types/property';
 import { useRouter } from 'next/navigation';
-
+import Image from 'next/image';
 interface PageProps {
   params: Promise<{ id: number }>;
 }
@@ -109,10 +109,12 @@ export default function ZoneDetailPage({ params }: PageProps) {
         {selectedZone.images && selectedZone.images.length > 0 && (
           <div className="flex gap-3 overflow-x-auto py-4">
             {selectedZone.images.map((src, i) => (
-              <img
+              <Image
                 key={i}
                 src={src}
                 alt={`Zona ${selectedZone.name} imagen ${i + 1}`}
+                width={160}
+                height={112}
                 className="w-40 h-28 object-cover rounded-xl border border-gray-300 shadow-sm"
               />
             ))}

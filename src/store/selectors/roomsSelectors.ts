@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '@/store';
+import { Room } from '@/types/room';
 
 export const selectRoomsForProperty = (propertyId: number) =>
   createSelector(
@@ -7,7 +8,7 @@ export const selectRoomsForProperty = (propertyId: number) =>
     (rooms) => rooms ?? []
   );
 
-const emptyArray: any[] = [];
+const emptyArray: Room[] = [];
 
 export const selectFilteredRoomsForProperty = (
   propertyId: number,
