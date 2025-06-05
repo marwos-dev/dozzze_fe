@@ -9,6 +9,8 @@ import Spinner from '@/components/ui/spinners/Spinner';
 import PropertyBanner from '@/components/ui/banners/PropertyBanner';
 import { selectFilteredRoomsForProperty } from '@/store/selectors/roomsSelectors';
 import { Minus, Plus, ChevronDown } from 'lucide-react';
+import PropertyBannerSkeleton from '@/components/ui/skeletons/PropertyBannerSkeleton';
+import RoomCardSkeleton from '@/components/ui/skeletons/RoomCardSkeleton';
 
 interface PageProps {
   params: Promise<{ id: number }>;
@@ -58,8 +60,16 @@ export default function PropertyDetailPage({ params }: PageProps) {
     selectedProperty?.id === numericId ? selectedProperty.rooms || [] : [];
 
   if (loading || !selectedProperty || selectedProperty.id !== numericId)
-    return <Spinner />;
-
+    return (
+      <div className="overflow-x-hidden max-w-6xl mx-auto px-4 py-6 space-y-6">
+        <PropertyBannerSkeleton />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <RoomCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
   if (error) {
     return <p className="text-center text-red-500">Propiedad no encontrada.</p>;
   }
