@@ -11,7 +11,10 @@ import { parseAreaToCoordinates } from '@/utils/mapUtils/parseAreaToCoordiantes'
 import { extractPoints } from '@/utils/mapUtils/extractPoints';
 import { Property } from '@/types/property';
 import { useRouter } from 'next/navigation';
-
+import Image from 'next/image';
+import ZoneHeaderSkeleton from '@/components/ui/skeletons/ZoneHeaderSkeleton';
+import ZoneBannerSkeleton from '@/components/ui/skeletons/ZoneBannerSkeleton';
+import PropertiesCardSkeleton from '@/components/ui/skeletons/PropertyCardSkeleton';
 interface PageProps {
   params: Promise<{ id: number }>;
 }
@@ -43,7 +46,29 @@ export default function ZoneDetailPage({ params }: PageProps) {
   };
 
   if (loading || !selectedZone)
-    return <p className="text-center mt-20 text-lg">Cargando zona...</p>;
+    return (
+      <div className="md:full bg-dozebg2 mx-auto px-4 sm:px-6 py-6 space-y-6">
+        <ZoneHeaderSkeleton />
+        {/* Mapa mobile */}
+        <div className="block sm:hidden">
+          <ZoneBannerSkeleton height={180} />
+        </div>
+        <div className="flex flex-col-reverse md:flex-row gap-6">
+          {/* Columna izquierda: propiedades */}
+          <div className="w-full md:w-[65%] pr-1 space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <PropertiesCardSkeleton key={i} />
+            ))}
+          </div>
+          {/* Mapa fijo en desktop */}
+          <div className="hidden sm:block md:w-[35%] mt-2">
+            <div className="sticky top-24">
+              <ZoneBannerSkeleton height={620} />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
 
   if (error)
     return (
@@ -109,10 +134,12 @@ export default function ZoneDetailPage({ params }: PageProps) {
         {selectedZone.images && selectedZone.images.length > 0 && (
           <div className="flex gap-3 overflow-x-auto py-4">
             {selectedZone.images.map((src, i) => (
-              <img
+              <Image
                 key={i}
                 src={src}
                 alt={`Zona ${selectedZone.name} imagen ${i + 1}`}
+                width={160}
+                height={112}
                 className="w-40 h-28 object-cover rounded-xl border border-gray-300 shadow-sm"
               />
             ))}
