@@ -24,12 +24,25 @@ export default function PropertyDetailPage({ params }: PageProps) {
     (state: RootState) => state.properties
   );
 
+  const propertyRooms = useSelector(
+    (state: RootState) => state.rooms.roomsByProperty[numericId]
+  );
+
+  const roomsLoading = selectedProperty?.id === numericId && !propertyRooms;
+
   const [capacityFilter, setCapacityFilter] = useState<number>(1);
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
   const serviceDropdownRef = useRef<HTMLDivElement>(null);
 
+  const filteredRooms = useSelector(
+    selectFilteredRoomsForProperty(numericId, capacityFilter, categoryFilter)
+  ).filter((room) =>
+    selectedServices.length > 0
+      ? selectedServices.every((service) => room.services?.includes(service))
+      : true
+  );
   useEffect(() => {
     dispatch(loadFullPropertyById(numericId));
   }, [numericId, dispatch]);
@@ -47,14 +60,6 @@ export default function PropertyDetailPage({ params }: PageProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const filteredRooms = useSelector(
-    selectFilteredRoomsForProperty(numericId, capacityFilter, categoryFilter)
-  ).filter((room) =>
-    selectedServices.length > 0
-      ? selectedServices.every((service) => room.services?.includes(service))
-      : true
-  );
-
   const rooms =
     selectedProperty?.id === numericId ? selectedProperty.rooms || [] : [];
 
@@ -69,6 +74,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
         </div>
       </div>
     );
+
   if (error) {
     return <p className="text-center text-red-500">Propiedad no encontrada.</p>;
   }
@@ -197,9 +203,13 @@ export default function PropertyDetailPage({ params }: PageProps) {
 
       {/* Habitaciones filtradas */}
       <section className="mt-6">
-        {filteredRooms.length === 0 ? (
-          <p className="text-center text-gray-500">
-            No hay habitaciones que coincidan con los filtros seleccionados.
+        {roomsLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <RoomCardSkeleton />
+          </div>
+        ) : filteredRooms.length === 0 ? (
+          <p className="text-center text-dozegray text-sm mt-4">
+            No se encontraron habitaciones con estos requisitos.
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 -mt-4 gap-6">
