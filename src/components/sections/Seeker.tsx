@@ -48,7 +48,6 @@ export default function Seeker({
     );
   }, [zones]);
 
-  // 🚫 Sin filtro de pax (para servicios y tipos)
   const filterableRooms = useMemo(() => {
     let rooms = allRooms;
 
@@ -63,7 +62,6 @@ export default function Seeker({
     return rooms;
   }, [selectedHotelId, selectedZoneId, allRooms, hotels]);
 
-  // ✅ Filtro con pax
   const filteredRooms = useMemo(() => {
     return selectedPax !== null
       ? filterableRooms.filter((room) => room.pax === selectedPax)
@@ -94,7 +92,6 @@ export default function Seeker({
     return Array.from(new Set(filterableRooms.flatMap((r) => r.type ?? [])));
   }, [filterableRooms]);
 
-  // 🔁 Reset hotel/room si ya no son válidos
   useEffect(() => {
     if (selectedZoneId && !hotels.some((h) => h.id === selectedHotelId)) {
       setSelectedHotelId(null);
@@ -111,7 +108,6 @@ export default function Seeker({
     }
   }, [selectedHotelId, filteredRooms, selectedRoomId]);
 
-  // 🔁 Limpiar filtros inválidos
   useEffect(() => {
     setSelectedServices((curr) =>
       curr.filter((srv) => uniqueServices.includes(srv))
@@ -122,7 +118,6 @@ export default function Seeker({
     setSelectedType((curr) => curr.filter((typ) => uniqueType.includes(typ)));
   }, [uniqueType]);
 
-  // ⚠️ Mostrar mensaje si no hay habitaciones para el pax indicado
   useEffect(() => {
     if (selectedPax !== null && filteredRooms.length === 0) {
       setShowNoResultsMessage(true);
@@ -138,7 +133,7 @@ export default function Seeker({
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-10 text-dozeblue bg-white rounded-2xl shadow-lg mb-10"
+      className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-10 text-dozeblue bg-[var(--color-dozebg1)] text-[var(--foreground)] rounded-b-xl shadow-lg mb-10"
     >
       <div className={`${isFilterOpen ? 'block' : 'hidden'} md:block`}>
         <SeekerFilters
@@ -166,7 +161,7 @@ export default function Seeker({
       <div className="flex flex-wrap justify-center pt-4 gap-4">
         <button
           onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="min-w-[220px] text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium flex items-center justify-center gap-2 md:hidden"
+          className="min-w-[220px] border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium flex items-center justify-center gap-2 md:hidden"
         >
           <SlidersHorizontal className="w-5 h-5" />
           {isFilterOpen ? 'Ocultar filtros' : 'Mostrar filtros'}
@@ -185,7 +180,7 @@ export default function Seeker({
               'width=600,height=700,scrollbars=yes,resizable=yes'
             )
           }
-          className="min-w-[220px] text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium text-center"
+          className="min-w-[220px] border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium text-center"
         >
           Expandí tu búsqueda
         </button>
