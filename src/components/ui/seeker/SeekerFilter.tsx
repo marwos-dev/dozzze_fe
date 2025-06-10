@@ -69,7 +69,7 @@ export default function SeekerFilters({
         <select
           value={selectedZoneId ?? ''}
           onChange={(e) => setSelectedZoneId(Number(e.target.value) || null)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-[var(--color-dozebg1)] text-[var(--foreground)]"
         >
           <option value="">Todas las zonas</option>
           {zones.map((zone) => (
@@ -88,7 +88,7 @@ export default function SeekerFilters({
         <select
           value={selectedHotelId ?? ''}
           onChange={(e) => setSelectedHotelId(Number(e.target.value) || null)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-[var(--color-dozebg1)] text-[var(--foreground)]"
         >
           <option value="">Todos los hoteles</option>
           {hotels.map((hotel) => (
@@ -107,7 +107,7 @@ export default function SeekerFilters({
         <button
           type="button"
           onClick={() => setIsServiceDropdownOpen((prev) => !prev)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-left"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm text-left bg-[var(--color-dozebg1)] text-[var(--foreground)]"
         >
           {selectedServices.length > 0
             ? `Seleccionados: ${selectedServices.length}`
@@ -115,7 +115,7 @@ export default function SeekerFilters({
         </button>
 
         {isServiceDropdownOpen && (
-          <div className="absolute top-[100%] left-0 mt-2 w-full max-h-48 overflow-y-auto border border-gray-300 bg-white rounded-lg shadow-lg p-2 z-50">
+          <div className="absolute top-[100%] left-0 mt-2 w-full max-h-48 overflow-y-auto border border-gray-300 bg-[var(--color-dozebg1)] text-[var(--foreground)] rounded-lg shadow-lg p-2 z-50">
             {uniqueServices.map((service) => (
               <label
                 key={service}
@@ -152,7 +152,7 @@ export default function SeekerFilters({
           onChange={(e) =>
             setSelectedType(e.target.value ? [e.target.value] : [])
           }
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-[var(--color-dozebg1)] text-[var(--foreground)]"
         >
           <option value="">Todos los tipos</option>
           {uniqueType.map((type) => (
@@ -168,7 +168,7 @@ export default function SeekerFilters({
         <label className="text-sm font-medium mb-1 flex items-center gap-1">
           <BedDouble className="w-4 h-4" /> Personas
         </label>
-        <div className="flex items-center border border-gray-300 rounded-lg px-2 py-2 gap-3 justify-between">
+        <div className="flex items-center border border-gray-300 rounded-lg px-2 py-2 gap-3 justify-between bg-[var(--color-dozebg1)] text-[var(--foreground)]">
           <button
             type="button"
             onClick={() =>
