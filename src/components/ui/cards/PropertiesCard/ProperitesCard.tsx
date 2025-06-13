@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Property } from "@/types/property";
-import PropertyCardMedia from "./PropertyCardMedia";
-import PropertyCardInfo from "./PropertyCardInfo";
-import PropertyActions from "./PropertyCardActions";
-import ImageGalleryModal from "@/components/ui/modals/ImageGaleryModal"
+import { useState } from 'react';
+import { Property } from '@/types/property';
+import PropertyCardMedia from './PropertyCardMedia';
+import PropertyCardInfo from './PropertyCardInfo';
+import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
+import PropertyCardActions from './PropertyCardActions';
 
 export default function PropertiesCard(props: Property) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -18,12 +18,11 @@ export default function PropertiesCard(props: Property) {
 
   return (
     <div className="bg-dozebg1 max-w-6xl rounded-xl mx-1 m-2 md:mx-2 shadow-md overflow-hidden p-4 flex flex-col md:flex-row gap-4">
-      <div 
-        className="rounded-xl ">
+      <div className="rounded-xl ">
         <PropertyCardMedia
           images={props.images}
           coverImage={props.cover_image}
-          onImageClick={openModalAtIndex} 
+          onImageClick={openModalAtIndex}
         />
       </div>
 
@@ -37,10 +36,11 @@ export default function PropertiesCard(props: Property) {
           />
         </div>
         <div className="md:w-[220px]">
-          <PropertyActions
+          <PropertyCardActions
             id={props.id}
+            roomsCount={props.room_types?.length ?? 0}
             communication_methods={props.communication_methods}
-            roomsCount={props.rooms?.length || 0}
+            fullPropertyData={props}
           />
         </div>
       </div>

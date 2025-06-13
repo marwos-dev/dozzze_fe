@@ -1,4 +1,4 @@
-import { Room } from "./room";
+import { RoomType } from './roomType';
 
 export interface Property {
   id: number;
@@ -9,7 +9,14 @@ export interface Property {
   address: string;
   cover_image: string;
   images: string[];
-  rooms: Room[];
+  room_types: RoomType[];
   communication_methods: string[];
   location: string;
+  terms_and_conditions: {
+    condition_of_confirmation: string;
+    check_in_time: string;
+    check_out_time: string;
+    cancellation_policy: string;
+    additional_information: string;
+  };
 }

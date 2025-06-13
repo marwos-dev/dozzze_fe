@@ -4,7 +4,11 @@ import { useState, useRef, useEffect } from 'react';
 import { DateRange, RangeKeyDict, Range } from 'react-date-range';
 import { addDays, format } from 'date-fns';
 import { CalendarDays, User } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/store';
+import { fetchAvailability } from '@/store/propertiesSlice';
 import AnimatedButton from '../ui/buttons/AnimatedButton';
+import AvailabilityResult from '../ui/AvailabilityResult';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 
@@ -16,16 +20,19 @@ export default function Seeker() {
       key: 'selection',
     },
   ]);
-
   const [guests, setGuests] = useState(2);
   const [error, setError] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [showGuestBox, setShowGuestBox] = useState(false);
 
   const calendarRef = useRef<HTMLDivElement | null>(null);
-  const guestRef = useRef<HTMLDivElement | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    availability,
+    loading,
+    error: reduxError,
+  } = useSelector((state: RootState) => state.properties);
 
-  // Cierre automático de popups
+  // Cierre del calendario al click externo
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -34,16 +41,14 @@ export default function Seeker() {
       ) {
         setShowCalendar(false);
       }
-      if (guestRef.current && !guestRef.current.contains(e.target as Node)) {
-        setShowGuestBox(false);
-      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const selected = range[0];
     if (!selected.startDate || !selected.endDate) {
       setError('Por favor seleccioná una fecha válida');
@@ -57,15 +62,15 @@ export default function Seeker() {
     };
 
     setError(null);
-    console.log(formatted);
+    dispatch(fetchAvailability(formatted));
   };
 
   return (
     <div className="p-6 space-y-6 bg-white dark:bg-dozebg1 rounded-xl shadow-lg">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Línea superior con filtros */}
+        {/* Filtros */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-center gap-4 md:gap-6">
-          {/* Selector de fechas */}
+          {/* Fecha */}
           <div className="relative w-full md:w-auto" ref={calendarRef}>
             <div
               onClick={() => setShowCalendar((prev) => !prev)}
@@ -95,47 +100,48 @@ export default function Seeker() {
             )}
           </div>
 
-          {/* Selector de huéspedes */}
-          <div className="relative w-full md:w-auto" ref={guestRef}>
-            <div className="flex items-center gap-3 border border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10 px-4 h-12 rounded-md shadow-sm w-full md:w-[220px]">
-              <>
-                <User className="text-dozeblue" size={20} />
-                <span className="text-sm text-[var(--foreground)] font-light">
-                  Huésp.
-                </span>
-              </>
-
-              <div className="flex items-center gap-2 ml-auto">
-                <button
-                  type="button"
-                  onClick={() => setGuests(Math.max(1, guests - 1))}
-                  className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 dark:border-white/30 text-[var(--foreground)] hover:bg-gray-100 dark:hover:bg-dozegray/30"
-                >
-                  −
-                </button>
-                <span className="w-5 text-center text-[var(--foreground)] text-sm">
-                  {guests}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setGuests(guests + 1)}
-                  className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 dark:border-white/30 hover:bg-gray-100 dark:hover:bg-dozegray/30"
-                >
-                  +
-                </button>
-              </div>
+          {/* Huéspedes */}
+          <div className="flex items-center gap-3 border border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10 px-4 h-12 rounded-md shadow-sm w-full md:w-[220px]">
+            <User className="text-dozeblue" size={20} />
+            <span className="text-sm text-[var(--foreground)] font-light">
+              Huésp.
+            </span>
+            <div className="flex items-center gap-2 ml-auto">
+              <button
+                type="button"
+                onClick={() => setGuests(Math.max(1, guests - 1))}
+                className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 dark:border-white/30 text-[var(--foreground)] hover:bg-gray-100 dark:hover:bg-dozegray/30"
+              >
+                −
+              </button>
+              <span className="w-5 text-center text-[var(--foreground)] text-sm">
+                {guests}
+              </span>
+              <button
+                type="button"
+                onClick={() => setGuests(guests + 1)}
+                className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 dark:border-white/30 hover:bg-gray-100 dark:hover:bg-dozegray/30"
+              >
+                +
+              </button>
             </div>
           </div>
 
           {/* Botón consultar */}
           <button
             type="submit"
-            className="bg-greenlight  py-3 px-6 rounded-md hover:bg-dozeblue/90 text-dozeblue hover:text-white transition font-semibold w-full md:w-auto"
+            className="bg-greenlight py-3 px-6 rounded-md hover:bg-dozeblue/90 text-dozeblue hover:text-white transition font-semibold w-full md:w-auto"
           >
             Consultar
           </button>
         </div>
       </form>
+
+      {/* Estado y resultados */}
+      {error && <p className="text-red-500">{error}</p>}
+      {reduxError && <p className="text-red-500">{reduxError}</p>}
+      {loading && <p className="text-center text-dozegray">Cargando...</p>}
+      {!!availability.length && <AvailabilityResult guests={guests} />}
 
       {/* Botones secundarios */}
       <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
