@@ -3,6 +3,7 @@
 import axios from './axios';
 import { Property } from '@/types/property';
 import { Room } from '@/types/room';
+import { AvailabilityItem, AvailabilityPayload } from '@/types/roomType';
 
 // Obtener propiedad por ID
 export const fetchPropertyById = async (id: number): Promise<Property> => {
@@ -30,13 +31,11 @@ export const getPropertiesByZoneId = async (
   return response.data;
 };
 // consultar disponibilidad
-export const checkPropertyAvailability = async (data: {
-  check_in: string;
-  check_out: string;
-  guests: number;
-  property_id?: number;
-}) => {
-  const payload: Record<string, any> = {
+
+export const checkPropertyAvailability = async (
+  data: AvailabilityPayload
+): Promise<AvailabilityItem[]> => {
+  const payload: AvailabilityPayload = {
     check_in: data.check_in,
     check_out: data.check_out,
     guests: data.guests,
@@ -45,6 +44,7 @@ export const checkPropertyAvailability = async (data: {
   if (data.property_id) {
     payload.property_id = data.property_id;
   }
+
   const response = await axios.post('/properties/availability/', payload);
   return response.data;
 };

@@ -12,7 +12,7 @@ interface Price {
 
 interface Rate {
   prices: Price[];
-  restriction?: any;
+  restriction?: Record<string, unknown>;
 }
 
 interface AvailabilityItem {

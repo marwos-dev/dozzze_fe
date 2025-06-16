@@ -20,3 +20,10 @@ export interface RoomType {
   name: string;
   description?: string;
 }
+
+export interface AvailabilityPayload {
+  check_in: string;
+  check_out: string;
+  guests: number;
+  property_id?: number;
+}

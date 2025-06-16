@@ -50,7 +50,6 @@ export default function PropertyDetailPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Fetch inicial al montar
   useEffect(() => {
     if (property?.id) {
       dispatch(
@@ -62,8 +61,7 @@ export default function PropertyDetailPage() {
         })
       );
     }
-  }, [dispatch, property?.id]);
-
+  }, [dispatch, property?.id, range, guests]);
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
