@@ -98,7 +98,7 @@ export default function AvailabilityResult({ guests }: Props) {
                         [roomType]: Number(e.target.value),
                       }))
                     }
-                    className="w-full px-3 py-2 text-sm border rounded-md border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900 text-[var(--foreground)] transition-colors"
+                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-dozeblue bg-white dark:bg-dozegray/10 text-[var(--foreground)] shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-dozeblue"
                   >
                     {allRates.map((rate, i) => {
                       const minPrice =
@@ -127,7 +127,7 @@ export default function AvailabilityResult({ guests }: Props) {
                         [roomType]: Number(e.target.value),
                       }))
                     }
-                    className="w-full px-3 py-2 text-sm border rounded-md border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900 text-[var(--foreground)] transition-colors"
+                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-dozeblue bg-white dark:bg-dozegray/10 text-[var(--foreground)] shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-dozeblue"
                   >
                     {Array.from({ length: maxPax }, (_, i) => i + 1).map(
                       (n) => (
@@ -148,7 +148,7 @@ export default function AvailabilityResult({ guests }: Props) {
                     {selectedRate.prices.map((p, i) => (
                       <span
                         key={i}
-                        className="px-2 py-1 rounded-full bg-gray-200 dark:bg-white/10 text-gray-800 dark:text-white border dark:border-white/10 text-xs font-medium"
+                        className="px-2 py-1 rounded-full bg-dozeblue/30 text-[var(--foreground)] border border-dozeblue text-xs font-medium"
                       >
                         {p.occupancy} pax: ${p.price}
                       </span>
