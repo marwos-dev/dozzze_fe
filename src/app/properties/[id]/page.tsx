@@ -8,6 +8,8 @@ import { DateRange, RangeKeyDict, Range } from 'react-date-range';
 import { addDays, format } from 'date-fns';
 import { fetchAvailability } from '@/store/propertiesSlice';
 import AvailabilityResult from '@/components/ui/AvailabilityResult';
+import SkeletonAvailabilityResult from '@/components/ui/skeletons/AvailabilityResultSkeleton';
+import PropertiesCardSkeleton from '@/components/ui/skeletons/PropertyCardSkeleton';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 
@@ -48,6 +50,20 @@ export default function PropertyDetailPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Fetch inicial al montar
+  useEffect(() => {
+    if (property?.id) {
+      dispatch(
+        fetchAvailability({
+          check_in: range[0].startDate!.toISOString().split('T')[0],
+          check_out: range[0].endDate!.toISOString().split('T')[0],
+          guests,
+          property_id: property.id,
+        })
+      );
+    }
+  }, [dispatch, property?.id]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
@@ -68,14 +84,16 @@ export default function PropertyDetailPage() {
       guests,
       property_id: property.id,
     };
-    console.log('data formateada ', formatted);
     setError(null);
     dispatch(fetchAvailability(formatted));
   };
 
   if (!property)
-    return <p className="text-center py-10">Cargando propiedad...</p>;
-
+    return (
+      <div className="min-h-[300px] flex items-center justify-center">
+        <PropertiesCardSkeleton />
+      </div>
+    );
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-semibold text-gray-800 mb-1">
@@ -88,7 +106,8 @@ export default function PropertyDetailPage() {
 
       {/* BUSCADOR */}
       <form onSubmit={handleSubmit} className="space-y-4 mb-6">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6">
+        <div className="flex flex-col md:flex-row md:justify-center items-stretch md:items-center gap-4 md:gap-6 max-w-4xl mx-auto">
+          {/* Calendario */}
           <div className="relative w-full md:w-auto" ref={calendarRef}>
             <div
               onClick={() => setShowCalendar((prev) => !prev)}
@@ -118,6 +137,7 @@ export default function PropertyDetailPage() {
             )}
           </div>
 
+          {/* Huéspedes */}
           <div className="flex items-center gap-3 border border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10 px-4 h-12 rounded-md shadow-sm w-full md:w-[220px]">
             <User className="text-dozeblue" size={20} />
             <span className="text-sm text-[var(--foreground)] font-light">
@@ -144,6 +164,7 @@ export default function PropertyDetailPage() {
             </div>
           </div>
 
+          {/* Botón */}
           <button
             type="submit"
             className="bg-greenlight py-3 px-6 rounded-md hover:bg-dozeblue/90 text-dozeblue hover:text-white transition font-semibold w-full md:w-auto"
@@ -156,9 +177,7 @@ export default function PropertyDetailPage() {
       {/* Errores y estado */}
       {error && <p className="text-red-500">{error}</p>}
       {reduxError && <p className="text-red-500">{reduxError}</p>}
-      {loading && (
-        <p className="text-center text-dozegray">Cargando disponibilidad...</p>
-      )}
+      {loading && <SkeletonAvailabilityResult />}
       {!!availability.length && <AvailabilityResult guests={guests} />}
     </div>
   );

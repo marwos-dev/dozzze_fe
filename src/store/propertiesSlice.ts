@@ -68,11 +68,14 @@ export const loadFullPropertyById = createAsyncThunk<
     dispatch(fetchRooms({ propertyId }));
   }
 });
-
-// Consultar disponibilidad de propiedad
 export const fetchAvailability = createAsyncThunk<
   AvailabilityItem[],
-  { check_in: string; check_out: string; guests: number },
+  {
+    check_in: string;
+    check_out: string;
+    guests: number;
+    property_id?: number;
+  },
   { rejectValue: string }
 >('properties/fetchAvailability', async (params, thunkAPI) => {
   try {
