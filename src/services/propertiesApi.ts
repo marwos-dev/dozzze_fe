@@ -29,12 +29,23 @@ export const getPropertiesByZoneId = async (
   const response = await axios.get(`/properties/zone/${id}`);
   return response.data;
 };
-//consultar disponibilidad
+// consultar disponibilidad
 export const checkPropertyAvailability = async (data: {
   check_in: string;
   check_out: string;
   guests: number;
+  property_id?: number;
 }) => {
-  const response = await axios.post('/properties/availability/', data);
+  const payload: Record<string, any> = {
+    check_in: data.check_in,
+    check_out: data.check_out,
+    guests: data.guests,
+  };
+
+  if (data.property_id) {
+    payload.property_id = data.property_id;
+  }
+  const response = await axios.post('/properties/availability/', payload);
+  console.log(response.data, 'data del back');
   return response.data;
 };
