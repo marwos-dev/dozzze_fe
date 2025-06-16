@@ -82,22 +82,13 @@ export default function Navbar() {
               </span>
             </button>
 
-            {/* Dark mode toggle */}
+            {/* Dark mode toggle (Desktop) */}
             <div
               onClick={toggleDarkMode}
-              className="flex items-center space-x-2 cursor-pointer"
+              className="cursor-pointer text-xl"
+              title="Cambiar modo"
             >
-              <span className="text-sm">🌞</span>
-              <div
-                className={`w-10 h-5 flex items-center rounded-full p-1 transition ${
-                  isDarkMode
-                    ? 'bg-dozeblue justify-end'
-                    : 'bg-dozegray/30 justify-start'
-                }`}
-              >
-                <div className="w-3.5 h-3.5 bg-white rounded-full shadow-md transition" />
-              </div>
-              <span className="text-sm">🌙</span>
+              {isDarkMode ? '🌙' : '🌞'}
             </div>
           </div>
 
@@ -105,19 +96,10 @@ export default function Navbar() {
           <div className="md:hidden flex items-center space-x-3">
             <div
               onClick={toggleDarkMode}
-              className="flex items-center space-x-1 cursor-pointer"
+              className="cursor-pointer text-xl"
+              title="Cambiar modo"
             >
-              <span className="text-xs">🌞</span>
-              <div
-                className={`w-8 h-4 flex items-center rounded-full p-0.5 transition ${
-                  isDarkMode
-                    ? 'bg-dozeblue justify-end'
-                    : 'bg-dozegray/30 justify-start'
-                }`}
-              >
-                <div className="w-3 h-3 bg-white rounded-full shadow-md transition" />
-              </div>
-              <span className="text-xs">🌙</span>
+              {isDarkMode ? '🌙' : '🌞'}
             </div>
 
             <button
