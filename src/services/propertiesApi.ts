@@ -46,6 +46,5 @@ export const checkPropertyAvailability = async (data: {
     payload.property_id = data.property_id;
   }
   const response = await axios.post('/properties/availability/', payload);
-  console.log(response.data, 'data del back');
   return response.data;
 };
