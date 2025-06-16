@@ -1,177 +1,150 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import { motion } from 'framer-motion';
-import SeekerFilters from '@/components/ui/seeker/SeekerFilter';
-import SeekerResults from '@/components/ui/seeker/SeekerResult';
+import { useState, useRef, useEffect } from 'react';
+import { DateRange, RangeKeyDict, Range } from 'react-date-range';
+import { addDays, format } from 'date-fns';
+import { CalendarDays, User } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/store';
+import { fetchAvailability } from '@/store/propertiesSlice';
 import AnimatedButton from '../ui/buttons/AnimatedButton';
-import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
+import AvailabilityResult from '../ui/AvailabilityResult';
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
 
-type SeekerProps = {
-  initialFilterOpen?: boolean;
-  loading: boolean;
-};
+export default function Seeker() {
+  const [range, setRange] = useState<Range[]>([
+    {
+      startDate: new Date(),
+      endDate: addDays(new Date(), 1),
+      key: 'selection',
+    },
+  ]);
+  const [guests, setGuests] = useState(2);
+  const [error, setError] = useState<string | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
-export default function Seeker({
-  initialFilterOpen = false,
-  loading,
-}: SeekerProps) {
-  const { data: zones } = useSelector((state: RootState) => state.zones);
+  const calendarRef = useRef<HTMLDivElement | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    availability,
+    loading,
+    error: reduxError,
+  } = useSelector((state: RootState) => state.properties);
 
-  const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
-  const [selectedHotelId, setSelectedHotelId] = useState<number | null>(null);
-  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [selectedType, setSelectedType] = useState<string[]>([]);
-  const [selectedPax, setSelectedPax] = useState<number | null>(null);
-  const [isFilterOpen, setIsFilterOpen] = useState(initialFilterOpen);
+  // Cierre del calendario al click externo
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        calendarRef.current &&
+        !calendarRef.current.contains(e.target as Node)
+      ) {
+        setShowCalendar(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const [showNoResultsMessage, setShowNoResultsMessage] = useState(false);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const selectedZone = zones.find((z) => z.id === selectedZoneId);
-
-  const hotels = useMemo(() => {
-    return selectedZoneId
-      ? selectedZone?.properties || []
-      : zones.flatMap((z) => z.properties);
-  }, [selectedZoneId, selectedZone, zones]);
-
-  const selectedHotel = hotels.find((h) => h.id === selectedHotelId);
-
-  const allRooms = useMemo(() => {
-    return zones.flatMap((z) =>
-      z.properties.flatMap((p) =>
-        p.rooms.map((r) => ({ ...r, propertyId: p.id }))
-      )
-    );
-  }, [zones]);
-
-  const filterableRooms = useMemo(() => {
-    let rooms = allRooms;
-
-    if (selectedHotelId) {
-      rooms = rooms.filter((room) => room.propertyId === selectedHotelId);
-    } else if (selectedZoneId) {
-      rooms = rooms.filter((room) =>
-        hotels.some((hotel) => hotel.id === room.propertyId)
-      );
+    const selected = range[0];
+    if (!selected.startDate || !selected.endDate) {
+      setError('Por favor seleccioná una fecha válida');
+      return;
     }
 
-    return rooms;
-  }, [selectedHotelId, selectedZoneId, allRooms, hotels]);
+    const formatted = {
+      check_in: selected.startDate.toISOString().split('T')[0],
+      check_out: selected.endDate.toISOString().split('T')[0],
+      guests,
+    };
 
-  const filteredRooms = useMemo(() => {
-    return selectedPax !== null
-      ? filterableRooms.filter((room) => room.pax === selectedPax)
-      : filterableRooms;
-  }, [filterableRooms, selectedPax]);
-
-  const filteredRoomsByServices = useMemo(() => {
-    return selectedServices.length > 0
-      ? filteredRooms.filter((room) =>
-          selectedServices.every((srv) => room.services?.includes(srv))
-        )
-      : filteredRooms;
-  }, [selectedServices, filteredRooms]);
-
-  const filteredRoomsByType = useMemo(() => {
-    return selectedType.length > 0
-      ? filteredRooms.filter((room) => selectedType.includes(room.type ?? ''))
-      : filteredRooms;
-  }, [selectedType, filteredRooms]);
-
-  const uniqueServices = useMemo(() => {
-    return Array.from(
-      new Set(filterableRooms.flatMap((r) => r.services ?? []))
-    );
-  }, [filterableRooms]);
-
-  const uniqueType = useMemo(() => {
-    return Array.from(new Set(filterableRooms.flatMap((r) => r.type ?? [])));
-  }, [filterableRooms]);
-
-  useEffect(() => {
-    if (selectedZoneId && !hotels.some((h) => h.id === selectedHotelId)) {
-      setSelectedHotelId(null);
-      setSelectedRoomId(null);
-    }
-  }, [selectedZoneId, hotels, selectedHotelId]);
-
-  useEffect(() => {
-    if (
-      selectedHotelId &&
-      !filteredRooms.some((r) => r.id === selectedRoomId)
-    ) {
-      setSelectedRoomId(null);
-    }
-  }, [selectedHotelId, filteredRooms, selectedRoomId]);
-
-  useEffect(() => {
-    setSelectedServices((curr) =>
-      curr.filter((srv) => uniqueServices.includes(srv))
-    );
-  }, [uniqueServices]);
-
-  useEffect(() => {
-    setSelectedType((curr) => curr.filter((typ) => uniqueType.includes(typ)));
-  }, [uniqueType]);
-
-  useEffect(() => {
-    if (selectedPax !== null && filteredRooms.length === 0) {
-      setShowNoResultsMessage(true);
-      setTimeout(() => {
-        setSelectedPax(null);
-        setShowNoResultsMessage(false);
-      }, 2500);
-    }
-  }, [filteredRooms, selectedPax]);
+    setError(null);
+    dispatch(fetchAvailability(formatted));
+  };
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-10 text-dozeblue bg-[var(--color-dozebg1)] text-[var(--foreground)] rounded-b-xl shadow-lg mb-10"
-    >
-      <div className={`${isFilterOpen ? 'block' : 'hidden'} md:block`}>
-        <SeekerFilters
-          zones={zones}
-          hotels={hotels}
-          filteredRooms={filteredRooms}
-          uniqueServices={uniqueServices}
-          uniqueType={uniqueType}
-          selectedZoneId={selectedZoneId}
-          selectedHotelId={selectedHotelId}
-          selectedRoomId={selectedRoomId}
-          selectedServices={selectedServices}
-          selectedType={selectedType}
-          selectedPax={selectedPax}
-          setSelectedZoneId={setSelectedZoneId}
-          setSelectedHotelId={setSelectedHotelId}
-          setSelectedRoomId={setSelectedRoomId}
-          setSelectedServices={setSelectedServices}
-          setSelectedType={setSelectedType}
-          setSelectedPax={setSelectedPax}
-          loading={loading}
-        />
-      </div>
+    <div className="p-6 space-y-6 bg-white dark:bg-dozebg1 rounded-xl shadow-lg">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Filtros */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-center gap-4 md:gap-6">
+          {/* Fecha */}
+          <div className="relative w-full md:w-auto" ref={calendarRef}>
+            <div
+              onClick={() => setShowCalendar((prev) => !prev)}
+              className="flex items-center gap-3 border border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10 px-4 py-3 rounded-md shadow-sm cursor-pointer hover:ring-2 ring-dozeblue transition w-full md:w-[250px]"
+            >
+              <CalendarDays className="text-dozeblue" size={18} />
+              <span className="text-[var(--foreground)] text-sm font-medium truncate">
+                {format(range[0].startDate!, 'dd MMM')} —{' '}
+                {format(range[0].endDate!, 'dd MMM')}
+              </span>
+            </div>
 
-      <div className="flex flex-wrap justify-center pt-4 gap-4">
-        <button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="min-w-[220px] border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium flex items-center justify-center gap-2 md:hidden"
-        >
-          <SlidersHorizontal className="w-5 h-5" />
-          {isFilterOpen ? 'Ocultar filtros' : 'Mostrar filtros'}
-          {isFilterOpen ? (
-            <ChevronUp className="w-4 h-4" />
-          ) : (
-            <ChevronDown className="w-4 h-4" />
-          )}
-        </button>
+            {showCalendar && (
+              <div className="absolute z-50 mt-2 shadow-xl rounded-xl overflow-hidden border dark:border-white/20 bg-white dark:bg-dozebg1">
+                <DateRange
+                  ranges={range}
+                  onChange={(item: RangeKeyDict) => {
+                    const selection = item.selection;
+                    if (selection) setRange([selection]);
+                  }}
+                  moveRangeOnFirstSelection={false}
+                  rangeColors={['#2463eb']}
+                  minDate={new Date()}
+                  showDateDisplay={false}
+                />
+              </div>
+            )}
+          </div>
 
+          {/* Huéspedes */}
+          <div className="flex items-center gap-3 border border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10 px-4 h-12 rounded-md shadow-sm w-full md:w-[220px]">
+            <User className="text-dozeblue" size={20} />
+            <span className="text-sm text-[var(--foreground)] font-light">
+              Huésp.
+            </span>
+            <div className="flex items-center gap-2 ml-auto">
+              <button
+                type="button"
+                onClick={() => setGuests(Math.max(1, guests - 1))}
+                className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 dark:border-white/30 text-[var(--foreground)] hover:bg-gray-100 dark:hover:bg-dozegray/30"
+              >
+                −
+              </button>
+              <span className="w-5 text-center text-[var(--foreground)] text-sm">
+                {guests}
+              </span>
+              <button
+                type="button"
+                onClick={() => setGuests(guests + 1)}
+                className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 dark:border-white/30 hover:bg-gray-100 dark:hover:bg-dozegray/30"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          {/* Botón consultar */}
+          <button
+            type="submit"
+            className="bg-greenlight py-3 px-6 rounded-md hover:bg-dozeblue/90 text-dozeblue hover:text-white transition font-semibold w-full md:w-auto"
+          >
+            Consultar
+          </button>
+        </div>
+      </form>
+
+      {/* Estado y resultados */}
+      {error && <p className="text-red-500">{error}</p>}
+      {reduxError && <p className="text-red-500">{reduxError}</p>}
+      {loading && <p className="text-center text-dozegray">Cargando...</p>}
+      {!!availability.length && <AvailabilityResult guests={guests} />}
+
+      {/* Botones secundarios */}
+      <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
         <button
           onClick={() =>
             window.open(
@@ -180,7 +153,7 @@ export default function Seeker({
               'width=600,height=700,scrollbars=yes,resizable=yes'
             )
           }
-          className="min-w-[220px] border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium text-center"
+          className="min-w-[220px] text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium text-center"
         >
           Expandí tu búsqueda
         </button>
@@ -191,28 +164,6 @@ export default function Seeker({
           className="min-w-[220px]"
         />
       </div>
-
-      {showNoResultsMessage && (
-        <p className="text-center text-red-600 font-medium my-4">
-          No hay habitaciones para esa cantidad de personas. Mostrando todas las
-          disponibles.
-        </p>
-      )}
-
-      <SeekerResults
-        zones={zones}
-        selectedZoneId={selectedZoneId}
-        selectedHotelId={selectedHotelId}
-        selectedRoomId={selectedRoomId}
-        selectedServices={selectedServices}
-        selectedType={selectedType}
-        selectedPax={selectedPax}
-        selectedHotel={selectedHotel}
-        filteredRooms={filteredRooms}
-        filteredRoomsByServices={filteredRoomsByServices}
-        filteredRoomsByType={filteredRoomsByType}
-        loading={loading}
-      />
-    </motion.section>
+    </div>
   );
 }

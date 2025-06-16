@@ -9,7 +9,7 @@ import Image from 'next/image';
 
 const navLinks = [
   { label: 'Inicio', href: '#inicio' },
-  { label: 'Nosotros', href: '#nosotros' },
+  { label: 'Nosotros', href: '/aboutUs' },
   { label: 'Contacto', href: '#contacto' },
 ];
 
@@ -52,68 +52,56 @@ export default function Navbar() {
 
           {/* Desktop */}
           <div className="hidden md:flex space-x-6 items-center">
-            {navLinks.map(({ label, href }) => (
-              <a
-                key={href}
-                href={href}
-                className="text-dozegray font-semibold hover:text-dozeblue transition"
-              >
-                {label}
-              </a>
-            ))}
+            {navLinks.map(({ label, href }) =>
+              href.startsWith('/') ? (
+                <Link
+                  key={href}
+                  href={href}
+                  className="text-dozegray font-semibold hover:text-dozeblue transition"
+                >
+                  {label}
+                </Link>
+              ) : (
+                <a
+                  key={href}
+                  href={href}
+                  className="text-dozegray font-semibold hover:text-dozeblue transition"
+                >
+                  {label}
+                </a>
+              )
+            )}
+
             <button
               onClick={() => setSearchOpen(true)}
               className="flex items-center space-x-1 hover:text-dozeblue transition"
             >
-              <Search
-                className="text-dozegray hover:text-dozeblue "
-                size={18}
-              />
+              <Search className="text-dozegray hover:text-dozeblue" size={18} />
               <span className="text-dozegray font-semibold hover:text-dozeblue transition">
                 Buscar
               </span>
             </button>
 
-            {/* Toggle dark mode with icons */}
+            {/* Dark mode toggle (Desktop) */}
             <div
               onClick={toggleDarkMode}
-              className="flex items-center space-x-2 cursor-pointer"
+              className="cursor-pointer text-xl"
+              title="Cambiar modo"
             >
-              <span className="text-sm">🌞</span>
-              <div
-                className={`w-10 h-5 flex items-center rounded-full p-1 transition ${
-                  isDarkMode
-                    ? 'bg-dozeblue justify-end'
-                    : 'bg-dozegray/30 justify-start'
-                }`}
-              >
-                <div className="w-3.5 h-3.5 bg-white rounded-full shadow-md transition" />
-              </div>
-              <span className="text-sm">🌙</span>
+              {isDarkMode ? '🌙' : '🌞'}
             </div>
           </div>
 
-          {/* Mobile: dark mode + menu */}
+          {/* Mobile */}
           <div className="md:hidden flex items-center space-x-3">
-            {/* Dark mode toggle with icons */}
             <div
               onClick={toggleDarkMode}
-              className="flex items-center space-x-1 cursor-pointer"
+              className="cursor-pointer text-xl"
+              title="Cambiar modo"
             >
-              <span className="text-xs">🌞</span>
-              <div
-                className={`w-8 h-4 flex items-center rounded-full p-0.5 transition ${
-                  isDarkMode
-                    ? 'bg-dozeblue justify-end'
-                    : 'bg-dozegray/30 justify-start'
-                }`}
-              >
-                <div className="w-3 h-3 bg-white rounded-full shadow-md transition" />
-              </div>
-              <span className="text-xs">🌙</span>
+              {isDarkMode ? '🌙' : '🌞'}
             </div>
 
-            {/* Menu icon */}
             <button
               onClick={() => setOpen(!open)}
               className="text-gray-600 hover:text-dozeblue"
@@ -131,20 +119,27 @@ export default function Navbar() {
         }`}
       >
         <div className="pt-20">
-          {navLinks.map(({ label, href }, index) => (
-            <a
-              key={href}
-              href={href}
-              className={`block px-6 py-4 text-lg font-semibold hover:text-dozeblue transition ${
-                index !== navLinks.length - 1
-                  ? 'border-b border-dozegray/30'
-                  : ''
-              }`}
-              onClick={() => setOpen(false)}
-            >
-              {label}
-            </a>
-          ))}
+          {navLinks.map(({ label, href }) =>
+            href.startsWith('/') ? (
+              <Link
+                key={href}
+                href={href}
+                className="block px-6 py-4 text-lg font-semibold hover:text-dozeblue transition border-b border-dozegray/30"
+                onClick={() => setOpen(false)}
+              >
+                {label}
+              </Link>
+            ) : (
+              <a
+                key={href}
+                href={href}
+                className="block px-6 py-4 text-lg font-semibold hover:text-dozeblue transition border-b border-dozegray/30"
+                onClick={() => setOpen(false)}
+              >
+                {label}
+              </a>
+            )
+          )}
           <button
             onClick={() => {
               setSearchOpen(true);
@@ -157,7 +152,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Overlay oscuro del menú móvil */}
       {open && (
         <div
           className="fixed inset-0 bg-black/80 z-30 md:hidden"
@@ -165,7 +159,7 @@ export default function Navbar() {
         />
       )}
 
-      {/* Modal de búsqueda */}
+      {/* Search modal */}
       <FilterModal isOpen={searchOpen} onClose={() => setSearchOpen(false)}>
         <div className="flex flex-col h-full">
           <div className="flex justify-between items-center p-4 border-b">
@@ -174,7 +168,7 @@ export default function Navbar() {
             </h2>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
-            <Seeker loading={false} />
+            <Seeker />
           </div>
         </div>
       </FilterModal>

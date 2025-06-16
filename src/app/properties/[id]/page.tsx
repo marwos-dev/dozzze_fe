@@ -1,228 +1,182 @@
 'use client';
 
-import { use, useEffect, useRef, useState } from 'react';
+import { useState, useRef, useEffect, FormEvent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { loadFullPropertyById } from '@/store/propertiesSlice';
-import RoomCard from '@/components/ui/cards/RoomsCard/RoomCard';
-import PropertyBanner from '@/components/ui/banners/PropertyBanner';
-import { selectFilteredRoomsForProperty } from '@/store/selectors/roomsSelectors';
-import { Minus, Plus, ChevronDown } from 'lucide-react';
-import PropertyBannerSkeleton from '@/components/ui/skeletons/PropertyBannerSkeleton';
-import RoomCardSkeleton from '@/components/ui/skeletons/RoomCardSkeleton';
+import { RootState, AppDispatch } from '@/store';
+import { MapPin, CalendarDays, User } from 'lucide-react';
+import { DateRange, RangeKeyDict, Range } from 'react-date-range';
+import { addDays, format } from 'date-fns';
+import { fetchAvailability } from '@/store/propertiesSlice';
+import AvailabilityResult from '@/components/ui/AvailabilityResult';
+import SkeletonAvailabilityResult from '@/components/ui/skeletons/AvailabilityResultSkeleton';
+import PropertiesCardSkeleton from '@/components/ui/skeletons/PropertyCardSkeleton';
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
 
-interface PageProps {
-  params: Promise<{ id: number }>;
-}
-
-export default function PropertyDetailPage({ params }: PageProps) {
-  const { id } = use(params);
-  const numericId = Number(id);
+export default function PropertyDetailPage() {
+  const property = useSelector(
+    (state: RootState) => state.properties.selectedProperty
+  );
   const dispatch = useDispatch<AppDispatch>();
+  const {
+    availability,
+    loading,
+    error: reduxError,
+  } = useSelector((state: RootState) => state.properties);
 
-  const { selectedProperty, loading, error } = useSelector(
-    (state: RootState) => state.properties
-  );
+  const [range, setRange] = useState<Range[]>([
+    {
+      startDate: new Date(),
+      endDate: addDays(new Date(), 1),
+      key: 'selection',
+    },
+  ]);
+  const [guests, setGuests] = useState(2);
+  const [error, setError] = useState<string | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const calendarRef = useRef<HTMLDivElement | null>(null);
 
-  const propertyRooms = useSelector(
-    (state: RootState) => state.rooms.roomsByProperty[numericId]
-  );
-
-  const roomsLoading = selectedProperty?.id === numericId && !propertyRooms;
-
-  const [capacityFilter, setCapacityFilter] = useState<number>(1);
-  const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
-  const serviceDropdownRef = useRef<HTMLDivElement>(null);
-
-  const filteredRooms = useSelector(
-    selectFilteredRoomsForProperty(numericId, capacityFilter, categoryFilter)
-  ).filter((room) =>
-    selectedServices.length > 0
-      ? selectedServices.every((service) => room.services?.includes(service))
-      : true
-  );
+  // Cierre del calendario al click externo
   useEffect(() => {
-    dispatch(loadFullPropertyById(numericId));
-  }, [numericId, dispatch]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (
-        serviceDropdownRef.current &&
-        !serviceDropdownRef.current.contains(event.target as Node)
+        calendarRef.current &&
+        !calendarRef.current.contains(e.target as Node)
       ) {
-        setIsServiceDropdownOpen(false);
+        setShowCalendar(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const rooms =
-    selectedProperty?.id === numericId ? selectedProperty.rooms || [] : [];
+  useEffect(() => {
+    if (property?.id) {
+      dispatch(
+        fetchAvailability({
+          check_in: range[0].startDate!.toISOString().split('T')[0],
+          check_out: range[0].endDate!.toISOString().split('T')[0],
+          guests,
+          property_id: property.id,
+        })
+      );
+    }
+  }, [dispatch, property?.id, range, guests]);
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
 
-  if (loading || !selectedProperty || selectedProperty.id !== numericId)
+    const selected = range[0];
+    if (!selected.startDate || !selected.endDate) {
+      setError('Por favor seleccioná una fecha válida');
+      return;
+    }
+
+    if (!property?.id) {
+      setError('Propiedad no disponible');
+      return;
+    }
+
+    const formatted = {
+      check_in: selected.startDate.toISOString().split('T')[0],
+      check_out: selected.endDate.toISOString().split('T')[0],
+      guests,
+      property_id: property.id,
+    };
+    setError(null);
+    dispatch(fetchAvailability(formatted));
+  };
+
+  if (!property)
     return (
-      <div className="overflow-x-hidden max-w-6xl mx-auto px-4 py-6 space-y-6">
-        <PropertyBannerSkeleton />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(3)].map((_, i) => (
-            <RoomCardSkeleton key={i} />
-          ))}
-        </div>
+      <div className="min-h-[300px] flex items-center justify-center">
+        <PropertiesCardSkeleton />
       </div>
     );
-
-  if (error) {
-    return <p className="text-center text-red-500">Propiedad no encontrada.</p>;
-  }
-
-  const roomTypes = Array.from(
-    new Set((selectedProperty.rooms || []).map((r) => r.type))
-  );
-
-  const allServices = Array.from(
-    new Set(
-      (selectedProperty.rooms || [])
-        .flatMap((r) => r.services || [])
-        .filter((s) => typeof s === 'string')
-    )
-  );
-
   return (
-    <div className="overflow-x-hidden max-w-6xl mx-auto px-4 py-6">
-      <PropertyBanner property={selectedProperty} roomsCount={rooms.length} />
+    <div className="max-w-6xl mx-auto px-4 py-6">
+      <h1 className="text-2xl font-semibold text-gray-800 mb-1">
+        {property.name}
+      </h1>
+      <p className="text-sm text-gray-600 flex items-center gap-1 mb-6">
+        <MapPin className="w-4 h-4" />
+        {property.address || 'Dirección no disponible'}
+      </p>
 
-      {/* Filtros */}
-      <section className="bg-white rounded-b-2xl shadow-md -mt-8 px-6 pt-4 pb-4 border-t-0 border border-gray-200">
-        <h3 className="text-dozeblue text-base font-semibold mb-4 text-center">
-          Busca tu habitación
-        </h3>
-
-        <div className="flex flex-col sm:flex-row justify-center items-start gap-3 sm:gap-6">
-          {/* Capacidad */}
-          <div className="flex flex-col w-full sm:w-[160px] shrink-0">
-            <label className="text-xs font-medium text-dozegray mb-1">
-              Capacidad mínima
-            </label>
-            <div className="flex items-center border border-gray-300 rounded px-2 h-8 justify-between bg-white">
-              <button
-                onClick={() =>
-                  setCapacityFilter((prev) => Math.max(1, prev - 1))
-                }
-                className="text-dozeblue hover:text-blue-800"
-              >
-                <Minus size={12} />
-              </button>
-              <span className="text-sm text-dozeblue">{capacityFilter}</span>
-              <button
-                onClick={() => setCapacityFilter((prev) => prev + 1)}
-                className="text-dozeblue hover:text-blue-800"
-              >
-                <Plus size={12} />
-              </button>
-            </div>
-            <span className="text-[11px] mt-1 text-center text-dozegray">
-              {capacityFilter} persona{capacityFilter > 1 ? 's' : ''}
-            </span>
-          </div>
-
-          {/* Tipo */}
-          <div className="flex flex-col w-full sm:w-[160px] shrink-0">
-            <label className="text-xs font-medium text-dozegray mb-1">
-              Tipo de habitación
-            </label>
-            <select
-              value={categoryFilter || ''}
-              onChange={(e) =>
-                setCategoryFilter(
-                  e.target.value === '' ? undefined : e.target.value
-                )
-              }
-              className="border border-gray-300 text-dozeblue rounded px-2 h-8 text-sm bg-white"
-            >
-              <option value="">Todas</option>
-              {roomTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Servicios */}
-          {allServices.length > 0 && (
+      {/* BUSCADOR */}
+      <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+        <div className="flex flex-col md:flex-row md:justify-center items-stretch md:items-center gap-4 md:gap-6 max-w-4xl mx-auto">
+          {/* Calendario */}
+          <div className="relative w-full md:w-auto" ref={calendarRef}>
             <div
-              className="flex flex-col w-full sm:w-[160px] shrink-0 relative"
-              ref={serviceDropdownRef}
+              onClick={() => setShowCalendar((prev) => !prev)}
+              className="flex items-center gap-3 border border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10 px-4 py-3 rounded-md shadow-sm cursor-pointer hover:ring-2 ring-dozeblue transition w-full md:w-[250px]"
             >
-              <label className="text-xs font-medium text-dozegray mb-1">
-                Servicios incluidos
-              </label>
+              <CalendarDays className="text-dozeblue" size={18} />
+              <span className="text-[var(--foreground)] text-sm font-medium truncate">
+                {format(range[0].startDate!, 'dd MMM')} —{' '}
+                {format(range[0].endDate!, 'dd MMM')}
+              </span>
+            </div>
+
+            {showCalendar && (
+              <div className="absolute z-50 mt-2 shadow-xl rounded-xl overflow-hidden border dark:border-white/20 bg-white dark:bg-dozebg1">
+                <DateRange
+                  ranges={range}
+                  onChange={(item: RangeKeyDict) => {
+                    const selection = item.selection;
+                    if (selection) setRange([selection]);
+                  }}
+                  moveRangeOnFirstSelection={false}
+                  rangeColors={['#2463eb']}
+                  minDate={new Date()}
+                  showDateDisplay={false}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Huéspedes */}
+          <div className="flex items-center gap-3 border border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10 px-4 h-12 rounded-md shadow-sm w-full md:w-[220px]">
+            <User className="text-dozeblue" size={20} />
+            <span className="text-sm text-[var(--foreground)] font-light">
+              Huésp.
+            </span>
+            <div className="flex items-center gap-2 ml-auto">
               <button
                 type="button"
-                onClick={() => setIsServiceDropdownOpen((prev) => !prev)}
-                className="border border-gray-300 rounded px-2 h-8 text-sm text-dozeblue flex items-center justify-between w-full bg-white"
+                onClick={() => setGuests(Math.max(1, guests - 1))}
+                className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 dark:border-white/30 text-[var(--foreground)] hover:bg-gray-100 dark:hover:bg-dozegray/30"
               >
-                {selectedServices.length > 0
-                  ? `Seleccionados: ${selectedServices.length}`
-                  : 'Seleccioná servicios'}
-                <ChevronDown className="w-4 h-4 ml-2" />
+                −
               </button>
-
-              {isServiceDropdownOpen && (
-                <div className="absolute top-[100%] left-0 mt-2 w-full max-h-48 overflow-y-auto border border-gray-300 bg-white rounded shadow p-2 z-50">
-                  {allServices.map((service) => (
-                    <label
-                      key={service}
-                      className="flex items-center gap-2 py-1 cursor-pointer text-sm"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedServices.includes(service)}
-                        onChange={() =>
-                          setSelectedServices((prev) =>
-                            prev.includes(service)
-                              ? prev.filter((s) => s !== service)
-                              : [...prev, service]
-                          )
-                        }
-                        className="w-4 h-4"
-                      />
-                      <span className="text-dozeblue">{service}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
+              <span className="w-5 text-center text-[var(--foreground)] text-sm">
+                {guests}
+              </span>
+              <button
+                type="button"
+                onClick={() => setGuests(guests + 1)}
+                className="w-6 h-6 flex items-center justify-center rounded border border-gray-300 dark:border-white/30 hover:bg-gray-100 dark:hover:bg-dozegray/30"
+              >
+                +
+              </button>
             </div>
-          )}
-        </div>
-      </section>
+          </div>
 
-      {/* Habitaciones filtradas */}
-      <section className="mt-6">
-        {roomsLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <RoomCardSkeleton />
-          </div>
-        ) : filteredRooms.length === 0 ? (
-          <p className="text-center text-dozegray text-sm mt-4">
-            No se encontraron habitaciones con estos requisitos.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 -mt-4 gap-6">
-            {filteredRooms.map((room) => (
-              <RoomCard
-                key={room.id}
-                {...room}
-                services={room.services || []}
-              />
-            ))}
-          </div>
-        )}
-      </section>
+          {/* Botón */}
+          <button
+            type="submit"
+            className="bg-greenlight py-3 px-6 rounded-md hover:bg-dozeblue/90 text-dozeblue hover:text-white transition font-semibold w-full md:w-auto"
+          >
+            Consultar
+          </button>
+        </div>
+      </form>
+
+      {/* Errores y estado */}
+      {error && <p className="text-red-500">{error}</p>}
+      {reduxError && <p className="text-red-500">{reduxError}</p>}
+      {loading && <SkeletonAvailabilityResult />}
+      {!!availability.length && <AvailabilityResult guests={guests} />}
     </div>
   );
 }
