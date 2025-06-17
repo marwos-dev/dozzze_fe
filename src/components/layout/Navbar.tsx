@@ -8,7 +8,7 @@ import FilterModal from '@/components/ui/modals/FilterModal';
 import Image from 'next/image';
 
 const navLinks = [
-  { label: 'Inicio', href: '#inicio' },
+  { label: 'Inicio', href: '/' },
   { label: 'Nosotros', href: '/aboutUs' },
   { label: 'Contacto', href: '#contacto' },
 ];
