@@ -83,24 +83,28 @@ export default function ZoneDetailPage({ params }: PageProps) {
   return (
     <div className="md:full bg-dozebg2 mx-auto px-4 sm:px-6 py-6">
       {/* Header con título, selector, descripción e imágenes */}
-      <div className="mb-6 rounded-2xl md:ml-2 bg-white shadow-sm border border-gray-200 px-4 sm:px-6 py-5">
-        {/* Título y selector */}
+      <div className="mb-6 rounded-2xl md:ml-2  shadow-sm border border-gray-200 px-4 sm:px-6 py-5">
+        {/* Título y selector con soporte de modo oscuro */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <h1 className="text-3xl font-bold text-dozeblue">
             {selectedZone.name}
           </h1>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600 whitespace-nowrap">
+            <span className="text-sm text-[var(--foreground)] whitespace-nowrap">
               Podés cambiar de zona:
             </span>
             <select
               value={selectedZone.id}
               onChange={handleZoneChange}
-              className="bg-white text-dozeblue border border-dozeblue rounded-xl px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="bg-white dark:bg-dozegray/10 text-dozeblue border border-dozeblue rounded-xl px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
             >
               {allZones.map((zone) => (
-                <option key={zone.id} value={zone.id}>
+                <option
+                  key={zone.id}
+                  value={zone.id}
+                  className="text-[var(--foreground)]"
+                >
                   {zone.name}
                 </option>
               ))}
@@ -112,7 +116,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
         {selectedZone.description && (
           <div className="relative overflow-hidden transition-all duration-500 ease-in-out">
             <div
-              className={`text-gray-700 text-[15px] leading-relaxed transition-all duration-500 ease-in-out ${
+              className={`text-[var(--foreground)] text-[15px] leading-relaxed transition-all duration-500 ease-in-out ${
                 isExpanded ? 'max-h-[1000px]' : 'max-h-[4.8em] line-clamp-2'
               }`}
             >

@@ -1,28 +1,38 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useRef, useEffect, FormEvent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '@/store';
+import { useParams } from 'next/navigation';
+import { AppDispatch } from '@/store';
 import { MapPin, CalendarDays, User } from 'lucide-react';
 import { DateRange, RangeKeyDict, Range } from 'react-date-range';
 import { addDays, format } from 'date-fns';
-import { fetchAvailability } from '@/store/propertiesSlice';
+import {
+  fetchAvailability,
+  loadFullPropertyById,
+} from '@/store/propertiesSlice';
 import AvailabilityResult from '@/components/ui/AvailabilityResult';
 import SkeletonAvailabilityResult from '@/components/ui/skeletons/AvailabilityResultSkeleton';
 import PropertiesCardSkeleton from '@/components/ui/skeletons/PropertyCardSkeleton';
+import {
+  selectSelectedProperty,
+  selectAvailability,
+  selectPropertiesLoading,
+  selectPropertiesError,
+} from '@/store/selectors/propertiesSelectors';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 
 export default function PropertyDetailPage() {
-  const property = useSelector(
-    (state: RootState) => state.properties.selectedProperty
-  );
+  const params = useParams();
+  const propertyId = Number(params?.id);
+
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    availability,
-    loading,
-    error: reduxError,
-  } = useSelector((state: RootState) => state.properties);
+  const property = useSelector(selectSelectedProperty);
+  const availability = useSelector(selectAvailability);
+  const loading = useSelector(selectPropertiesLoading);
+  const reduxError = useSelector(selectPropertiesError);
 
   const [range, setRange] = useState<Range[]>([
     {
@@ -34,9 +44,15 @@ export default function PropertyDetailPage() {
   const [guests, setGuests] = useState(2);
   const [error, setError] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const calendarRef = useRef<HTMLDivElement | null>(null);
 
-  // Cierre del calendario al click externo
+  useEffect(() => {
+    if (!property && propertyId) {
+      dispatch(loadFullPropertyById(propertyId));
+    }
+  }, [dispatch, property, propertyId]);
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -60,8 +76,10 @@ export default function PropertyDetailPage() {
           property_id: property.id,
         })
       );
+      setHasFetched(true);
     }
   }, [dispatch, property?.id, range, guests]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
@@ -84,6 +102,7 @@ export default function PropertyDetailPage() {
     };
     setError(null);
     dispatch(fetchAvailability(formatted));
+    setHasFetched(true);
   };
 
   if (!property)
@@ -92,15 +111,31 @@ export default function PropertyDetailPage() {
         <PropertiesCardSkeleton />
       </div>
     );
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-1">
-        {property.name}
-      </h1>
-      <p className="text-sm text-gray-600 flex items-center gap-1 mb-6">
-        <MapPin className="w-4 h-4" />
-        {property.address || 'Dirección no disponible'}
-      </p>
+      {/* Presentación con imagen */}
+      <div className="relative rounded-xl overflow-hidden mb-6">
+        <div className="relative w-full h-[240px] md:h-[320px] rounded-xl overflow-hidden mb-6">
+          <Image
+            src={property.cover_image || '/logo.png'}
+            alt={`Imagen de ${property.name}`}
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow">
+              {property.name}
+            </h1>
+            <p className="text-sm md:text-base text-white drop-shadow flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              {property.address || 'Dirección no disponible'}
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* BUSCADOR */}
       <form onSubmit={handleSubmit} className="space-y-4 mb-6">
@@ -175,8 +210,13 @@ export default function PropertyDetailPage() {
       {/* Errores y estado */}
       {error && <p className="text-red-500">{error}</p>}
       {reduxError && <p className="text-red-500">{reduxError}</p>}
-      {loading && <SkeletonAvailabilityResult />}
-      {!!availability.length && <AvailabilityResult guests={guests} />}
+
+      {/* Resultado o Skeleton */}
+      {loading ? (
+        <SkeletonAvailabilityResult />
+      ) : hasFetched && !!availability.length ? (
+        <AvailabilityResult guests={guests} />
+      ) : null}
     </div>
   );
 }

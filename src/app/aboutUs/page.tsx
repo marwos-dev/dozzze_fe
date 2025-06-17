@@ -6,26 +6,24 @@ import {
   Mail,
   Phone,
   MessageCircleMore,
-  ShieldCheck,
   Info,
   Contact2,
+  FileText,
 } from 'lucide-react';
 
 export default function AboutUsPage() {
-  const [activeTab, setActiveTab] = useState<'info' | 'tpv' | 'contact'>(
+  const [activeTab, setActiveTab] = useState<'info' | 'billing' | 'contact'>(
     'info'
   );
-
   const textColor = 'text-[var(--foreground)]';
 
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <section className="max-w-5xl mx-auto px-4 py-20 space-y-12">
-        {/* TÍTULO */}
         <h1 className="text-3xl md:text-4xl font-bold text-center text-dozeblue">
           Sobre Nosotros
         </h1>
-        {/* HEADER SUPERIOR CON LOGO + LEYENDA */}
+
         <div className="flex flex-col md:flex-row items-center justify-between bg-white dark:bg-dozebg1 border border-gray-200 dark:border-white/10 rounded-2xl px-6 py-4 shadow-md">
           <div className="flex items-center gap-4">
             <Image
@@ -45,11 +43,11 @@ export default function AboutUsPage() {
           </div>
         </div>
 
-        {/* TABS */}
+        {/* Tabs */}
         <div className="flex justify-center gap-4 border-b border-gray-200 dark:border-white/10 mb-6">
           <button
             onClick={() => setActiveTab('info')}
-            className={`flex items-center gap-2 px-4 py-2  font-medium border-b-2 transition ${
+            className={`flex items-center gap-2 px-4 py-2 font-medium border-b-2 transition ${
               activeTab === 'info'
                 ? 'border-dozeblue text-dozeblue'
                 : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-dozeblue'
@@ -59,15 +57,15 @@ export default function AboutUsPage() {
             Empresa
           </button>
           <button
-            onClick={() => setActiveTab('tpv')}
+            onClick={() => setActiveTab('billing')}
             className={`flex items-center gap-2 px-4 py-2 font-medium border-b-2 transition ${
-              activeTab === 'tpv'
+              activeTab === 'billing'
                 ? 'border-dozeblue text-dozeblue'
                 : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-dozeblue'
             }`}
           >
-            <ShieldCheck size={16} />
-            TPV Virtual
+            <FileText size={16} />
+            Condiciones de facturación
           </button>
           <button
             onClick={() => setActiveTab('contact')}
@@ -82,7 +80,7 @@ export default function AboutUsPage() {
           </button>
         </div>
 
-        {/* CONTENIDO SEGÚN TAB */}
+        {/* Info */}
         {activeTab === 'info' && (
           <div
             className={`bg-white dark:bg-dozebg1 rounded-2xl p-6 md:p-10 shadow-lg space-y-6 text-sm md:text-base ${textColor}`}
@@ -99,59 +97,79 @@ export default function AboutUsPage() {
           </div>
         )}
 
-        {activeTab === 'tpv' && (
+        {/* Facturación */}
+        {activeTab === 'billing' && (
           <div
             className={`bg-white dark:bg-dozebg1 rounded-2xl p-6 md:p-10 shadow-lg border-l-4 border-dozeblue relative space-y-4 ${textColor}`}
           >
-            <ShieldCheck
+            <FileText
               className="absolute top-4 right-4 text-dozeblue"
               size={28}
             />
             <h3 className="text-xl font-semibold text-dozeblue">
-              Requisitos Legales para el TPV Virtual
+              Datos de Facturación
             </h3>
             <p>
-              Le recordamos que para dar de alta de forma ágil el TPV virtual
-              (pasarela de pagos segura), su web debe cumplir con los siguientes
-              requisitos:
+              <strong>Explotaciones Hosteleras Infantas S.L</strong>
+              <br />
+              <strong>CIF:</strong> B88590989
+              <br />
+              <strong>Dirección:</strong> Calle las Palmas 44 1B, Móstoles,
+              Madrid (CP 28938)
             </p>
-            <ul className="list-disc list-inside space-y-1">
+
+            <h4 className="text-lg font-semibold mt-4">
+              Condiciones de Facturación
+            </h4>
+            <ul className="list-disc list-inside space-y-2">
               <li>
-                Ser accesible. Si la web está en construcción, le rogamos nos
-                facilite acceso al entorno de pruebas.
+                Las facturas se emitirán únicamente a nombre de Explotaciones
+                Hosteleras Infantas S.L, con CIF B88590989.
               </li>
               <li>
-                Cumplir con la legislación aplicable y normativa requerida por
-                las Marcas de Tarjetas (VISA, MasterCard, etc.).
+                Por favor, asegúrate de proporcionar todos los datos necesarios
+                para la correcta emisión de tu factura durante el proceso de
+                compra o contratación de servicios.
               </li>
               <li>
-                <strong>Aviso Legal:</strong> debe contener nombre comercial,
-                identificación (CIF), domicilio social y datos de contacto del
-                comercio.
+                Si detectas algún error en los datos de la factura, tienes un
+                plazo de 7 días hábiles desde la recepción de la misma para
+                solicitar su rectificación.
               </li>
               <li>
-                <strong>Términos y Condiciones:</strong> incluir la política de
-                compra y devoluciones de los pagos.
-              </li>
-              <li>
-                El domicilio y país del establecimiento deben aparecer en la
-                pantalla donde se muestra el importe final de la transacción o
-                durante el proceso de pago.
-              </li>
-              <li>
-                Si utiliza servicios de un Proveedor de Servicios de Pago, este
-                deberá estar autorizado por Banco Sabadell.
-              </li>
-              <li>
-                Según la directiva <strong>PSD2 de la Unión Europea</strong>,
-                los cobros con tarjetas europeas solo se podrán realizar a
-                través de terminales CES. Si desea acogerse a alguna excepción,
-                infórmenos para su valoración.
+                En caso de devoluciones o cancelaciones, los reembolsos se
+                realizarán utilizando el mismo método de pago original dentro de
+                un plazo de 14 días hábiles.
               </li>
             </ul>
+
+            <h4 className="text-lg font-semibold mt-4">Envío de Facturas</h4>
+            <p>
+              Las facturas electrónicas serán enviadas al correo electrónico
+              proporcionado al momento de la compra.
+            </p>
+            <p>
+              Si necesitas recibir una factura en formato físico, puedes
+              solicitarlo{' '}
+              <button
+                onClick={() => setActiveTab('contact')}
+                className="text-dozeblue underline hover:text-dozeblue/80 transition font-medium"
+              >
+                consultando contacto
+              </button>
+              .
+            </p>
+
+            <h4 className="text-lg font-semibold mt-4">Requisitos Legales</h4>
+            <p>
+              Todas nuestras facturas cumplen con la normativa fiscal vigente en
+              España, según los estándares establecidos por la Agencia
+              Tributaria.
+            </p>
           </div>
         )}
 
+        {/* Contacto */}
         {activeTab === 'contact' && (
           <div className="space-y-6">
             <h3 className="text-2xl font-semibold text-dozeblue text-center">
@@ -180,9 +198,9 @@ export default function AboutUsPage() {
           </div>
         )}
       </section>
+
       <footer className="bg-white dark:bg-dozebg1 border-t border-gray-200 dark:border-white/10 mt-12">
         <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-700 dark:text-gray-300">
-          {/* Columna izquierda */}
           <div className="text-center text-dozeblue md:text-left">
             <p>
               © {new Date().getFullYear()} Dozzze. Todos los derechos
@@ -193,7 +211,6 @@ export default function AboutUsPage() {
             </p>
           </div>
 
-          {/* Columna derecha */}
           <div className="flex flex-col sm:flex-row items-center gap-2 text-center text-[var(--foreground)] md:text-right">
             <p className="text-sm">
               <strong>Email:</strong>{' '}
