@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, FormEvent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'next/navigation';
-import { RootState, AppDispatch } from '@/store';
+import { AppDispatch } from '@/store';
 import { MapPin, CalendarDays, User } from 'lucide-react';
 import { DateRange, RangeKeyDict, Range } from 'react-date-range';
 import { addDays, format } from 'date-fns';
