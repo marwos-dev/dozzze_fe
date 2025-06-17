@@ -60,12 +60,12 @@ export default function PropertyCardActions({
 
       {/* Habitaciones + botón */}
       <div className="flex flex-col items-center md:items-end p-2 w-full">
-        <p className="text-sm font-semibold p-2 text-dozeblue">
+        <p className="text-sm font-semibold p-2 text-dozeblue ">
           Habitaciones disponibles: {roomsCount}
         </p>
         <button
           onClick={handleSelect}
-          className="inline-flex items-center bg-dozeblue text-white px-4 py-2 pb-2 text-sm rounded-full font-medium hover:bg-blue-900 transition"
+          className="inline-flex items-center bg-dozeblue text-white px-4 py-2 pb-2 text-sm rounded-full font-medium hover:bg-blue-900 mt-28 transition"
         >
           Ver Habitaciones
           <ArrowRight className="w-4 h-4 ml-2" />
