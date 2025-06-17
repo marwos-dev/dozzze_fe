@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useRef, useEffect, FormEvent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'next/navigation';
@@ -115,21 +116,24 @@ export default function PropertyDetailPage() {
     <div className="max-w-6xl mx-auto px-4 py-6">
       {/* Presentación con imagen */}
       <div className="relative rounded-xl overflow-hidden mb-6">
-        {property.cover_image && (
-          <img
-            src={property.cover_image}
+        <div className="relative w-full h-[240px] md:h-[320px] rounded-xl overflow-hidden mb-6">
+          <Image
+            src={property.cover_image || '/logo.png'}
             alt={`Imagen de ${property.name}`}
-            className="w-full h-[240px] md:h-[320px] object-cover"
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
           />
-        )}
-        <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow">
-            {property.name}
-          </h1>
-          <p className="text-sm md:text-base text-white drop-shadow flex items-center gap-2">
-            <MapPin className="w-4 h-4" />
-            {property.address || 'Dirección no disponible'}
-          </p>
+          <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow">
+              {property.name}
+            </h1>
+            <p className="text-sm md:text-base text-white drop-shadow flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              {property.address || 'Dirección no disponible'}
+            </p>
+          </div>
         </div>
       </div>
 
