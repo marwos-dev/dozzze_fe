@@ -116,7 +116,7 @@ export default function PropertyDetailPage() {
     <div className="max-w-6xl mx-auto px-4 py-6">
       {/* Presentación con imagen */}
       <div className="relative rounded-xl overflow-hidden mb-6">
-        <div className="relative w-full h-[240px] md:h-[320px] rounded-xl overflow-hidden mb-6">
+        <div className="relative w-full h-[240px] md:h-[320px] rounded-xl overflow-hidden">
           <Image
             src={property.cover_image || '/logo.png'}
             alt={`Imagen de ${property.name}`}
@@ -125,14 +125,21 @@ export default function PropertyDetailPage() {
             className="object-cover"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-6">
+
+          {/* Overlay con degradado */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex flex-col justify-end p-6">
             <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow">
               {property.name}
             </h1>
-            <p className="text-sm md:text-base text-white drop-shadow flex items-center gap-2">
+            <p className="text-sm md:text-base text-white drop-shadow flex items-center gap-2 mb-2">
               <MapPin className="w-4 h-4" />
               {property.address || 'Dirección no disponible'}
             </p>
+            {property.description && (
+              <p className="text-xs md:text-sm text-white/90 max-w-3xl line-clamp-3 md:line-clamp-4">
+                {property.description}
+              </p>
+            )}
           </div>
         </div>
       </div>
