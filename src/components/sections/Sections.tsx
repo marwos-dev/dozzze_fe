@@ -26,7 +26,7 @@ const Sections = () => {
       <ZoneSection zones={zones as Zone[]} loading={loading} />
       <>
         {' '}
-        <section className="max-w-6xl mx-auto" id="seeker">
+        <section className="max-w-6xl mx-auto pt-10" id="seeker">
           <div className="text-center bg-greenlight rounded-t-xl  py-3 px-2">
             <h2 className="text-3xl font-semibold text-dozeblue">
               Descubrí espacios únicos para tu estadía
