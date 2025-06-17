@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { DateRange, RangeKeyDict, Range } from 'react-date-range';
 import { addDays, format } from 'date-fns';
-import { CalendarDays, User } from 'lucide-react';
+import { CalendarDays, User, Search } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchAvailability } from '@/store/propertiesSlice';
@@ -130,9 +130,10 @@ export default function Seeker() {
           {/* Botón consultar */}
           <button
             type="submit"
-            className="bg-greenlight py-3 px-6 rounded-md hover:bg-dozeblue/90 text-dozeblue hover:text-white transition font-semibold w-full md:w-auto"
+            className="flex items-center justify-center gap-2 h-12 px-6 rounded-md bg-greenlight text-dozeblue hover:bg-dozeblue/90 hover:text-white transition font-semibold w-full md:w-auto"
           >
-            Consultar
+            <Search className="w-5 h-5" />
+            Buscar
           </button>
         </div>
       </form>
