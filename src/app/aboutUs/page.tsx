@@ -6,7 +6,6 @@ import {
   Mail,
   Phone,
   MessageCircleMore,
-  ShieldCheck,
   Info,
   Contact2,
   FileText,
