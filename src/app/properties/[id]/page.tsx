@@ -43,6 +43,7 @@ export default function PropertyDetailPage() {
   const [guests, setGuests] = useState(2);
   const [error, setError] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const calendarRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -74,6 +75,7 @@ export default function PropertyDetailPage() {
           property_id: property.id,
         })
       );
+      setHasFetched(true);
     }
   }, [dispatch, property?.id, range, guests]);
 
@@ -99,6 +101,7 @@ export default function PropertyDetailPage() {
     };
     setError(null);
     dispatch(fetchAvailability(formatted));
+    setHasFetched(true);
   };
 
   if (!property)
@@ -191,8 +194,13 @@ export default function PropertyDetailPage() {
       {/* Errores y estado */}
       {error && <p className="text-red-500">{error}</p>}
       {reduxError && <p className="text-red-500">{reduxError}</p>}
-      {loading && <SkeletonAvailabilityResult />}
-      {!!availability.length && <AvailabilityResult guests={guests} />}
+
+      {/* Resultado o Skeleton */}
+      {loading ? (
+        <SkeletonAvailabilityResult />
+      ) : hasFetched && !!availability.length ? (
+        <AvailabilityResult guests={guests} />
+      ) : null}
     </div>
   );
 }
