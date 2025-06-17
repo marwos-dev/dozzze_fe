@@ -2,27 +2,36 @@
 
 import { useState, useRef, useEffect, FormEvent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'next/navigation';
 import { RootState, AppDispatch } from '@/store';
 import { MapPin, CalendarDays, User } from 'lucide-react';
 import { DateRange, RangeKeyDict, Range } from 'react-date-range';
 import { addDays, format } from 'date-fns';
-import { fetchAvailability } from '@/store/propertiesSlice';
+import {
+  fetchAvailability,
+  loadFullPropertyById,
+} from '@/store/propertiesSlice';
 import AvailabilityResult from '@/components/ui/AvailabilityResult';
 import SkeletonAvailabilityResult from '@/components/ui/skeletons/AvailabilityResultSkeleton';
 import PropertiesCardSkeleton from '@/components/ui/skeletons/PropertyCardSkeleton';
+import {
+  selectSelectedProperty,
+  selectAvailability,
+  selectPropertiesLoading,
+  selectPropertiesError,
+} from '@/store/selectors/propertiesSelectors';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 
 export default function PropertyDetailPage() {
-  const property = useSelector(
-    (state: RootState) => state.properties.selectedProperty
-  );
+  const params = useParams();
+  const propertyId = Number(params?.id);
+
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    availability,
-    loading,
-    error: reduxError,
-  } = useSelector((state: RootState) => state.properties);
+  const property = useSelector(selectSelectedProperty);
+  const availability = useSelector(selectAvailability);
+  const loading = useSelector(selectPropertiesLoading);
+  const reduxError = useSelector(selectPropertiesError);
 
   const [range, setRange] = useState<Range[]>([
     {
@@ -36,7 +45,12 @@ export default function PropertyDetailPage() {
   const [showCalendar, setShowCalendar] = useState(false);
   const calendarRef = useRef<HTMLDivElement | null>(null);
 
-  // Cierre del calendario al click externo
+  useEffect(() => {
+    if (!property && propertyId) {
+      dispatch(loadFullPropertyById(propertyId));
+    }
+  }, [dispatch, property, propertyId]);
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -62,6 +76,7 @@ export default function PropertyDetailPage() {
       );
     }
   }, [dispatch, property?.id, range, guests]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
@@ -92,6 +107,7 @@ export default function PropertyDetailPage() {
         <PropertiesCardSkeleton />
       </div>
     );
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-semibold text-gray-800 mb-1">
