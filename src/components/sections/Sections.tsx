@@ -23,6 +23,7 @@ const Sections = () => {
   return (
     <main>
       <Home />
+      <ZoneSection zones={zones as Zone[]} loading={loading} />
       <>
         {' '}
         <section className="max-w-6xl mx-auto" id="seeker">
@@ -38,7 +39,6 @@ const Sections = () => {
           <Seeker />
         </section>
         <section className="p-5" id="seeker"></section>
-        <ZoneSection zones={zones as Zone[]} loading={loading} />{' '}
         {/* <section className="pb-5">
             <Properties zones={zones as Zone[]} />
           </section> */}
