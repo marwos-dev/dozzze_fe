@@ -7,6 +7,8 @@ import { CalendarDays, User, Search } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchAvailability } from '@/store/propertiesSlice';
+import SkeletonAvailabilityResult from '@/components/ui/skeletons/AvailabilityResultSkeleton';
+
 import AnimatedButton from '../ui/buttons/AnimatedButton';
 import AvailabilityResult from '../ui/AvailabilityResult';
 import 'react-date-range/dist/styles.css';
@@ -156,7 +158,11 @@ export default function Seeker() {
       {/* Estado y resultados */}
       {error && <p className="text-red-500">{error}</p>}
       {reduxError && <p className="text-red-500">{reduxError}</p>}
-      {loading && <p className="text-center text-dozegray">Cargando...</p>}
+      {loading && (
+        <div className="text-center text-dozegray">
+          <SkeletonAvailabilityResult />
+        </div>
+      )}
       {!!availability.length && <AvailabilityResult guests={guests} />}
 
       {/* Botones secundarios */}
