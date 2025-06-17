@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, FormEvent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'next/navigation';
 import { AppDispatch } from '@/store';
-import { MapPin, CalendarDays, User } from 'lucide-react';
+import { MapPin, CalendarDays, User, Search } from 'lucide-react';
 import { DateRange, RangeKeyDict, Range } from 'react-date-range';
 import { addDays, format } from 'date-fns';
 import {
@@ -47,12 +47,29 @@ export default function PropertyDetailPage() {
   const [hasFetched, setHasFetched] = useState(false);
   const calendarRef = useRef<HTMLDivElement | null>(null);
 
+  // Cargar propiedad por ID
   useEffect(() => {
     if (!property && propertyId) {
       dispatch(loadFullPropertyById(propertyId));
     }
   }, [dispatch, property, propertyId]);
 
+  // Búsqueda automática solo una vez
+  useEffect(() => {
+    if (property?.id && !hasFetched) {
+      const selected = range[0];
+      const formatted = {
+        check_in: selected.startDate!.toISOString().split('T')[0],
+        check_out: selected.endDate!.toISOString().split('T')[0],
+        guests,
+        property_id: property.id,
+      };
+      dispatch(fetchAvailability(formatted));
+      setHasFetched(true);
+    }
+  }, [dispatch, property?.id]);
+
+  // Cerrar calendario al hacer clic afuera
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -66,20 +83,7 @@ export default function PropertyDetailPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    if (property?.id) {
-      dispatch(
-        fetchAvailability({
-          check_in: range[0].startDate!.toISOString().split('T')[0],
-          check_out: range[0].endDate!.toISOString().split('T')[0],
-          guests,
-          property_id: property.id,
-        })
-      );
-      setHasFetched(true);
-    }
-  }, [dispatch, property?.id, range, guests]);
-
+  // Enviar búsqueda manual (formulario)
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
@@ -114,7 +118,7 @@ export default function PropertyDetailPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
-      {/* Presentación con imagen */}
+      {/* Presentación */}
       <div className="relative rounded-xl overflow-hidden mb-6">
         <div className="relative w-full h-[240px] md:h-[320px] rounded-xl overflow-hidden">
           <Image
@@ -125,8 +129,6 @@ export default function PropertyDetailPage() {
             className="object-cover"
             sizes="100vw"
           />
-
-          {/* Overlay con degradado */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex flex-col justify-end p-6">
             <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow">
               {property.name}
@@ -144,7 +146,7 @@ export default function PropertyDetailPage() {
         </div>
       </div>
 
-      {/* BUSCADOR */}
+      {/* Formulario de búsqueda */}
       <form onSubmit={handleSubmit} className="space-y-4 mb-6">
         <div className="flex flex-col md:flex-row md:justify-center items-stretch md:items-center gap-4 md:gap-6 max-w-4xl mx-auto">
           {/* Calendario */}
@@ -204,21 +206,21 @@ export default function PropertyDetailPage() {
             </div>
           </div>
 
-          {/* Botón */}
+          {/* Botón buscar */}
           <button
             type="submit"
-            className="bg-greenlight py-3 px-6 rounded-md hover:bg-dozeblue/90 text-dozeblue hover:text-white transition font-semibold w-full md:w-auto"
+            className="flex items-center justify-center gap-2 h-12 px-6 rounded-md bg-greenlight text-dozeblue hover:bg-dozeblue/90 hover:text-white transition font-semibold w-full md:w-auto"
           >
-            Consultar
+            <Search className="w-5 h-5" />
+            Buscar
           </button>
         </div>
       </form>
 
-      {/* Errores y estado */}
+      {/* Errores y resultado */}
       {error && <p className="text-red-500">{error}</p>}
       {reduxError && <p className="text-red-500">{reduxError}</p>}
 
-      {/* Resultado o Skeleton */}
       {loading ? (
         <SkeletonAvailabilityResult />
       ) : hasFetched && !!availability.length ? (
