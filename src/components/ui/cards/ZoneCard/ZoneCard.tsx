@@ -1,10 +1,10 @@
-"use client";
-import { useRef, useState, useEffect } from "react";
-import type { LatLngExpression } from "leaflet";
-import ZoneCardMedia from "./ZoneCardMedia";
-import ZoneCardFooter from "./ZoneCardFooter";
-import ZoneCardHeader from "./ZoneCardHeader";
-import type { PointWithMedia } from "@/types/map";
+'use client';
+import { useRef, useState, useEffect } from 'react';
+import type { LatLngExpression } from 'leaflet';
+import ZoneCardMedia from './ZoneCardMedia';
+import ZoneCardFooter from './ZoneCardFooter';
+import ZoneCardHeader from './ZoneCardHeader';
+import type { PointWithMedia } from '@/types/map';
 
 interface ZoneCardProps {
   id: number;
@@ -22,7 +22,11 @@ export default function ZoneCard({
   pointsCoordinates,
 }: ZoneCardProps) {
   const [showMap, setShowMap] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(imageUrls[0]);
+  const fallbackImage = '/logo.png';
+  const hasImages = imageUrls.length > 0;
+  const [selectedImage, setSelectedImage] = useState(
+    hasImages ? imageUrls[0] : fallbackImage
+  );
   const [showOverlayMap, setShowOverlayMap] = useState(false);
 
   const [mapCenter, setMapCenter] = useState<LatLngExpression>(
