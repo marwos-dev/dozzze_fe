@@ -4,30 +4,12 @@ import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { Users } from 'lucide-react';
-
-interface Price {
-  price: number;
-  occupancy: number;
-}
-
-interface Rate {
-  prices: Price[];
-  restriction?: Record<string, unknown>;
-}
-
-interface AvailabilityItem {
-  date: string;
-  room_type: string;
-  availability: number;
-  rates: Rate[];
-  property_id: number;
-}
+import { AvailabilityItem } from '@/types/roomType';
 
 export default function AvailabilityResult() {
   const availability = useSelector(
     (state: RootState) => state.properties.availability
   );
-
   const [selectedRateIndex, setSelectedRateIndex] = useState<
     Record<string, number>
   >({});
@@ -36,34 +18,30 @@ export default function AvailabilityResult() {
   const grouped = useMemo(() => {
     const map = new Map<string, AvailabilityItem[]>();
     availability.forEach((item) => {
-      if (!map.has(item.room_type)) map.set(item.room_type, []);
-      map.get(item.room_type)!.push(item);
+      const list = map.get(item.room_type) || [];
+      list.push(item);
+      map.set(item.room_type, list);
     });
     return Array.from(map.entries());
   }, [availability]);
 
   const handleReserve = (roomType: string, rateIndex: number, pax: number) => {
-    console.log('Reservar →', {
-      roomType,
-      habitacion: rateIndex + 1,
-      cantidadPersonas: pax,
-    });
+    console.log('Reservar →', { roomType, rateIndex, pax });
   };
 
   return (
     <div className="space-y-6 mt-6">
       {grouped.map(([roomType, items]) => {
-        const allRates = items[0]?.rates || [];
-        const selectedIndex = selectedRateIndex[roomType] || 0;
-        const selectedRate = allRates[selectedIndex];
+        const rates = items[0].rates;
+        const selectedIndex = selectedRateIndex[roomType] ?? 0;
+        const selectedRate = rates[selectedIndex];
         const maxPax = Math.max(
-          ...allRates.flatMap((r) => r.prices.map((p) => p.occupancy))
+          ...rates.flatMap((r) => r.prices.map((p) => p.occupancy))
         );
         const pax = selectedPax[roomType] ?? 1;
-
         const unitPrice =
-          selectedRate?.prices.find((p) => p.occupancy === pax)?.price ?? 0;
-        const total = unitPrice * 1;
+          selectedRate.prices.find((p) => p.occupancy === pax)?.price ?? 0;
+        const total = unitPrice * pax;
 
         return (
           <div
@@ -96,7 +74,7 @@ export default function AvailabilityResult() {
                     }
                     className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-dozeblue bg-white dark:bg-dozegray/10 text-[var(--foreground)] shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-dozeblue"
                   >
-                    {allRates.map((rate, i) => {
+                    {rates.map((rate, i) => {
                       const minPrice =
                         rate.prices.find((p) => p.occupancy === 1)?.price ??
                         rate.prices[0]?.price ??
