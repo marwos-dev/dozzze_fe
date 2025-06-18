@@ -23,11 +23,7 @@ interface AvailabilityItem {
   property_id: number;
 }
 
-interface Props {
-  guests: number;
-}
-
-export default function AvailabilityResult({ guests }: Props) {
+export default function AvailabilityResult() {
   const availability = useSelector(
     (state: RootState) => state.properties.availability
   );
@@ -63,7 +59,7 @@ export default function AvailabilityResult({ guests }: Props) {
         const maxPax = Math.max(
           ...allRates.flatMap((r) => r.prices.map((p) => p.occupancy))
         );
-        const pax = selectedPax[roomType] || guests;
+        const pax = selectedPax[roomType] ?? 1;
 
         const unitPrice =
           selectedRate?.prices.find((p) => p.occupancy === pax)?.price ?? 0;

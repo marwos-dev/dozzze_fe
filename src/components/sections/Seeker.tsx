@@ -3,10 +3,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { DateRange, RangeKeyDict, Range } from 'react-date-range';
 import { addDays, format } from 'date-fns';
-import { CalendarDays, User } from 'lucide-react';
+import { CalendarDays, User, Search } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchAvailability } from '@/store/propertiesSlice';
+import SkeletonAvailabilityResult from '@/components/ui/skeletons/AvailabilityResultSkeleton';
+
 import AnimatedButton from '../ui/buttons/AnimatedButton';
 import AvailabilityResult from '../ui/AvailabilityResult';
 import 'react-date-range/dist/styles.css';
@@ -23,6 +25,7 @@ export default function Seeker() {
   const [guests, setGuests] = useState(2);
   const [error, setError] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const calendarRef = useRef<HTMLDivElement | null>(null);
   const dispatch = useDispatch<AppDispatch>();
@@ -45,6 +48,20 @@ export default function Seeker() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Búsqueda automática al montar
+  useEffect(() => {
+    if (!hasFetched) {
+      const selected = range[0];
+      const formatted = {
+        check_in: selected.startDate!.toISOString().split('T')[0],
+        check_out: selected.endDate!.toISOString().split('T')[0],
+        guests,
+      };
+      dispatch(fetchAvailability(formatted));
+      setHasFetched(true);
+    }
+  }, [dispatch, hasFetched, guests, range]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,12 +144,13 @@ export default function Seeker() {
             </div>
           </div>
 
-          {/* Botón consultar */}
+          {/* Botón buscar */}
           <button
             type="submit"
-            className="bg-greenlight py-3 px-6 rounded-md hover:bg-dozeblue/90 text-dozeblue hover:text-white transition font-semibold w-full md:w-auto"
+            className="flex items-center justify-center gap-2 h-12 px-6 rounded-md bg-greenlight text-dozeblue hover:bg-dozeblue/90 hover:text-white transition font-semibold w-full md:w-auto"
           >
-            Consultar
+            <Search className="w-5 h-5" />
+            Buscar
           </button>
         </div>
       </form>
@@ -140,8 +158,12 @@ export default function Seeker() {
       {/* Estado y resultados */}
       {error && <p className="text-red-500">{error}</p>}
       {reduxError && <p className="text-red-500">{reduxError}</p>}
-      {loading && <p className="text-center text-dozegray">Cargando...</p>}
-      {!!availability.length && <AvailabilityResult guests={guests} />}
+      {loading && (
+        <div className="text-center text-dozegray">
+          <SkeletonAvailabilityResult />
+        </div>
+      )}
+      {!!availability.length && <AvailabilityResult />}
 
       {/* Botones secundarios */}
       <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
