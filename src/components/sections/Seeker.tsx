@@ -163,7 +163,7 @@ export default function Seeker() {
           <SkeletonAvailabilityResult />
         </div>
       )}
-      {!!availability.length && <AvailabilityResult guests={guests} />}
+      {!!availability.length && <AvailabilityResult />}
 
       {/* Botones secundarios */}
       <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">

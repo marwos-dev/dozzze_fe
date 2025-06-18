@@ -23,11 +23,7 @@ interface AvailabilityItem {
   property_id: number;
 }
 
-interface Props {
-  guests: number;
-}
-
-export default function AvailabilityResult({ guests }: Props) {
+export default function AvailabilityResult() {
   const availability = useSelector(
     (state: RootState) => state.properties.availability
   );

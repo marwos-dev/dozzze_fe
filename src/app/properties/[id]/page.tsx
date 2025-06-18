@@ -67,7 +67,7 @@ export default function PropertyDetailPage() {
       dispatch(fetchAvailability(formatted));
       setHasFetched(true);
     }
-  }, [dispatch, property?.id]);
+  }, [dispatch, property?.id, hasFetched, range, guests]);
 
   // Cerrar calendario al hacer clic afuera
   useEffect(() => {
@@ -224,7 +224,7 @@ export default function PropertyDetailPage() {
       {loading ? (
         <SkeletonAvailabilityResult />
       ) : hasFetched && !!availability.length ? (
-        <AvailabilityResult guests={guests} />
+        <AvailabilityResult />
       ) : null}
     </div>
   );
