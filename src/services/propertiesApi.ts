@@ -3,11 +3,7 @@
 import axios from './axios';
 import { Property } from '@/types/property';
 import { Room } from '@/types/room';
-import {
-  AvailabilityItem,
-  AvailabilityPayload,
-  AvailabilityResponse,
-} from '@/types/roomType';
+import { AvailabilityPayload, AvailabilityResponse } from '@/types/roomType';
 
 // Obtener propiedad por ID
 export const fetchPropertyById = async (id: number): Promise<Property> => {
