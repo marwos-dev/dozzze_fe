@@ -10,6 +10,10 @@ export default function AvailabilityResult() {
   const availability = useSelector(
     (state: RootState) => state.properties.availability
   );
+  const guestsFromSearch = useSelector(
+    (state: RootState) => state.properties.lastAvailabilityParams?.guests
+  );
+
   const [selectedRateIndex, setSelectedRateIndex] = useState<
     Record<string, number>
   >({});
@@ -38,7 +42,7 @@ export default function AvailabilityResult() {
           ...rates.flatMap((r) => r.prices.map((p) => p.occupancy))
         );
 
-        const pax = selectedPax[roomType] ?? 1;
+        const pax = selectedPax[roomType] ?? guestsFromSearch ?? 1;
 
         const rateTotals = Array.from({ length: ratesCount }).map((_, idx) =>
           items.reduce((sum, item) => {
