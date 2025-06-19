@@ -1,11 +1,18 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { fetchPropertyById } from '@/services/propertiesApi';
+import {
+  fetchPropertyById,
+  checkPropertyAvailability,
+} from '@/services/propertiesApi';
 import { Property } from '@/types/property';
 import { RootState, AppDispatch } from '@/store';
 import { fetchRooms } from './roomsSlice';
 import { Zone } from '@/types/zone';
-import { checkPropertyAvailability } from '@/services/propertiesApi';
-import { AvailabilityItem } from '@/types/roomType';
+import {
+  AvailabilityItem,
+  AvailabilityPayload,
+  AvailabilityResponse,
+  TotalPricePerRoomType,
+} from '@/types/roomType';
 
 interface PropertiesState {
   propertiesByZone: Record<number, Property[]>;
@@ -13,6 +20,7 @@ interface PropertiesState {
   loading: boolean;
   error: string | null;
   availability: AvailabilityItem[];
+  totalPriceMap: TotalPricePerRoomType;
 }
 
 const initialState: PropertiesState = {
@@ -21,9 +29,9 @@ const initialState: PropertiesState = {
   loading: false,
   error: null,
   availability: [],
+  totalPriceMap: {},
 };
 
-// Obtener propiedad por ID con cache desde zones, luego local y luego API
 export const getPropertyById = createAsyncThunk<
   Property,
   number,
@@ -31,23 +39,18 @@ export const getPropertyById = createAsyncThunk<
 >('properties/getById', async (propertyId, thunkAPI) => {
   const state = thunkAPI.getState();
 
-  // Buscar en zonas (properties de cada zone)
   const allZoneProperties = state.zones.data.flatMap((zone: Zone) =>
     Array.isArray(zone.properties) ? zone.properties : []
   );
-  const fromZone = allZoneProperties.find(
-    (p: { id: number }) => p.id === propertyId
-  );
+  const fromZone = allZoneProperties.find((p) => p.id === propertyId);
   if (fromZone) return fromZone;
 
-  // Buscar en cache local del slice
   const allCached: Property[] = Object.values(
     state.properties.propertiesByZone
-  ).flat() as Property[];
+  ).flat();
   const fromCache = allCached.find((p) => p.id === propertyId);
   if (fromCache) return fromCache;
 
-  // Fetch desde API
   try {
     const fetched = await fetchPropertyById(propertyId);
     return fetched;
@@ -57,7 +60,6 @@ export const getPropertyById = createAsyncThunk<
   }
 });
 
-// Thunk combinado: carga propiedad + habitaciones
 export const loadFullPropertyById = createAsyncThunk<
   void,
   number,
@@ -68,14 +70,10 @@ export const loadFullPropertyById = createAsyncThunk<
     dispatch(fetchRooms({ propertyId }));
   }
 });
+
 export const fetchAvailability = createAsyncThunk<
-  AvailabilityItem[],
-  {
-    check_in: string;
-    check_out: string;
-    guests: number;
-    property_id?: number;
-  },
+  AvailabilityResponse,
+  AvailabilityPayload,
   { rejectValue: string }
 >('properties/fetchAvailability', async (params, thunkAPI) => {
   try {
@@ -114,6 +112,7 @@ const propertiesSlice = createSlice({
     },
     clearAvailability(state) {
       state.availability = [];
+      state.totalPriceMap = {};
     },
   },
   extraReducers: (builder) => {
@@ -146,7 +145,8 @@ const propertiesSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchAvailability.fulfilled, (state, action) => {
-        state.availability = action.payload;
+        state.availability = action.payload.rooms;
+        state.totalPriceMap = action.payload.total_price_per_room_type || {};
         state.loading = false;
       })
       .addCase(fetchAvailability.rejected, (state, action) => {

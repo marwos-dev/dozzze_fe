@@ -4,30 +4,12 @@ import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { Users } from 'lucide-react';
-
-interface Price {
-  price: number;
-  occupancy: number;
-}
-
-interface Rate {
-  prices: Price[];
-  restriction?: Record<string, unknown>;
-}
-
-interface AvailabilityItem {
-  date: string;
-  room_type: string;
-  availability: number;
-  rates: Rate[];
-  property_id: number;
-}
+import { AvailabilityItem } from '@/types/roomType';
 
 export default function AvailabilityResult() {
   const availability = useSelector(
     (state: RootState) => state.properties.availability
   );
-
   const [selectedRateIndex, setSelectedRateIndex] = useState<
     Record<string, number>
   >({});
@@ -36,34 +18,40 @@ export default function AvailabilityResult() {
   const grouped = useMemo(() => {
     const map = new Map<string, AvailabilityItem[]>();
     availability.forEach((item) => {
-      if (!map.has(item.room_type)) map.set(item.room_type, []);
-      map.get(item.room_type)!.push(item);
+      const group = map.get(item.room_type) || [];
+      group.push(item);
+      map.set(item.room_type, group);
     });
     return Array.from(map.entries());
   }, [availability]);
 
   const handleReserve = (roomType: string, rateIndex: number, pax: number) => {
-    console.log('Reservar →', {
-      roomType,
-      habitacion: rateIndex + 1,
-      cantidadPersonas: pax,
-    });
+    console.log('Reservar →', { roomType, rateIndex, pax });
   };
 
   return (
     <div className="space-y-6 mt-6">
       {grouped.map(([roomType, items]) => {
-        const allRates = items[0]?.rates || [];
-        const selectedIndex = selectedRateIndex[roomType] || 0;
-        const selectedRate = allRates[selectedIndex];
+        const rates = items[0].rates;
+        const ratesCount = rates.length;
         const maxPax = Math.max(
-          ...allRates.flatMap((r) => r.prices.map((p) => p.occupancy))
+          ...rates.flatMap((r) => r.prices.map((p) => p.occupancy))
         );
+
         const pax = selectedPax[roomType] ?? 1;
 
-        const unitPrice =
-          selectedRate?.prices.find((p) => p.occupancy === pax)?.price ?? 0;
-        const total = unitPrice * 1;
+        const rateTotals = Array.from({ length: ratesCount }).map((_, idx) =>
+          items.reduce((sum, item) => {
+            const priceObj = item.rates[idx].prices.find(
+              (p) => p.occupancy === pax
+            );
+            return sum + (priceObj?.price || 0);
+          }, 0)
+        );
+
+        const defaultIndex = rateTotals.indexOf(Math.min(...rateTotals));
+        const selectedIndex = selectedRateIndex[roomType] ?? defaultIndex;
+        const total = rateTotals[selectedIndex];
 
         return (
           <div
@@ -71,20 +59,18 @@ export default function AvailabilityResult() {
             className="border border-gray-300 dark:border-white/10 rounded-2xl bg-[var(--background)] shadow-sm overflow-hidden transition-colors"
           >
             <div className="grid grid-cols-1 sm:grid-cols-[280px_1fr]">
-              {/* Lado izquierdo */}
               <div className="p-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-dozegray/10 transition-colors">
                 <h3 className="text-lg font-semibold text-dozeblue mb-2">
                   {roomType}
                 </h3>
                 <p className="text-sm text-[var(--foreground)] flex items-center gap-1 mb-3">
-                  <Users size={16} className="text-dozeblue" />
-                  Hasta {maxPax} huésped{maxPax > 1 ? 'es' : ''}
+                  <Users size={16} className="text-dozeblue" /> Hasta {maxPax}{' '}
+                  huésped{maxPax > 1 ? 'es' : ''}
                 </p>
 
-                {/* Select de habitación */}
                 <div className="mb-3">
-                  <label className="block text-xs font-medium text-[var(--foreground)] mb-1">
-                    Seleccionar habitación
+                  <label className="block text-xs font-medium mb-1">
+                    Habitación
                   </label>
                   <select
                     value={selectedIndex}
@@ -94,26 +80,19 @@ export default function AvailabilityResult() {
                         [roomType]: Number(e.target.value),
                       }))
                     }
-                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-dozeblue bg-white dark:bg-dozegray/10 text-[var(--foreground)] shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-dozeblue"
+                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-dozeblue bg-white dark:bg-dozegray/10 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-dozeblue"
                   >
-                    {allRates.map((rate, i) => {
-                      const minPrice =
-                        rate.prices.find((p) => p.occupancy === 1)?.price ??
-                        rate.prices[0]?.price ??
-                        0;
-                      return (
-                        <option key={i} value={i}>
-                          Habitación {i + 1} - desde ${minPrice}
-                        </option>
-                      );
-                    })}
+                    {rateTotals.map((sumPrice, idx) => (
+                      <option key={idx} value={idx}>
+                        Habitación {idx + 1} – Total ${sumPrice}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
-                {/* Select de pax */}
                 <div>
-                  <label className="block text-xs font-medium text-[var(--foreground)] mb-1">
-                    Cantidad de huéspedes
+                  <label className="block text-xs font-medium mb-1">
+                    Huéspedes
                   </label>
                   <select
                     value={pax}
@@ -123,7 +102,7 @@ export default function AvailabilityResult() {
                         [roomType]: Number(e.target.value),
                       }))
                     }
-                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-dozeblue bg-white dark:bg-dozegray/10 text-[var(--foreground)] shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-dozeblue"
+                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-dozeblue bg-white dark:bg-dozegray/10 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-dozeblue"
                   >
                     {Array.from({ length: maxPax }, (_, i) => i + 1).map(
                       (n) => (
@@ -136,22 +115,28 @@ export default function AvailabilityResult() {
                 </div>
               </div>
 
-              {/* Lado derecho */}
               <div className="p-6 flex flex-col justify-between gap-4 transition-colors">
                 <div className="space-y-3">
-                  {/* Precios por pax como badges */}
                   <div className="flex flex-wrap gap-2 text-sm">
-                    {selectedRate.prices.map((p, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-1 rounded-full bg-dozeblue/30 text-[var(--foreground)] border border-dozeblue text-xs font-medium"
-                      >
-                        {p.occupancy} pax: ${p.price}
-                      </span>
-                    ))}
+                    {Array.from({ length: maxPax }, (_, occIdx) => {
+                      const occ = occIdx + 1;
+                      const totalByOcc = items.reduce((sum, item) => {
+                        const priceObj = item.rates[selectedIndex].prices.find(
+                          (pr) => pr.occupancy === occ
+                        );
+                        return sum + (priceObj?.price || 0);
+                      }, 0);
+                      return (
+                        <span
+                          key={occ}
+                          className="px-2 py-1 rounded-full bg-dozeblue/30 border border-dozeblue text-xs font-medium"
+                        >
+                          {occ} pax Total ${totalByOcc}
+                        </span>
+                      );
+                    })}
                   </div>
 
-                  {/* Badges de beneficios */}
                   <div className="flex flex-wrap gap-2 mt-2">
                     {[
                       'Desayuno incluido',
@@ -160,7 +145,7 @@ export default function AvailabilityResult() {
                     ].map((label, i) => (
                       <span
                         key={i}
-                        className="text-xs px-2 py-1 rounded-md bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 transition-colors"
+                        className="text-xs px-2 py-1 rounded-md bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
                       >
                         {label}
                       </span>
@@ -168,15 +153,19 @@ export default function AvailabilityResult() {
                   </div>
                 </div>
 
-                {/* Botón y leyenda */}
-                <div className="mt-4 flex items-center justify-between flex-wrap gap-2 text-sm text-[var(--foreground)]">
-                  <span>
-                    {Array(pax).fill('👤').join(' ')} – 1 habitación
-                    seleccionada – <strong>Total ${total}</strong>
-                  </span>
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="text-sm text-[var(--foreground)]">
+                    <div className="font-medium mb-1">
+                      {Array(pax).fill('👤').join(' ')} – Habitación{' '}
+                      {selectedIndex + 1} seleccionada
+                    </div>
+                    <div className="text-base font-semibold text-dozeblue">
+                      Total a pagar: ${total}
+                    </div>
+                  </div>
                   <button
                     onClick={() => handleReserve(roomType, selectedIndex, pax)}
-                    className="bg-dozeblue text-white font-medium px-5 py-2.5 rounded-lg hover:bg-dozeblue/90 transition"
+                    className="bg-dozeblue text-white font-semibold px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors text-sm"
                   >
                     Reservar ahora
                   </button>
