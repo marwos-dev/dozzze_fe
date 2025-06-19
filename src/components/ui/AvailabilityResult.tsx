@@ -32,17 +32,14 @@ export default function AvailabilityResult() {
   return (
     <div className="space-y-6 mt-6">
       {grouped.map(([roomType, items]) => {
-        // Rates array for this roomType
         const rates = items[0].rates;
         const ratesCount = rates.length;
         const maxPax = Math.max(
           ...rates.flatMap((r) => r.prices.map((p) => p.occupancy))
         );
 
-        // Selected guests (default to 1)
         const pax = selectedPax[roomType] ?? 1;
 
-        // Calculate total price for each rate by summing over dates
         const rateTotals = Array.from({ length: ratesCount }).map((_, idx) =>
           items.reduce((sum, item) => {
             const priceObj = item.rates[idx].prices.find(
@@ -52,7 +49,6 @@ export default function AvailabilityResult() {
           }, 0)
         );
 
-        // Default selected index: cheapest rate
         const defaultIndex = rateTotals.indexOf(Math.min(...rateTotals));
         const selectedIndex = selectedRateIndex[roomType] ?? defaultIndex;
         const total = rateTotals[selectedIndex];
@@ -63,7 +59,6 @@ export default function AvailabilityResult() {
             className="border border-gray-300 dark:border-white/10 rounded-2xl bg-[var(--background)] shadow-sm overflow-hidden transition-colors"
           >
             <div className="grid grid-cols-1 sm:grid-cols-[280px_1fr]">
-              {/* Left side: selectors */}
               <div className="p-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-dozegray/10 transition-colors">
                 <h3 className="text-lg font-semibold text-dozeblue mb-2">
                   {roomType}
@@ -73,7 +68,6 @@ export default function AvailabilityResult() {
                   huésped{maxPax > 1 ? 'es' : ''}
                 </p>
 
-                {/* Rate selector */}
                 <div className="mb-3">
                   <label className="block text-xs font-medium mb-1">
                     Habitación
@@ -96,7 +90,6 @@ export default function AvailabilityResult() {
                   </select>
                 </div>
 
-                {/* Pax selector */}
                 <div>
                   <label className="block text-xs font-medium mb-1">
                     Huéspedes
@@ -122,22 +115,28 @@ export default function AvailabilityResult() {
                 </div>
               </div>
 
-              {/* Right side: prices and button */}
               <div className="p-6 flex flex-col justify-between gap-4 transition-colors">
                 <div className="space-y-3">
-                  {/* Individual prices badges */}
                   <div className="flex flex-wrap gap-2 text-sm">
-                    {rates[selectedIndex].prices.map((p, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-1 rounded-full bg-dozeblue/30 border border-dozeblue text-xs font-medium"
-                      >
-                        {p.occupancy} pax: ${p.price}
-                      </span>
-                    ))}
+                    {Array.from({ length: maxPax }, (_, occIdx) => {
+                      const occ = occIdx + 1;
+                      const totalByOcc = items.reduce((sum, item) => {
+                        const priceObj = item.rates[selectedIndex].prices.find(
+                          (pr) => pr.occupancy === occ
+                        );
+                        return sum + (priceObj?.price || 0);
+                      }, 0);
+                      return (
+                        <span
+                          key={occ}
+                          className="px-2 py-1 rounded-full bg-dozeblue/30 border border-dozeblue text-xs font-medium"
+                        >
+                          {occ} pax Total ${totalByOcc}
+                        </span>
+                      );
+                    })}
                   </div>
 
-                  {/* Benefits badges */}
                   <div className="flex flex-wrap gap-2 mt-2">
                     {[
                       'Desayuno incluido',
@@ -154,15 +153,19 @@ export default function AvailabilityResult() {
                   </div>
                 </div>
 
-                {/* Reservation button and total */}
-                <div className="mt-4 flex items-center justify-between flex-wrap gap-2 text-sm text-[var(--foreground)]">
-                  <span>
-                    {Array(pax).fill('👤').join(' ')} – 1 habitación
-                    seleccionada – <strong>Total ${total}</strong>
-                  </span>
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="text-sm text-[var(--foreground)]">
+                    <div className="font-medium mb-1">
+                      {Array(pax).fill('👤').join(' ')} – Habitación{' '}
+                      {selectedIndex + 1} seleccionada
+                    </div>
+                    <div className="text-base font-semibold text-dozeblue">
+                      Total a pagar: ${total}
+                    </div>
+                  </div>
                   <button
                     onClick={() => handleReserve(roomType, selectedIndex, pax)}
-                    className="bg-dozeblue text-white font-medium px-5 py-2.5 rounded-lg hover:bg-dozeblue/90"
+                    className="bg-dozeblue text-white font-semibold px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors text-sm"
                   >
                     Reservar ahora
                   </button>
