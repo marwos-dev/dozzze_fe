@@ -42,7 +42,15 @@ export default function AvailabilityResult() {
           ...rates.flatMap((r) => r.prices.map((p) => p.occupancy))
         );
 
-        const pax = selectedPax[roomType] ?? guestsFromSearch ?? 1;
+        const paxOptions = Array.from({ length: maxPax }, (_, i) => i + 1);
+        const defaultPax = paxOptions.includes(guestsFromSearch || 0)
+          ? guestsFromSearch!
+          : maxPax;
+
+        const pax = selectedPax[roomType] ?? defaultPax;
+
+        const showGuestError =
+          guestsFromSearch && !paxOptions.includes(guestsFromSearch);
 
         const rateTotals = Array.from({ length: ratesCount }).map((_, idx) =>
           items.reduce((sum, item) => {
@@ -71,6 +79,12 @@ export default function AvailabilityResult() {
                   <Users size={16} className="text-dozeblue" /> Hasta {maxPax}{' '}
                   huésped{maxPax > 1 ? 'es' : ''}
                 </p>
+
+                {showGuestError && (
+                  <p className="text-xs text-red-600 mb-3">
+                    Máximo de huéspedes permitido es {maxPax}
+                  </p>
+                )}
 
                 <div className="mb-3">
                   <label className="block text-xs font-medium mb-1">
@@ -108,13 +122,11 @@ export default function AvailabilityResult() {
                     }
                     className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-dozeblue bg-white dark:bg-dozegray/10 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-dozeblue"
                   >
-                    {Array.from({ length: maxPax }, (_, i) => i + 1).map(
-                      (n) => (
-                        <option key={n} value={n}>
-                          {n} huésped{n > 1 ? 'es' : ''}
-                        </option>
-                      )
-                    )}
+                    {paxOptions.map((n) => (
+                      <option key={n} value={n}>
+                        {n} huésped{n > 1 ? 'es' : ''}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -122,8 +134,7 @@ export default function AvailabilityResult() {
               <div className="p-6 flex flex-col justify-between gap-4 transition-colors">
                 <div className="space-y-3">
                   <div className="flex flex-wrap gap-2 text-sm">
-                    {Array.from({ length: maxPax }, (_, occIdx) => {
-                      const occ = occIdx + 1;
+                    {paxOptions.map((occ) => {
                       const totalByOcc = items.reduce((sum, item) => {
                         const priceObj = item.rates[selectedIndex].prices.find(
                           (pr) => pr.occupancy === occ
