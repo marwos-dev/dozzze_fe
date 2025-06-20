@@ -23,6 +23,8 @@ export default function ZoneCardFooter({
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
+  const fallbackThumbnail = '/logo.png';
+
   return (
     <div className="bg-dozebg1 mt-1 mb-4 px-4 shadow-md rounded-b-lg">
       {/* Miniaturas o fallback */}
@@ -49,8 +51,13 @@ export default function ZoneCardFooter({
             </div>
           ))
         ) : (
-          <div className="relative w-20 h-14 rounded-md overflow-hidden border-2 border-dashed border-gray-400 bg-gray-100 flex items-center justify-center text-xs text-gray-500">
-            <span className="absolute text-center px-2">Sin imágenes</span>
+          <div className="relative w-20 h-14 rounded-md overflow-hidden border-2 border-dashed border-gray-400 flex items-center justify-center text-xs text-gray-500">
+            <Image
+              src={fallbackThumbnail}
+              alt="Sin imágenes"
+              fill
+              style={{ objectFit: 'cover', opacity: 0.4 }}
+            />
           </div>
         )}
       </div>
