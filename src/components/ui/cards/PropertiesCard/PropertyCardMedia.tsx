@@ -20,7 +20,11 @@ export default function PropertyCardMedia({
     coverImage || thumbnails[0] || '/logo.png'
   );
   const extraImagesCount = hasImages ? images.length - thumbnails.length : 0;
-  const mainImageIndex = images.findIndex((img) => img === mainImage);
+
+  const validIndex = Math.max(
+    images.findIndex((img) => img === mainImage),
+    0
+  );
 
   return (
     <div className="flex flex-col w-full md:w-[330px] gap-2 md:h-full">
@@ -60,9 +64,7 @@ export default function PropertyCardMedia({
 
         {/* Main Image */}
         <div
-          onClick={() =>
-            onImageClick && hasImages && onImageClick(mainImageIndex)
-          }
+          onClick={() => onImageClick && hasImages && onImageClick(validIndex)}
           className="relative flex-1 rounded-xl overflow-hidden cursor-pointer"
         >
           <Image
@@ -78,9 +80,7 @@ export default function PropertyCardMedia({
       {/* Mobile */}
       <div className="md:hidden flex flex-col gap-2">
         <div
-          onClick={() =>
-            onImageClick && hasImages && onImageClick(mainImageIndex)
-          }
+          onClick={() => onImageClick && hasImages && onImageClick(validIndex)}
           className="relative w-full h-[180px] rounded-xl overflow-hidden cursor-pointer"
         >
           <Image
