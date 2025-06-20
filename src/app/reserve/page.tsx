@@ -1,17 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 import StepReservationSummary from '@/components/reserve/StepReservationSummary';
 import StepGuestDetails from '@/components/reserve/StepGuestDetails';
 import StepConfirmation from '@/components/reserve/StepConfirmation';
-import { selectReservationData } from '@/store/selectors/reserveSelectors';
 
 const steps = ['Tu selección', 'Tus datos', 'Terminar reserva'];
 
 export default function ReservePage() {
   const [currentStep, setCurrentStep] = useState(0);
-  const reservation = useSelector(selectReservationData);
 
   const goNext = () =>
     setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
