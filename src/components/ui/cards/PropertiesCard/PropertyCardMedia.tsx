@@ -14,15 +14,14 @@ export default function PropertyCardMedia({
   coverImage,
   onImageClick,
 }: PropertyCardMediaProps) {
-  const hasImages = images.length > 0;
-
   const fullImageList = useMemo(() => {
-    if (!hasImages && coverImage) return [coverImage];
+    const hasImgs = images.length > 0;
+
+    if (!hasImgs && coverImage) return [coverImage];
     if (coverImage && !images.includes(coverImage))
       return [coverImage, ...images];
     return images;
   }, [images, coverImage]);
-
   const thumbnails = fullImageList.slice(0, 4);
   const [mainImage, setMainImage] = useState(
     coverImage || thumbnails[0] || '/logo.png'

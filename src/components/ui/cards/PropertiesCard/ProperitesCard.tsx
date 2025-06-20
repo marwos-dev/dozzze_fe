@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Property } from '@/types/property';
 import PropertyCardMedia from './PropertyCardMedia';
 import PropertyCardInfo from './PropertyCardInfo';
@@ -11,14 +11,6 @@ export default function PropertiesCard(props: Property) {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalIndex, setModalIndex] = useState(0);
   const [modalImages, setModalImages] = useState<string[]>([]);
-
-  const fullImageList = useMemo(() => {
-    const imgs = props.images || [];
-    if (props.cover_image && !imgs.includes(props.cover_image)) {
-      return [props.cover_image, ...imgs];
-    }
-    return imgs;
-  }, [props.images, props.cover_image]);
 
   const openModalAtIndex = (index: number, imageList: string[]) => {
     setModalImages(imageList);
