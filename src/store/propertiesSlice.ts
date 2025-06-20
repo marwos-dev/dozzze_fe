@@ -21,6 +21,7 @@ interface PropertiesState {
   error: string | null;
   availability: AvailabilityItem[];
   totalPriceMap: TotalPricePerRoomType;
+  lastAvailabilityParams: AvailabilityPayload | null;
 }
 
 const initialState: PropertiesState = {
@@ -30,6 +31,7 @@ const initialState: PropertiesState = {
   error: null,
   availability: [],
   totalPriceMap: {},
+  lastAvailabilityParams: null,
 };
 
 export const getPropertyById = createAsyncThunk<
@@ -113,6 +115,7 @@ const propertiesSlice = createSlice({
     clearAvailability(state) {
       state.availability = [];
       state.totalPriceMap = {};
+      state.lastAvailabilityParams = null;
     },
   },
   extraReducers: (builder) => {
@@ -140,13 +143,18 @@ const propertiesSlice = createSlice({
         state.loading = false;
         state.error = action.payload ?? 'Error al cargar propiedad';
       })
+
       .addCase(fetchAvailability.pending, (state) => {
+        state.availability = [];
+        state.totalPriceMap = {};
+        state.lastAvailabilityParams = null;
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchAvailability.fulfilled, (state, action) => {
         state.availability = action.payload.rooms;
         state.totalPriceMap = action.payload.total_price_per_room_type || {};
+        state.lastAvailabilityParams = action.meta.arg;
         state.loading = false;
       })
       .addCase(fetchAvailability.rejected, (state, action) => {

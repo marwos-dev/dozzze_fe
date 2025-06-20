@@ -11,3 +11,6 @@ export const selectPropertiesLoading = (state: RootState) =>
 
 export const selectPropertiesError = (state: RootState) =>
   state.properties.error;
+
+export const selectLastAvailabilityParams = (state: RootState) =>
+  state.properties.lastAvailabilityParams;

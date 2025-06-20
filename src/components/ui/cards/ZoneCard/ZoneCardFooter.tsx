@@ -1,9 +1,9 @@
-"use client";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { setSelectedZone } from "@/store/zoneSlice";
-import { AppDispatch } from "@/store";
-import { useDispatch } from "react-redux";
+'use client';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { setSelectedZone } from '@/store/zoneSlice';
+import { AppDispatch } from '@/store';
+import { useDispatch } from 'react-redux';
 
 interface ZoneCardFooterProps {
   id: number;
@@ -23,30 +23,43 @@ export default function ZoneCardFooter({
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
+  const fallbackThumbnail = '/logo.png';
+
   return (
     <div className="bg-dozebg1 mt-1 mb-4 px-4 shadow-md rounded-b-lg">
-      {/* Miniaturas */}
-      <div className="flex overflow-x-auto gap-2 pt-2 scrollbar-hide">
-        {imageUrls.map((url, index) => (
-          <div
-            key={index}
-            className={`relative w-20 h-14 rounded-md cursor-pointer overflow-hidden border-2 ${
-              url === selectedImage ? "border-dozeblue" : "border-transparent"
-            }`}
-            onClick={() => {
-              setSelectedImage(url);
-              setShowMap(false);
-            }}
-          >
+      {/* Miniaturas o fallback */}
+      <div className="flex overflow-x-auto gap-2 pt-2 pb-2 scrollbar-hide">
+        {imageUrls.length > 0 ? (
+          imageUrls.map((url, index) => (
+            <div
+              key={index}
+              className={`relative w-20 h-14 rounded-md cursor-pointer overflow-hidden border-2 ${
+                url === selectedImage ? 'border-dozeblue' : 'border-transparent'
+              }`}
+              onClick={() => {
+                setSelectedImage(url);
+                setShowMap(false);
+              }}
+            >
+              <Image
+                src={url}
+                alt={`Miniatura ${index + 1}`}
+                fill
+                sizes="(max-width: 768px) 100vw, 700px"
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
+          ))
+        ) : (
+          <div className="relative w-20 h-14 rounded-md overflow-hidden border-2 border-dashed border-gray-400 flex items-center justify-center text-xs text-gray-500">
             <Image
-              src={url}
-              alt={`Miniatura ${index + 1}`}
+              src={fallbackThumbnail}
+              alt="Sin imágenes"
               fill
-              sizes="(max-width: 768px) 100vw, 700px"
-              style={{ objectFit: "cover" }}
+              style={{ objectFit: 'cover', opacity: 0.4 }}
             />
           </div>
-        ))}
+        )}
       </div>
 
       {/* Botón */}
