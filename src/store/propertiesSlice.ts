@@ -143,7 +143,11 @@ const propertiesSlice = createSlice({
         state.loading = false;
         state.error = action.payload ?? 'Error al cargar propiedad';
       })
+
       .addCase(fetchAvailability.pending, (state) => {
+        state.availability = [];
+        state.totalPriceMap = {};
+        state.lastAvailabilityParams = null;
         state.loading = true;
         state.error = null;
       })
