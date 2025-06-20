@@ -58,6 +58,7 @@ export default function ZoneCard({
 
       <ZoneCardMedia
         showMap={showMap}
+        imageUrls={imageUrls}
         selectedImage={selectedImage}
         zoneCoordinates={zoneCoordinates}
         pointsCoordinates={pointsCoordinates}

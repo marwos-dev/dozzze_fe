@@ -51,6 +51,7 @@ export default function ImageGalleryModal({
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
       <div className="relative w-full max-w-4xl h-[80vh] px-6">
         <Image
+          key={images[index]}
           src={images[index]}
           alt={`Imagen ${index + 1}`}
           fill
