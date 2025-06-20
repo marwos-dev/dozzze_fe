@@ -1,12 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 interface PropertyCardMediaProps {
   images?: string[];
   coverImage?: string;
-  onImageClick?: (index: number) => void;
+  onImageClick?: (index: number, imageList: string[]) => void;
 }
 
 export default function PropertyCardMedia({
@@ -15,16 +15,23 @@ export default function PropertyCardMedia({
   onImageClick,
 }: PropertyCardMediaProps) {
   const hasImages = images.length > 0;
-  const thumbnails = hasImages ? images.slice(0, 4) : ['/logo.png'];
+
+  const fullImageList = useMemo(() => {
+    if (!hasImages && coverImage) return [coverImage];
+    if (coverImage && !images.includes(coverImage))
+      return [coverImage, ...images];
+    return images;
+  }, [images, coverImage]);
+
+  const thumbnails = fullImageList.slice(0, 4);
   const [mainImage, setMainImage] = useState(
     coverImage || thumbnails[0] || '/logo.png'
   );
-  const extraImagesCount = hasImages ? images.length - thumbnails.length : 0;
 
-  const validIndex = Math.max(
-    images.findIndex((img) => img === mainImage),
-    0
-  );
+  const extraImagesCount =
+    fullImageList.length > 4 ? fullImageList.length - thumbnails.length : 0;
+
+  const validIndex = fullImageList.findIndex((img) => img === mainImage);
 
   return (
     <div className="flex flex-col w-full md:w-[330px] gap-2 md:h-full">
@@ -64,7 +71,11 @@ export default function PropertyCardMedia({
 
         {/* Main Image */}
         <div
-          onClick={() => onImageClick && hasImages && onImageClick(validIndex)}
+          onClick={() =>
+            onImageClick &&
+            fullImageList.length > 0 &&
+            onImageClick(validIndex, fullImageList)
+          }
           className="relative flex-1 rounded-xl overflow-hidden cursor-pointer"
         >
           <Image
@@ -80,7 +91,11 @@ export default function PropertyCardMedia({
       {/* Mobile */}
       <div className="md:hidden flex flex-col gap-2">
         <div
-          onClick={() => onImageClick && hasImages && onImageClick(validIndex)}
+          onClick={() =>
+            onImageClick &&
+            fullImageList.length > 0 &&
+            onImageClick(validIndex, fullImageList)
+          }
           className="relative w-full h-[180px] rounded-xl overflow-hidden cursor-pointer"
         >
           <Image
