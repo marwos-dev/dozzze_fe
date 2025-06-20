@@ -1,18 +1,22 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
+import { setReservationData } from '@/store/reserveSlice';
 import { AvailabilityItem } from '@/types/roomType';
+import {
+  selectAvailability,
+  selectLastAvailabilityParams,
+} from '@/store/selectors/propertiesSelectors';
 
 export default function AvailabilityResult() {
-  const availability = useSelector(
-    (state: RootState) => state.properties.availability
-  );
-  const guestsFromSearch = useSelector(
-    (state: RootState) => state.properties.lastAvailabilityParams?.guests
-  );
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const availability = useSelector(selectAvailability);
+  const range = useSelector(selectLastAvailabilityParams);
+  const guestsFromSearch = range?.guests;
 
   const [selectedRateIndex, setSelectedRateIndex] = useState<
     Record<string, number>
@@ -29,8 +33,36 @@ export default function AvailabilityResult() {
     return Array.from(map.entries());
   }, [availability]);
 
-  const handleReserve = (roomType: string, rateIndex: number, pax: number) => {
-    console.log('Reservar →', { roomType, rateIndex, pax });
+  const handleReserve = (
+    roomType: string,
+    rateIndex: number,
+    pax: number,
+    total: number
+  ) => {
+    if (!range?.check_in || !range?.check_out) return;
+
+    const matchingGroup = availability.find(
+      (item) => item.room_type === roomType
+    );
+    const propertyId = matchingGroup?.property_id;
+
+    if (!propertyId) return;
+
+    dispatch(
+      setReservationData({
+        property_id: propertyId,
+        check_in: range.check_in,
+        check_out: range.check_out,
+        rooms: 1,
+        pax_count: pax,
+        total_price: total,
+        channel: 'WEB',
+        currency: 'ARS',
+        roomType: roomType,
+      })
+    );
+
+    router.push('/reserve');
   };
 
   return (
@@ -48,7 +80,6 @@ export default function AvailabilityResult() {
           : maxPax;
 
         const pax = selectedPax[roomType] ?? defaultPax;
-
         const showGuestError =
           guestsFromSearch && !paxOptions.includes(guestsFromSearch);
 
@@ -179,7 +210,9 @@ export default function AvailabilityResult() {
                     </div>
                   </div>
                   <button
-                    onClick={() => handleReserve(roomType, selectedIndex, pax)}
+                    onClick={() =>
+                      handleReserve(roomType, selectedIndex, pax, total)
+                    }
                     className="bg-dozeblue text-white font-semibold px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors text-sm"
                   >
                     Reservar ahora
