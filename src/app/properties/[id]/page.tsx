@@ -14,7 +14,7 @@ import {
 } from '@/store/propertiesSlice';
 import AvailabilityResult from '@/components/ui/AvailabilityResult';
 import SkeletonAvailabilityResult from '@/components/ui/skeletons/AvailabilityResultSkeleton';
-import PropertiesCardSkeleton from '@/components/ui/skeletons/PropertyCardSkeleton';
+import PropertyDetailSkeleton from '@/components/ui/skeletons/PropertyDetailSkeleton';
 import {
   selectSelectedProperty,
   selectAvailability,
@@ -112,7 +112,7 @@ export default function PropertyDetailPage() {
   if (!property)
     return (
       <div className="min-h-[300px] flex items-center justify-center">
-        <PropertiesCardSkeleton />
+        <PropertyDetailSkeleton />
       </div>
     );
 
