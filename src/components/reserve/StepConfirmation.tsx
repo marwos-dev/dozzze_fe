@@ -23,6 +23,22 @@ export default function StepConfirmation({ onBack }: Props) {
       return;
     }
 
+    if (cardNumber.length !== 16) {
+      setError('El número de tarjeta debe tener 16 dígitos');
+      return;
+    }
+
+    if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
+      setError('La fecha debe tener el formato MM/AA');
+      return;
+    }
+
+    if (cvv.length < 3 || cvv.length > 4) {
+      setError('El CVV debe tener 3 o 4 dígitos');
+      return;
+    }
+
+    setError('');
     console.log('Reserva finalizada', { ...data, cardName, cardNumber });
     alert('Reserva confirmada!');
   };
@@ -43,6 +59,7 @@ export default function StepConfirmation({ onBack }: Props) {
             type="text"
             placeholder="Ej: Juan Pérez"
             value={cardName}
+            maxLength={26}
             onChange={(e) => setCardName(e.target.value)}
             className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-white/10 bg-white dark:bg-dozegray/10 focus:outline-none focus:ring-2 focus:ring-dozeblue"
           />
@@ -54,9 +71,13 @@ export default function StepConfirmation({ onBack }: Props) {
           </label>
           <input
             type="text"
-            placeholder="1234 5678 9012 3456"
+            placeholder="1234567812345678"
             value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value)}
+            maxLength={16}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, '');
+              setCardNumber(value);
+            }}
             className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-white/10 bg-white dark:bg-dozegray/10 focus:outline-none focus:ring-2 focus:ring-dozeblue"
           />
         </div>
@@ -69,8 +90,15 @@ export default function StepConfirmation({ onBack }: Props) {
             <input
               type="text"
               placeholder="MM/AA"
+              maxLength={5}
               value={expiryDate}
-              onChange={(e) => setExpiryDate(e.target.value)}
+              onChange={(e) => {
+                let value = e.target.value.replace(/[^\d/]/g, '');
+                if (value.length === 2 && !value.includes('/')) {
+                  value = value + '/';
+                }
+                setExpiryDate(value.slice(0, 5));
+              }}
               className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-white/10 bg-white dark:bg-dozegray/10 focus:outline-none focus:ring-2 focus:ring-dozeblue"
             />
           </div>
@@ -83,8 +111,12 @@ export default function StepConfirmation({ onBack }: Props) {
               type="text"
               placeholder="123"
               value={cvv}
-              onChange={(e) => setCvv(e.target.value)}
-              className="w-full px-4 py-3 taext-sm rounded-md border border-dozeblue dark:border-white/10 bg-white dark:bg-dozegray/10 focus:outline-none focus:ring-2 focus:ring-dozeblue"
+              maxLength={4}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                setCvv(value);
+              }}
+              className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-white/10 bg-white dark:bg-dozegray/10 focus:outline-none focus:ring-2 focus:ring-dozeblue"
             />
           </div>
         </div>
