@@ -47,16 +47,25 @@ export default function ImageGalleryModal({
 
   if (!images || images.length === 0) return null;
 
+  const currentImage = images[index];
+
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
       <div className="relative w-full max-w-4xl h-[80vh] px-6">
-        <Image
-          src={images[index]}
-          alt={`Imagen ${index + 1}`}
-          fill
-          className="object-contain"
-          unoptimized
-        />
+        {!currentImage ? (
+          <div className="w-full h-full flex items-center justify-center text-white">
+            Imagen no disponible
+          </div>
+        ) : (
+          <Image
+            key={currentImage}
+            src={currentImage}
+            alt={`Imagen ${index + 1}`}
+            fill
+            className="object-contain"
+            unoptimized
+          />
+        )}
       </div>
 
       <button

@@ -10,15 +10,17 @@ import PropertyCardActions from './PropertyCardActions';
 export default function PropertiesCard(props: Property) {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalIndex, setModalIndex] = useState(0);
+  const [modalImages, setModalImages] = useState<string[]>([]);
 
-  const openModalAtIndex = (index: number) => {
+  const openModalAtIndex = (index: number, imageList: string[]) => {
+    setModalImages(imageList);
     setModalIndex(index);
     setModalOpen(true);
   };
 
   return (
     <div className="bg-dozebg1 max-w-6xl rounded-xl mx-1 m-2 md:mx-2 shadow-md overflow-hidden p-4 flex flex-col md:flex-row gap-4">
-      <div className="rounded-xl ">
+      <div className="rounded-xl">
         <PropertyCardMedia
           images={props.images}
           coverImage={props.cover_image}
@@ -47,7 +49,7 @@ export default function PropertiesCard(props: Property) {
 
       {modalOpen && (
         <ImageGalleryModal
-          images={props.images}
+          images={modalImages}
           initialIndex={modalIndex}
           onClose={() => setModalOpen(false)}
         />

@@ -1,19 +1,21 @@
-"use client";
+'use client';
 
-import dynamic from "next/dynamic";
-import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
-import type { LatLngExpression } from "leaflet";
-import { Maximize, Minimize, Expand } from "lucide-react";
-import type { PointWithMedia } from "@/types/map";
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Maximize, Minimize, Expand } from 'lucide-react';
+import type { LatLngExpression } from 'leaflet';
+import type { PointWithMedia } from '@/types/map';
+import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
 
-const MapView = dynamic(() => import("../../maps/MapZoneVIew"), { ssr: false });
-const MapModal = dynamic(() => import("../../maps/MapModal"), { ssr: false });
+const MapView = dynamic(() => import('../../maps/MapZoneVIew'), { ssr: false });
+const MapModal = dynamic(() => import('../../maps/MapModal'), { ssr: false });
 
 interface ZoneCardMediaProps {
   showMap: boolean;
   selectedImage: string;
+  imageUrls: string[];
   zoneCoordinates: LatLngExpression[];
   pointsCoordinates: PointWithMedia[];
   showOverlayMap: boolean;
@@ -36,16 +38,17 @@ export default function ZoneCardMedia({
   mapZoom,
   setMapCenter,
   setMapZoom,
+  imageUrls,
 }: ZoneCardMediaProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const openMapModal = () => setIsModalOpen(true);
+  const closeMapModal = () => setIsModalOpen(false);
   const handleExpand = () => setShowOverlayMap(true);
   const handleCollapse = () => setShowOverlayMap(false);
-
-  const isValidImage = selectedImage && selectedImage.trim() !== "";
-
+  const isValidImage = selectedImage && selectedImage.trim() !== '';
+  const selectedIndex = imageUrls.findIndex((url) => url === selectedImage);
   return (
     <>
       <motion.div
@@ -95,17 +98,19 @@ export default function ZoneCardMedia({
                 alt="Imagen de la zona"
                 fill
                 sizes="(max-width: 768px) 100vw, 700px"
-                style={{ objectFit: "cover" }}
+                style={{ objectFit: 'cover', cursor: 'pointer' }}
                 className="rounded-none"
+                onClick={() => setIsGalleryOpen(true)}
               />
             </motion.div>
           ) : null}
         </AnimatePresence>
       </motion.div>
 
+      {/* Modal para pantalla completa del mapa */}
       <MapModal
         isOpen={isModalOpen}
-        onClose={closeModal}
+        onClose={closeMapModal}
         zoneCoordinates={zoneCoordinates}
         pointsCoordinates={pointsCoordinates}
         center={mapCenter}
@@ -114,6 +119,7 @@ export default function ZoneCardMedia({
         onZoomChange={setMapZoom}
       />
 
+      {/* Overlay intermedio con opción de fullscreen */}
       {showOverlayMap && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -140,7 +146,7 @@ export default function ZoneCardMedia({
               <Minimize className="w-5 h-5 text-gray-700" />
             </button>
             <button
-              onClick={openModal}
+              onClick={openMapModal}
               className="bg-white p-2 rounded-full shadow hover:bg-gray-200"
               title="Pantalla completa"
             >
@@ -148,6 +154,15 @@ export default function ZoneCardMedia({
             </button>
           </div>
         </motion.div>
+      )}
+
+      {/* Galería de imágenes fullscreen */}
+      {isGalleryOpen && (
+        <ImageGalleryModal
+          images={imageUrls}
+          initialIndex={selectedIndex >= 0 ? selectedIndex : 0}
+          onClose={() => setIsGalleryOpen(false)}
+        />
       )}
     </>
   );
