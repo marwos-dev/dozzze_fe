@@ -136,9 +136,16 @@ export default function StepConfirmation({ onBack }: Props) {
               value={expiryDate}
               onChange={(e) => {
                 let value = e.target.value.replace(/[^\d/]/g, '');
+
+                if (expiryDate.length > value.length) {
+                  setExpiryDate(value);
+                  return;
+                }
+
                 if (value.length === 2 && !value.includes('/')) {
                   value = value + '/';
                 }
+
                 setExpiryDate(value.slice(0, 5));
               }}
               className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-white/10 bg-white dark:bg-dozegray/10 focus:outline-none focus:ring-2 focus:ring-dozeblue"
