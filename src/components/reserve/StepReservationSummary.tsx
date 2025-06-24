@@ -2,10 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
 import { CalendarDays, MapPin, Users, X } from 'lucide-react';
 import { selectReservationData } from '@/store/selectors/reserveSelectors';
-import { selectSelectedProperty } from '@/store/selectors/propertiesSelectors';
-import { getPropertyById } from '@/store/propertiesSlice';
+import {
+  selectSelectedProperty,
+  selectLastAvailabilityParams,
+  selectAvailability,
+} from '@/store/selectors/propertiesSelectors';
+import { getPropertyById, fetchAvailability } from '@/store/propertiesSlice';
 import type { AppDispatch } from '@/store';
 
 interface Props {
@@ -14,8 +19,12 @@ interface Props {
 
 export default function StepReservationSummary({ onNext }: Props) {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+
   const data = useSelector(selectReservationData);
   const property = useSelector(selectSelectedProperty);
+  const lastParams = useSelector(selectLastAvailabilityParams);
+  const availability = useSelector(selectAvailability);
   const [showTerms, setShowTerms] = useState(false);
 
   useEffect(() => {
@@ -23,6 +32,13 @@ export default function StepReservationSummary({ onNext }: Props) {
       dispatch(getPropertyById(data.property_id));
     }
   }, [data?.property_id, property, dispatch]);
+
+  const handleBackAndRefetch = async () => {
+    if ((!availability || availability.length === 0) && lastParams) {
+      await dispatch(fetchAvailability(lastParams));
+    }
+    router.push('/#seeker');
+  };
 
   if (!data)
     return (
@@ -45,7 +61,6 @@ export default function StepReservationSummary({ onNext }: Props) {
                 </p>
                 <p>{property.address}</p>
               </div>
-              {/* Botón de términos dentro del bloque de propiedad */}
               <button
                 onClick={() => setShowTerms(true)}
                 className="mt-2 text-sm text-dozeblue underline underline-offset-4 hover:text-dozeblue/80 transition-colors"
@@ -87,7 +102,14 @@ export default function StepReservationSummary({ onNext }: Props) {
           </div>
         </div>
 
-        <div className="text-right">
+        <div className="flex flex-wrap justify-between gap-2">
+          <button
+            onClick={handleBackAndRefetch}
+            className="text-dozeblue border border-dozeblue px-4 py-2 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
+          >
+            Volver a buscar
+          </button>
+
           <button
             onClick={onNext}
             className="bg-dozeblue text-white px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors font-semibold text-sm"
@@ -97,7 +119,6 @@ export default function StepReservationSummary({ onNext }: Props) {
         </div>
       </div>
 
-      {/* Modal */}
       {showTerms && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
           <div className="bg-white dark:bg-dozegray p-6 rounded-2xl max-w-xl w-full relative shadow-xl border border-gray-300 dark:border-white/10">
