@@ -10,7 +10,7 @@ import Image from 'next/image';
 const navLinks = [
   { label: 'Inicio', href: '/' },
   { label: 'Nosotros', href: '/aboutUs' },
-  { label: 'Contacto', href: '#contacto' },
+  { label: 'Reservas', href: '/reserve' },
 ];
 
 export default function Navbar() {

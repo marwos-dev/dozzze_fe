@@ -1,31 +1,50 @@
 'use client';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { useState } from 'react';
-import { setReservationData } from '@/store/reserveSlice';
-import { selectReservationData } from '@/store/selectors/reserveSelectors';
+import { useState, useEffect } from 'react';
+import { updateReservation } from '@/store/reserveSlice';
+import { RootState } from '@/store';
 
 interface Props {
+  reservationIndex: number;
   onNext: () => void;
   onBack: () => void;
 }
 
-export default function StepGuestDetails({ onNext, onBack }: Props) {
+export default function StepGuestDetails({
+  reservationIndex,
+  onNext,
+  onBack,
+}: Props) {
   const dispatch = useDispatch();
-  const data = useSelector(selectReservationData);
+  const data = useSelector(
+    (state: RootState) => state.reserve.data[reservationIndex]
+  );
 
-  const [guestName, setGuestName] = useState(data?.guest_name || '');
-  const [guestEmail, setGuestEmail] = useState(data?.guest_email || '');
-  const [guestPhone, setGuestPhone] = useState(data?.guest_phone || '');
-  const [guestAddress, setGuestAddress] = useState(data?.guest_address || '');
-  const [guestCity, setGuestCity] = useState(data?.guest_city || '');
-  const [guestCountry, setGuestCountry] = useState(data?.guest_country || '');
-  const [guestCp, setGuestCp] = useState(data?.guest_cp || '');
-  const [guestRemarks, setGuestRemarks] = useState(data?.guest_remarks || '');
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
+  const [guestAddress, setGuestAddress] = useState('');
+  const [guestCity, setGuestCity] = useState('');
+  const [guestCountry, setGuestCountry] = useState('');
+  const [guestCp, setGuestCp] = useState('');
+  const [guestRemarks, setGuestRemarks] = useState('');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Validadores
+  useEffect(() => {
+    if (data) {
+      setGuestName(data.guest_name || '');
+      setGuestEmail(data.guest_email || '');
+      setGuestPhone(data.guest_phone || '');
+      setGuestAddress(data.guest_address || '');
+      setGuestCity(data.guest_city || '');
+      setGuestCountry(data.guest_country || '');
+      setGuestCp(data.guest_cp || '');
+      setGuestRemarks(data.guest_remarks || '');
+    }
+  }, [data]);
+
   const validators = {
     name: (value: string) =>
       /^[a-zA-ZÀ-ÿ\s]{3,}$/.test(value) ? '' : 'Debe tener al menos 3 letras',
@@ -73,20 +92,21 @@ export default function StepGuestDetails({ onNext, onBack }: Props) {
       guestRemarks: validateField('guestRemarks', guestRemarks),
     };
 
-    const hasErrors = Object.values(newErrors).some((e) => e !== '');
-
-    if (hasErrors) return;
+    if (Object.values(newErrors).some((e) => e !== '')) return;
 
     dispatch(
-      setReservationData({
-        guest_name: guestName,
-        guest_email: guestEmail,
-        guest_phone: guestPhone,
-        guest_address: guestAddress,
-        guest_city: guestCity,
-        guest_country: guestCountry,
-        guest_cp: guestCp,
-        guest_remarks: guestRemarks,
+      updateReservation({
+        index: reservationIndex,
+        data: {
+          guest_name: guestName,
+          guest_email: guestEmail,
+          guest_phone: guestPhone,
+          guest_address: guestAddress,
+          guest_city: guestCity,
+          guest_country: guestCountry,
+          guest_cp: guestCp,
+          guest_remarks: guestRemarks,
+        },
       })
     );
 
@@ -105,7 +125,6 @@ export default function StepGuestDetails({ onNext, onBack }: Props) {
       <h2 className="text-2xl font-bold text-dozeblue">Datos del huésped</h2>
 
       <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-dozegray/5 shadow-sm p-6 space-y-4">
-        {/* Nombre */}
         <div>
           <label className="text-sm font-medium block mb-1 text-dozeblue">
             Nombre completo
@@ -123,7 +142,6 @@ export default function StepGuestDetails({ onNext, onBack }: Props) {
           )}
         </div>
 
-        {/* Email */}
         <div>
           <label className="text-sm font-medium block mb-1 text-dozeblue">
             Email
@@ -141,7 +159,6 @@ export default function StepGuestDetails({ onNext, onBack }: Props) {
           )}
         </div>
 
-        {/* Teléfono */}
         <div>
           <label className="text-sm font-medium block mb-1 text-dozeblue">
             Teléfono
@@ -161,7 +178,6 @@ export default function StepGuestDetails({ onNext, onBack }: Props) {
           )}
         </div>
 
-        {/* Dirección */}
         <div>
           <label className="text-sm font-medium block mb-1 text-dozeblue">
             Dirección
@@ -175,7 +191,6 @@ export default function StepGuestDetails({ onNext, onBack }: Props) {
           />
         </div>
 
-        {/* Ciudad y País */}
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
@@ -202,7 +217,6 @@ export default function StepGuestDetails({ onNext, onBack }: Props) {
           </div>
         </div>
 
-        {/* Código postal y Comentarios */}
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
@@ -242,7 +256,6 @@ export default function StepGuestDetails({ onNext, onBack }: Props) {
         </div>
       </div>
 
-      {/* Botones */}
       <div className="flex justify-between">
         <button
           onClick={onBack}

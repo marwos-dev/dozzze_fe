@@ -4,7 +4,8 @@ import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
-import { setReservationData } from '@/store/reserveSlice';
+import { RootState } from '@/store';
+import { addReservation } from '@/store/reserveSlice';
 import { AvailabilityItem } from '@/types/roomType';
 import {
   selectAvailability,
@@ -16,6 +17,7 @@ export default function AvailabilityResult() {
   const router = useRouter();
   const availability = useSelector(selectAvailability);
   const range = useSelector(selectLastAvailabilityParams);
+  const reservations = useSelector((state: RootState) => state.reserve.data);
   const guestsFromSearch = range?.guests;
 
   const [selectedRateIndex, setSelectedRateIndex] = useState<
@@ -33,32 +35,32 @@ export default function AvailabilityResult() {
     return Array.from(map.entries());
   }, [availability]);
 
+  const reservedKeys = useMemo(() => {
+    return new Set(
+      reservations.map((r) => `${r.property_id}-${r.roomType}-${r.rooms}`)
+    );
+  }, [reservations]);
+
   const handleReserve = (
     roomType: string,
     rateIndex: number,
     pax: number,
-    total: number
+    total: number,
+    propertyId: number
   ) => {
     if (!range?.check_in || !range?.check_out) return;
 
-    const matchingGroup = availability.find(
-      (item) => item.room_type === roomType
-    );
-    const propertyId = matchingGroup?.property_id;
-
-    if (!propertyId) return;
-
     dispatch(
-      setReservationData({
+      addReservation({
         property_id: propertyId,
         check_in: range.check_in,
         check_out: range.check_out,
-        rooms: 1,
+        rooms: rateIndex,
         pax_count: pax,
         total_price: total,
         channel: 'WEB',
         currency: 'ARS',
-        roomType: roomType,
+        roomType,
       })
     );
 
@@ -70,18 +72,17 @@ export default function AvailabilityResult() {
       {grouped.map(([roomType, items]) => {
         const rates = items[0].rates;
         const ratesCount = rates.length;
+        const propertyId = items[0].property_id;
+
         const maxPax = Math.max(
           ...rates.flatMap((r) => r.prices.map((p) => p.occupancy))
         );
-
         const paxOptions = Array.from({ length: maxPax }, (_, i) => i + 1);
         const defaultPax = paxOptions.includes(guestsFromSearch || 0)
           ? guestsFromSearch!
           : maxPax;
 
         const pax = selectedPax[roomType] ?? defaultPax;
-        const showGuestError =
-          guestsFromSearch && !paxOptions.includes(guestsFromSearch);
 
         const rateTotals = Array.from({ length: ratesCount }).map((_, idx) =>
           items.reduce((sum, item) => {
@@ -95,6 +96,9 @@ export default function AvailabilityResult() {
         const defaultIndex = rateTotals.indexOf(Math.min(...rateTotals));
         const selectedIndex = selectedRateIndex[roomType] ?? defaultIndex;
         const total = rateTotals[selectedIndex];
+
+        const selectedKey = `${propertyId}-${roomType}-${selectedIndex}`;
+        const isSelectedReserved = reservedKeys.has(selectedKey);
 
         return (
           <div
@@ -111,12 +115,6 @@ export default function AvailabilityResult() {
                   huésped{maxPax > 1 ? 'es' : ''}
                 </p>
 
-                {showGuestError && (
-                  <p className="text-xs text-red-600 mb-3">
-                    Máximo de huéspedes permitido es {maxPax}
-                  </p>
-                )}
-
                 <div className="mb-3">
                   <label className="block text-xs font-medium mb-1">
                     Habitación
@@ -131,11 +129,16 @@ export default function AvailabilityResult() {
                     }
                     className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-dozeblue bg-white dark:bg-dozegray/10 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-dozeblue"
                   >
-                    {rateTotals.map((sumPrice, idx) => (
-                      <option key={idx} value={idx}>
-                        Habitación {idx + 1} – Total ${sumPrice}
-                      </option>
-                    ))}
+                    {rateTotals.map((sumPrice, idx) => {
+                      const key = `${propertyId}-${roomType}-${idx}`;
+                      const isReserved = reservedKeys.has(key);
+                      return (
+                        <option key={idx} value={idx} disabled={isReserved}>
+                          Habitación {idx + 1} – Total ${sumPrice}
+                          {isReserved ? ' (ya reservada)' : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 
@@ -182,21 +185,6 @@ export default function AvailabilityResult() {
                       );
                     })}
                   </div>
-
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {[
-                      'Desayuno incluido',
-                      'Pago en el alojamiento',
-                      'Cancelación gratis',
-                    ].map((label, i) => (
-                      <span
-                        key={i}
-                        className="text-xs px-2 py-1 rounded-md bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
-                      >
-                        {label}
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -211,11 +199,18 @@ export default function AvailabilityResult() {
                   </div>
                   <button
                     onClick={() =>
-                      handleReserve(roomType, selectedIndex, pax, total)
+                      handleReserve(
+                        roomType,
+                        selectedIndex,
+                        pax,
+                        total,
+                        propertyId
+                      )
                     }
                     className="bg-dozeblue text-white font-semibold px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors text-sm"
+                    disabled={isSelectedReserved}
                   >
-                    Reservar ahora
+                    {isSelectedReserved ? 'Ya reservada' : 'Reservar ahora'}
                   </button>
                 </div>
               </div>

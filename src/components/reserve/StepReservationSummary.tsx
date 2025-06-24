@@ -1,147 +1,179 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { CalendarDays, MapPin, Users, X } from 'lucide-react';
-import { selectReservationData } from '@/store/selectors/reserveSelectors';
-import {
-  selectSelectedProperty,
-  selectLastAvailabilityParams,
-  selectAvailability,
-} from '@/store/selectors/propertiesSelectors';
-import { getPropertyById, fetchAvailability } from '@/store/propertiesSlice';
-import type { AppDispatch } from '@/store';
+import { MapPin, CalendarDays, Users, X } from 'lucide-react';
+import { ReservationData } from '@/store/reserveSlice';
 
 interface Props {
+  reservations: ReservationData[];
+  onAddReservation: () => void;
+  onDeleteReservation: (index: number) => void;
   onNext: () => void;
 }
 
-export default function StepReservationSummary({ onNext }: Props) {
-  const dispatch = useDispatch<AppDispatch>();
+export default function StepReservationSummary({
+  reservations,
+  onAddReservation,
+  onDeleteReservation,
+  onNext,
+}: Props) {
   const router = useRouter();
+  const [acceptedTerms, setAcceptedTerms] = useState<Record<number, boolean>>(
+    {}
+  );
 
-  const data = useSelector(selectReservationData);
-  const property = useSelector(selectSelectedProperty);
-  const lastParams = useSelector(selectLastAvailabilityParams);
-  const availability = useSelector(selectAvailability);
-  const [showTerms, setShowTerms] = useState(false);
+  const grouped = useMemo(() => {
+    const map = new Map<number, ReservationData[]>();
+    reservations.forEach((res) => {
+      if (!map.has(res.property_id)) {
+        map.set(res.property_id, []);
+      }
+      map.get(res.property_id)!.push(res);
+    });
+    return Array.from(map.entries());
+  }, [reservations]);
 
-  useEffect(() => {
-    if (data?.property_id && !property) {
-      dispatch(getPropertyById(data.property_id));
-    }
-  }, [data?.property_id, property, dispatch]);
+  const totalGeneral = useMemo(() => {
+    return reservations.reduce((sum, r) => sum + r.total_price, 0);
+  }, [reservations]);
 
-  const handleBackAndRefetch = async () => {
-    if ((!availability || availability.length === 0) && lastParams) {
-      await dispatch(fetchAvailability(lastParams));
-    }
-    router.push('/#seeker');
+  const handleSearchAnotherInProperty = (propertyId: number) => {
+    router.push(`/properties/${propertyId}`);
   };
 
-  if (!data)
-    return (
-      <div className="text-center text-gray-500">No hay datos de reserva</div>
-    );
+  const allTermsAccepted = grouped.every(
+    ([propertyId]) => acceptedTerms[propertyId]
+  );
 
   return (
-    <>
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-dozeblue">
-          Resumen de tu reserva
-        </h2>
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold text-dozeblue">
+        Resumen de tu reserva
+      </h2>
 
-        <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-dozegray/5 shadow-sm p-4 sm:p-6 space-y-3">
-          {property && (
-            <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-dozegray/5 shadow-sm p-4 sm:p-6 space-y-2">
-              <div className="text-sm text-[var(--foreground)] space-y-1">
-                <p className="text-lg font-semibold text-dozeblue">
-                  {property.name}
-                </p>
-                <p>{property.address}</p>
-              </div>
-              <button
-                onClick={() => setShowTerms(true)}
-                className="mt-2 text-sm text-dozeblue underline underline-offset-4 hover:text-dozeblue/80 transition-colors"
+      {grouped.length === 0 && (
+        <div className="text-center text-gray-500">No hay datos de reserva</div>
+      )}
+
+      {grouped.map(([propertyId, propertyReservations]) => {
+        const totalProperty = propertyReservations.reduce(
+          (sum, r) => sum + r.total_price,
+          0
+        );
+        const accepted = acceptedTerms[propertyId] || false;
+
+        return (
+          <div
+            key={propertyId}
+            className="space-y-2 border border-dozeblue/10 rounded-xl p-4 bg-dozeblue/5 dark:bg-dozeblue/10"
+          >
+            <div className="font-bold text-dozeblue mb-2">
+              Propiedad {propertyId}
+            </div>
+
+            {propertyReservations.map((res, index) => (
+              <div
+                key={index}
+                className="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-white dark:bg-dozegray/5 border border-dozeblue/10 rounded-lg px-3 py-2"
               >
-                Ver términos y condiciones de la propiedad
+                <span className="flex items-center gap-1 text-sm text-[var(--foreground)]">
+                  <MapPin className="w-4 h-4" /> {res.roomType}
+                </span>
+
+                <span className="flex items-center gap-1 text-sm">
+                  <CalendarDays className="w-4 h-4" /> {res.check_in}
+                </span>
+
+                <span className="flex items-center gap-1 text-sm">
+                  <CalendarDays className="w-4 h-4" /> {res.check_out}
+                </span>
+
+                <span className="flex items-center gap-1 text-sm">
+                  <Users className="w-4 h-4" /> {res.pax_count} huésped
+                  {res.pax_count > 1 ? 'es' : ''}
+                </span>
+
+                <span className="font-bold text-dozeblue">
+                  ${res.total_price}
+                </span>
+
+                <button
+                  onClick={() => onDeleteReservation(reservations.indexOf(res))}
+                  className="text-red-500 hover:text-red-700"
+                  aria-label="Eliminar reserva"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+
+            <div className="flex justify-between items-center mt-2">
+              <button
+                onClick={() => handleSearchAnotherInProperty(propertyId)}
+                className="text-sm border border-dozeblue text-dozeblue px-2 py-1 rounded hover:bg-dozeblue/10 transition"
+              >
+                Buscar otra habitación en esta propiedad
               </button>
-            </div>
-          )}
 
-          <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm text-[var(--foreground)]">
-            <MapPin className="w-5 h-5 text-dozeblue mt-[2px]" />
-            <div>
-              <p className="font-medium leading-tight">Tipo de habitación</p>
-              <p className="text-sm">{data.roomType}</p>
+              <span className="text-sm font-bold text-dozeblue">
+                Total propiedad {propertyId}: ${totalProperty}
+              </span>
             </div>
 
-            <CalendarDays className="w-5 h-5 text-dozeblue mt-[2px]" />
-            <div>
-              <p className="font-medium leading-tight">Check-in</p>
-              <p className="text-sm">{data.check_in}</p>
-            </div>
-
-            <CalendarDays className="w-5 h-5 text-dozeblue mt-[2px]" />
-            <div>
-              <p className="font-medium leading-tight">Check-out</p>
-              <p className="text-sm">{data.check_out}</p>
-            </div>
-
-            <Users className="w-5 h-5 text-dozeblue mt-[2px]" />
-            <div>
-              <p className="font-medium leading-tight">Huéspedes</p>
-              <p className="text-sm">{data.pax_count}</p>
+            {/* Términos y condiciones visibles */}
+            <div className="bg-white dark:bg-dozegray/5 border border-gray-200 dark:border-white/10 rounded p-3 mt-2">
+              <p className="text-sm text-[var(--foreground)] leading-relaxed">
+                Términos y condiciones de la propiedad {propertyId}: Lorem ipsum
+                dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                aliquip ex ea commodo consequat.
+              </p>
+              <div className="mt-2">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={accepted}
+                    onChange={(e) =>
+                      setAcceptedTerms((prev) => ({
+                        ...prev,
+                        [propertyId]: e.target.checked,
+                      }))
+                    }
+                  />
+                  Acepto términos y condiciones
+                </label>
+              </div>
             </div>
           </div>
+        );
+      })}
 
-          <div className="pt-4 border-t border-gray-200 dark:border-white/10 text-sm font-semibold text-dozeblue flex justify-between items-center">
-            <span>Total a pagar:</span>
-            <span className="text-base">${data.total_price}</span>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap justify-between gap-2">
-          <button
-            onClick={handleBackAndRefetch}
-            className="text-dozeblue border border-dozeblue px-4 py-2 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
-          >
-            Volver a buscar
-          </button>
-
-          <button
-            onClick={onNext}
-            className="bg-dozeblue text-white px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors font-semibold text-sm"
-          >
-            Continuar
-          </button>
-        </div>
+      <div className="flex justify-end text-dozeblue font-bold text-sm">
+        Total general: ${totalGeneral}
       </div>
 
-      {showTerms && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-dozegray p-6 rounded-2xl max-w-xl w-full relative shadow-xl border border-gray-300 dark:border-white/10">
-            <button
-              onClick={() => setShowTerms(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-white"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <h3 className="text-lg font-bold text-dozeblue mb-4">
-              Términos y condiciones de la propiedad
-            </h3>
-            <p className="text-sm text-[var(--background)] leading-relaxed">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur.
-            </p>
-          </div>
-        </div>
-      )}
-    </>
+      <div className="flex flex-wrap justify-between gap-2 mt-4">
+        <button
+          onClick={onAddReservation}
+          className="text-dozeblue border border-dozeblue px-4 py-2 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
+        >
+          Volver / Agregar otra reservación
+        </button>
+
+        <button
+          onClick={onNext}
+          disabled={!allTermsAccepted}
+          className={`px-6 py-3 rounded-lg text-sm font-semibold transition-colors ${
+            allTermsAccepted
+              ? 'bg-dozeblue text-white hover:bg-dozeblue/90'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+        >
+          Continuar
+        </button>
+      </div>
+    </div>
   );
 }
