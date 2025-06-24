@@ -3,6 +3,7 @@
 import { Provider } from 'react-redux';
 import { store, persistor } from '@/store';
 import { PersistGate } from 'redux-persist/integration/react';
+import { ToastProvider } from '@/components/ui/toasts/ToastProvider';
 
 export default function ClientProviders({
   children,
@@ -12,7 +13,7 @@ export default function ClientProviders({
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        {children}
+        <ToastProvider>{children}</ToastProvider>
       </PersistGate>
     </Provider>
   );

@@ -13,6 +13,7 @@ import {
   AvailabilityResponse,
   TotalPricePerRoomType,
 } from '@/types/roomType';
+import { showToast } from './toastSlice';
 
 interface PropertiesState {
   propertiesByZone: Record<number, Property[]>;
@@ -37,30 +38,36 @@ const initialState: PropertiesState = {
 export const getPropertyById = createAsyncThunk<
   Property,
   number,
-  { state: RootState; rejectValue: string }
->('properties/getById', async (propertyId, thunkAPI) => {
-  const state = thunkAPI.getState();
+  { state: RootState; dispatch: AppDispatch; rejectValue: string }
+>(
+  'properties/getById',
+  async (propertyId, { getState, dispatch, rejectWithValue }) => {
+    const state = getState();
 
-  const allZoneProperties = state.zones.data.flatMap((zone: Zone) =>
-    Array.isArray(zone.properties) ? zone.properties : []
-  );
-  const fromZone = allZoneProperties.find((p) => p.id === propertyId);
-  if (fromZone) return fromZone;
+    const allZoneProperties = state.zones.data.flatMap((zone: Zone) =>
+      Array.isArray(zone.properties) ? zone.properties : []
+    );
+    const fromZone = allZoneProperties.find((p) => p.id === propertyId);
+    if (fromZone) return fromZone;
 
-  const allCached: Property[] = Object.values(
-    state.properties.propertiesByZone
-  ).flat();
-  const fromCache = allCached.find((p) => p.id === propertyId);
-  if (fromCache) return fromCache;
+    const allCached: Property[] = Object.values(
+      state.properties.propertiesByZone
+    ).flat();
+    const fromCache = allCached.find((p) => p.id === propertyId);
+    if (fromCache) return fromCache;
 
-  try {
-    const fetched = await fetchPropertyById(propertyId);
-    return fetched;
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
-    return thunkAPI.rejectWithValue(errorMsg);
+    try {
+      const fetched = await fetchPropertyById(propertyId);
+      return fetched;
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
+
+      dispatch(showToast({ message: errorMsg, color: 'red' }));
+
+      return rejectWithValue(errorMsg);
+    }
   }
-});
+);
 
 export const loadFullPropertyById = createAsyncThunk<
   void,
@@ -72,21 +79,37 @@ export const loadFullPropertyById = createAsyncThunk<
     dispatch(fetchRooms({ propertyId }));
   }
 });
-
 export const fetchAvailability = createAsyncThunk<
   AvailabilityResponse,
   AvailabilityPayload,
-  { rejectValue: string }
->('properties/fetchAvailability', async (params, thunkAPI) => {
-  try {
-    const response = await checkPropertyAvailability(params);
-    return response;
-  } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : 'Error de disponibilidad';
-    return thunkAPI.rejectWithValue(message);
+  { dispatch: AppDispatch; rejectValue: string }
+>(
+  'properties/fetchAvailability',
+  async (params, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await checkPropertyAvailability(params);
+
+      if (response.rooms.length === 0) {
+        dispatch(
+          showToast({
+            message:
+              'No hay habitaciones disponibles para el rango de fechas seleccionado.',
+            color: 'yellow',
+          })
+        );
+      }
+
+      return response;
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Error de disponibilidad';
+
+      dispatch(showToast({ message, color: 'red' }));
+
+      return rejectWithValue(message);
+    }
   }
-});
+);
 
 const propertiesSlice = createSlice({
   name: 'properties',

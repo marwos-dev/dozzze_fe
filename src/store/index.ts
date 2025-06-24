@@ -3,7 +3,7 @@ import zoneReducer from './zoneSlice';
 import propertiesReducer from './propertiesSlice';
 import roomsReducer from './roomsSlice';
 import reserveReducer from './reserveSlice';
-
+import toastReducer from './toastSlice';
 import storageSession from 'redux-persist/lib/storage/session';
 import { persistReducer, persistStore } from 'redux-persist';
 
@@ -18,6 +18,7 @@ const rootReducer = combineReducers({
   properties: propertiesReducer,
   rooms: roomsReducer,
   reserve: reserveReducer,
+  toast: toastReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
