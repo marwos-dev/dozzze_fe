@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectReservationData } from '@/store/selectors/reserveSelectors';
+import { clearReservations } from '@/store/reserveSlice';
+import { persistor } from '@/store';
 import { CreditCard, BadgeDollarSign, Landmark } from 'lucide-react';
 
 interface Props {
@@ -10,6 +12,7 @@ interface Props {
 }
 
 export default function StepConfirmation({ onBack }: Props) {
+  const dispatch = useDispatch();
   const data = useSelector(selectReservationData);
 
   const [cardName, setCardName] = useState('');
@@ -65,6 +68,10 @@ export default function StepConfirmation({ onBack }: Props) {
     setError('');
     console.log('Reserva finalizada', { ...data, cardName, cardNumber });
     alert('Reserva confirmada!');
+
+    // 🔑 Limpiar reservas y storage
+    dispatch(clearReservations());
+    persistor.purge();
   };
 
   return (
@@ -99,7 +106,7 @@ export default function StepConfirmation({ onBack }: Props) {
             type="text"
             placeholder="1234 5678 9012 3456"
             value={cardNumber}
-            maxLength={19} // 16 dígitos + 3 espacios
+            maxLength={19}
             onChange={(e) => {
               const raw = e.target.value.replace(/\D/g, '').slice(0, 16);
               const formatted = raw.replace(/(.{4})/g, '$1 ').trim();
@@ -136,9 +143,16 @@ export default function StepConfirmation({ onBack }: Props) {
               value={expiryDate}
               onChange={(e) => {
                 let value = e.target.value.replace(/[^\d/]/g, '');
+
+                if (expiryDate.length > value.length) {
+                  setExpiryDate(value);
+                  return;
+                }
+
                 if (value.length === 2 && !value.includes('/')) {
                   value = value + '/';
                 }
+
                 setExpiryDate(value.slice(0, 5));
               }}
               className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-white/10 bg-white dark:bg-dozegray/10 focus:outline-none focus:ring-2 focus:ring-dozeblue"
@@ -166,7 +180,6 @@ export default function StepConfirmation({ onBack }: Props) {
         {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
       </div>
 
-      {/* Botones */}
       <div className="flex justify-between">
         <button
           onClick={onBack}

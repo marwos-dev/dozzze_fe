@@ -1,6 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
+import { RootState, AppDispatch } from '@/store';
+import { deleteReservation } from '@/store/reserveSlice';
 import StepReservationSummary from '@/components/reserve/StepReservationSummary';
 import StepGuestDetails from '@/components/reserve/StepGuestDetails';
 import StepConfirmation from '@/components/reserve/StepConfirmation';
@@ -9,6 +13,9 @@ const steps = ['Tu selección', 'Tus datos', 'Terminar reserva'];
 
 export default function ReservePage() {
   const [currentStep, setCurrentStep] = useState(0);
+  const reservations = useSelector((state: RootState) => state.reserve.data);
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   const goNext = () =>
     setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
@@ -16,7 +23,7 @@ export default function ReservePage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
-      {/* Stepper con colores y estilo legible */}
+      {/* Stepper */}
       <div className="flex items-center justify-between pl-6">
         {steps.map((label, index) => {
           const isActive = index === currentStep;
@@ -57,10 +64,27 @@ export default function ReservePage() {
       </div>
 
       {/* Step content */}
-      {currentStep === 0 && <StepReservationSummary onNext={goNext} />}
-      {currentStep === 1 && (
-        <StepGuestDetails onNext={goNext} onBack={goBack} />
+      {currentStep === 0 && (
+        <StepReservationSummary
+          onNext={goNext}
+          reservations={reservations}
+          onAddReservation={() => {
+            router.push('/#seeker');
+          }}
+          onDeleteReservation={(index: number) => {
+            dispatch(deleteReservation(index));
+          }}
+        />
       )}
+
+      {currentStep === 1 && (
+        <StepGuestDetails
+          reservationIndex={0} // Esto deberías ajustar si quieres soportar múltiples reservas activas
+          onNext={goNext}
+          onBack={goBack}
+        />
+      )}
+
       {currentStep === 2 && <StepConfirmation onBack={goBack} />}
     </div>
   );

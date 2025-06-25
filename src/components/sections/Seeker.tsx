@@ -8,9 +8,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchAvailability } from '@/store/propertiesSlice';
 import SkeletonAvailabilityResult from '@/components/ui/skeletons/AvailabilityResultSkeleton';
-
 import AnimatedButton from '../ui/buttons/AnimatedButton';
 import AvailabilityResult from '../ui/AvailabilityResult';
+import RoomError from '@/components/ui/errors/RoomError';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 
@@ -156,8 +156,12 @@ export default function Seeker() {
       </form>
 
       {/* Estado y resultados */}
-      {error && <p className="text-red-500">{error}</p>}
-      {reduxError && <p className="text-red-500">{reduxError}</p>}
+      {error && (
+        <RoomError message="No hay habitaciones disponibles para el rango de fechas seleccionado." />
+      )}
+      {reduxError && (
+        <RoomError message="No hay habitaciones disponibles para el rango de fechas seleccionado." />
+      )}
       {loading && (
         <div className="text-center text-dozegray">
           <SkeletonAvailabilityResult />

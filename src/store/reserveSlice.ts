@@ -28,26 +28,43 @@ export interface ReservationData {
 }
 
 interface ReserveState {
-  data: Partial<ReservationData> | null;
+  data: ReservationData[];
 }
 
 const initialState: ReserveState = {
-  data: null,
+  data: [],
 };
 
 const reserveSlice = createSlice({
   name: 'reserve',
   initialState,
   reducers: {
-    setReservationData(state, action: PayloadAction<Partial<ReservationData>>) {
-      state.data = { ...state.data, ...action.payload };
+    addReservation(state, action: PayloadAction<ReservationData>) {
+      state.data.push(action.payload);
     },
-    clearReservationData(state) {
-      state.data = null;
+    updateReservation(
+      state,
+      action: PayloadAction<{ index: number; data: Partial<ReservationData> }>
+    ) {
+      const { index, data } = action.payload;
+      if (state.data[index]) {
+        state.data[index] = { ...state.data[index], ...data };
+      }
+    },
+    deleteReservation(state, action: PayloadAction<number>) {
+      state.data.splice(action.payload, 1);
+    },
+    clearReservations(state) {
+      state.data = [];
     },
   },
 });
 
-export const { setReservationData, clearReservationData } =
-  reserveSlice.actions;
+export const {
+  addReservation,
+  updateReservation,
+  deleteReservation,
+  clearReservations,
+} = reserveSlice.actions;
+
 export default reserveSlice.reducer;
