@@ -83,7 +83,7 @@ export default function AvailabilityResult() {
         const ratesCount = rates.length;
         const propertyId = items[0].property_id;
 
-        const paxOptions = useMemo(() => {
+        const paxOptions = (() => {
           const validPax = new Set<number>();
           items.forEach((item) => {
             item.rates.forEach((rate) => {
@@ -95,7 +95,7 @@ export default function AvailabilityResult() {
             });
           });
           return Array.from(validPax).sort((a, b) => a - b);
-        }, [items]);
+        })();
 
         if (paxOptions.length === 0) {
           return (
