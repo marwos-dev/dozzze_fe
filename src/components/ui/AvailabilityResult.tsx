@@ -41,6 +41,15 @@ export default function AvailabilityResult() {
     );
   }, [reservations]);
 
+  const reservedCountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    reservations.forEach((r) => {
+      const key = `${r.property_id}-${r.roomType}`;
+      map.set(key, (map.get(key) || 0) + 1);
+    });
+    return map;
+  }, [reservations]);
+
   const handleReserve = (
     roomType: string,
     rateIndex: number,
@@ -105,7 +114,6 @@ export default function AvailabilityResult() {
         }
 
         const maxPax = paxOptions[paxOptions.length - 1];
-
         const defaultPax = paxOptions.includes(guestsFromSearch || 0)
           ? guestsFromSearch!
           : paxOptions[0];
@@ -125,8 +133,14 @@ export default function AvailabilityResult() {
         const selectedIndex = selectedRateIndex[roomType] ?? defaultIndex;
         const total = rateTotals[selectedIndex];
 
+        const reservedCountKey = `${propertyId}-${roomType}`;
+        const reservedCount = reservedCountMap.get(reservedCountKey) || 0;
+        const availabilityCount = items[0].availability;
+        const noMoreAvailable = reservedCount >= availabilityCount;
+
         const selectedKey = `${propertyId}-${roomType}-${selectedIndex}`;
-        const isSelectedReserved = reservedKeys.has(selectedKey);
+        const isSelectedReserved =
+          reservedKeys.has(selectedKey) || noMoreAvailable;
 
         return (
           <div
@@ -160,10 +174,14 @@ export default function AvailabilityResult() {
                     {rateTotals.map((sumPrice, idx) => {
                       const key = `${propertyId}-${roomType}-${idx}`;
                       const isReserved = reservedKeys.has(key);
+                      const disabled = isReserved || noMoreAvailable;
                       return (
-                        <option key={idx} value={idx} disabled={isReserved}>
+                        <option key={idx} value={idx} disabled={disabled}>
                           Habitación {idx + 1} – Total ${sumPrice}
                           {isReserved ? ' (ya reservada)' : ''}
+                          {noMoreAvailable && !isReserved
+                            ? ' (sin disponibilidad)'
+                            : ''}
                         </option>
                       );
                     })}
@@ -238,7 +256,9 @@ export default function AvailabilityResult() {
                     className="bg-dozeblue text-white font-semibold px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors text-sm"
                     disabled={isSelectedReserved}
                   >
-                    {isSelectedReserved ? 'Ya reservada' : 'Reservar ahora'}
+                    {isSelectedReserved
+                      ? 'Ya reservada / Sin disponibilidad'
+                      : 'Reservar ahora'}
                   </button>
                 </div>
               </div>
