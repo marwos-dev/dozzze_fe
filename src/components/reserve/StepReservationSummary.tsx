@@ -22,7 +22,7 @@ export default function StepReservationSummary({
   onNext,
 }: Props) {
   const router = useRouter();
-  const dispatch = useDispatch<AppDispatch>(); // Ahora acepta thunks como fetchAvailability
+  const dispatch = useDispatch<AppDispatch>();
 
   const grouped = useMemo(() => {
     const map = new Map<number, ReservationData[]>();
@@ -39,7 +39,7 @@ export default function StepReservationSummary({
     return reservations.reduce((sum, r) => sum + r.total_price, 0);
   }, [reservations]);
 
-  const handleAddReservation = () => {
+  const handleAddReservation = async () => {
     if (reservations.length === 0) {
       onAddReservation();
       return;
@@ -53,7 +53,7 @@ export default function StepReservationSummary({
       guests: lastRes.pax_count,
     };
 
-    dispatch(fetchAvailability(payload));
+    await dispatch(fetchAvailability(payload));
 
     router.push(`/`);
   };
