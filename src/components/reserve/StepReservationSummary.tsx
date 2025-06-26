@@ -1,7 +1,12 @@
+'use client';
+
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { MapPin, CalendarDays, Users, X } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store';
 import { ReservationData } from '@/store/reserveSlice';
+import { fetchAvailability } from '@/store/propertiesSlice';
 
 interface Props {
   reservations: ReservationData[];
@@ -17,6 +22,7 @@ export default function StepReservationSummary({
   onNext,
 }: Props) {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>(); // Ahora acepta thunks como fetchAvailability
 
   const grouped = useMemo(() => {
     const map = new Map<number, ReservationData[]>();
@@ -32,6 +38,25 @@ export default function StepReservationSummary({
   const totalGeneral = useMemo(() => {
     return reservations.reduce((sum, r) => sum + r.total_price, 0);
   }, [reservations]);
+
+  const handleAddReservation = () => {
+    if (reservations.length === 0) {
+      onAddReservation();
+      return;
+    }
+
+    const lastRes = reservations[reservations.length - 1];
+
+    const payload = {
+      check_in: lastRes.check_in,
+      check_out: lastRes.check_out,
+      guests: lastRes.pax_count,
+    };
+
+    dispatch(fetchAvailability(payload));
+
+    router.push(`/`);
+  };
 
   const handleSearchAnotherInProperty = (propertyId: number) => {
     router.push(`/properties/${propertyId}`);
@@ -112,41 +137,6 @@ export default function StepReservationSummary({
                 Total propiedad {propertyId}: ${totalProperty}
               </span>
             </div>
-
-            {firstRes.terms_and_conditions && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white dark:bg-dozegray/5 border border-gray-200 dark:border-white/10 rounded p-3 mt-2 text-sm text-[var(--foreground)]">
-                <div className="border rounded p-2">
-                  <div className="font-semibold">Condición de confirmación</div>
-                  <div>
-                    {firstRes.terms_and_conditions.condition_of_confirmation}
-                  </div>
-                </div>
-
-                <div className="border rounded p-2 text-center">
-                  <div className="font-semibold mb-2">Horarios</div>
-                  <div className="inline-flex items-center gap-4 bg-dozeblue/10 text-dozeblue rounded-full px-4 py-1">
-                    <span className="font-semibold">
-                      Check-in: {firstRes.terms_and_conditions.check_in_time}
-                    </span>
-                    <span className="font-semibold">
-                      Check-out: {firstRes.terms_and_conditions.check_out_time}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="border rounded p-2">
-                  <div className="font-semibold">Política de cancelación</div>
-                  <div>{firstRes.terms_and_conditions.cancellation_policy}</div>
-                </div>
-
-                <div className="border rounded p-2 sm:col-span-2">
-                  <div className="font-semibold">Información adicional</div>
-                  <div>
-                    {firstRes.terms_and_conditions.additional_information}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         );
       })}
@@ -157,7 +147,7 @@ export default function StepReservationSummary({
 
       <div className="flex flex-wrap justify-between gap-2 mt-4">
         <button
-          onClick={onAddReservation}
+          onClick={handleAddReservation}
           className="text-dozeblue border border-dozeblue px-4 py-2 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
         >
           Volver / Agregar otra reservación
