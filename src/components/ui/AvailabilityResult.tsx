@@ -74,13 +74,41 @@ export default function AvailabilityResult() {
         const ratesCount = rates.length;
         const propertyId = items[0].property_id;
 
-        const maxPax = Math.max(
-          ...rates.flatMap((r) => r.prices.map((p) => p.occupancy))
-        );
-        const paxOptions = Array.from({ length: maxPax }, (_, i) => i + 1);
+        const paxOptions = useMemo(() => {
+          const validPax = new Set<number>();
+          items.forEach((item) => {
+            item.rates.forEach((rate) => {
+              rate.prices.forEach((price) => {
+                if (price.price > 0) {
+                  validPax.add(price.occupancy);
+                }
+              });
+            });
+          });
+          return Array.from(validPax).sort((a, b) => a - b);
+        }, [items]);
+
+        if (paxOptions.length === 0) {
+          return (
+            <div
+              key={roomType}
+              className="border border-gray-300 dark:border-white/10 rounded-2xl bg-[var(--background)] shadow-sm overflow-hidden p-6"
+            >
+              <h3 className="text-lg font-semibold text-dozeblue mb-2">
+                {roomType}
+              </h3>
+              <p className="text-sm text-[var(--foreground)]">
+                No hay precios disponibles para los huéspedes seleccionados.
+              </p>
+            </div>
+          );
+        }
+
+        const maxPax = paxOptions[paxOptions.length - 1];
+
         const defaultPax = paxOptions.includes(guestsFromSearch || 0)
           ? guestsFromSearch!
-          : maxPax;
+          : paxOptions[0];
 
         const pax = selectedPax[roomType] ?? defaultPax;
 
