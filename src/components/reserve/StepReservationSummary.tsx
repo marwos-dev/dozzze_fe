@@ -1,6 +1,4 @@
-'use client';
-
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { MapPin, CalendarDays, Users, X } from 'lucide-react';
 import { ReservationData } from '@/store/reserveSlice';
@@ -19,9 +17,6 @@ export default function StepReservationSummary({
   onNext,
 }: Props) {
   const router = useRouter();
-  const [acceptedTerms, setAcceptedTerms] = useState<Record<number, boolean>>(
-    {}
-  );
 
   const grouped = useMemo(() => {
     const map = new Map<number, ReservationData[]>();
@@ -42,10 +37,6 @@ export default function StepReservationSummary({
     router.push(`/properties/${propertyId}`);
   };
 
-  const allTermsAccepted = grouped.every(
-    ([propertyId]) => acceptedTerms[propertyId]
-  );
-
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-dozeblue">
@@ -61,7 +52,8 @@ export default function StepReservationSummary({
           (sum, r) => sum + r.total_price,
           0
         );
-        const accepted = acceptedTerms[propertyId] || false;
+
+        const firstRes = propertyReservations[0];
 
         return (
           <div
@@ -69,7 +61,7 @@ export default function StepReservationSummary({
             className="space-y-2 border border-dozeblue/10 rounded-xl p-4 bg-dozeblue/5 dark:bg-dozeblue/10"
           >
             <div className="font-bold text-dozeblue mb-2">
-              Propiedad {propertyId}
+              {firstRes.property_name || `Propiedad ${propertyId}`}
             </div>
 
             {propertyReservations.map((res, index) => (
@@ -121,31 +113,40 @@ export default function StepReservationSummary({
               </span>
             </div>
 
-            {/* Términos y condiciones visibles */}
-            <div className="bg-white dark:bg-dozegray/5 border border-gray-200 dark:border-white/10 rounded p-3 mt-2">
-              <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                Términos y condiciones de la propiedad {propertyId}: Lorem ipsum
-                dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                aliquip ex ea commodo consequat.
-              </p>
-              <div className="mt-2">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={accepted}
-                    onChange={(e) =>
-                      setAcceptedTerms((prev) => ({
-                        ...prev,
-                        [propertyId]: e.target.checked,
-                      }))
-                    }
-                  />
-                  Acepto términos y condiciones
-                </label>
+            {firstRes.terms_and_conditions && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white dark:bg-dozegray/5 border border-gray-200 dark:border-white/10 rounded p-3 mt-2 text-sm text-[var(--foreground)]">
+                <div className="border rounded p-2">
+                  <div className="font-semibold">Condición de confirmación</div>
+                  <div>
+                    {firstRes.terms_and_conditions.condition_of_confirmation}
+                  </div>
+                </div>
+
+                <div className="border rounded p-2 text-center">
+                  <div className="font-semibold mb-2">Horarios</div>
+                  <div className="inline-flex items-center gap-4 bg-dozeblue/10 text-dozeblue rounded-full px-4 py-1">
+                    <span className="font-semibold">
+                      Check-in: {firstRes.terms_and_conditions.check_in_time}
+                    </span>
+                    <span className="font-semibold">
+                      Check-out: {firstRes.terms_and_conditions.check_out_time}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="border rounded p-2">
+                  <div className="font-semibold">Política de cancelación</div>
+                  <div>{firstRes.terms_and_conditions.cancellation_policy}</div>
+                </div>
+
+                <div className="border rounded p-2 sm:col-span-2">
+                  <div className="font-semibold">Información adicional</div>
+                  <div>
+                    {firstRes.terms_and_conditions.additional_information}
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         );
       })}
@@ -164,12 +165,7 @@ export default function StepReservationSummary({
 
         <button
           onClick={onNext}
-          disabled={!allTermsAccepted}
-          className={`px-6 py-3 rounded-lg text-sm font-semibold transition-colors ${
-            allTermsAccepted
-              ? 'bg-dozeblue text-white hover:bg-dozeblue/90'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+          className="px-6 py-3 rounded-lg text-sm font-semibold bg-dozeblue text-white hover:bg-dozeblue/90 transition-colors"
         >
           Continuar
         </button>
