@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, CalendarDays, Users, X } from 'lucide-react';
+import { MapPin, CalendarDays, Users, X, FileText } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
 import { ReservationData } from '@/store/reserveSlice';
@@ -54,7 +54,6 @@ export default function StepReservationSummary({
     };
 
     await dispatch(fetchAvailability(payload));
-
     router.push(`/`);
   };
 
@@ -137,6 +136,66 @@ export default function StepReservationSummary({
                 Total propiedad {propertyId}: ${totalProperty}
               </span>
             </div>
+            {firstRes.terms_and_conditions && (
+              <div className="bg-white dark:bg-dozegray/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 mt-2 shadow-sm">
+                <div className="flex items-center gap-2 mb-3 text-dozeblue font-semibold text-base">
+                  <FileText className="w-5 h-5" />
+                  Términos y condiciones de la propiedad
+                </div>
+
+                <div className="space-y-4 text-sm text-[var(--foreground)] leading-relaxed">
+                  <div>
+                    <div className="font-semibold mb-1">
+                      Condición de confirmación
+                    </div>
+                    <div>
+                      {firstRes.terms_and_conditions.condition_of_confirmation}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
+                    <div className="w-full sm:w-1/2">
+                      <div className="font-semibold mb-1 text-[var(--foreground)] ">
+                        Horario de Check-in
+                      </div>
+                      <div className="flex items-center gap-2 bg-green-100 text-dozeblue dark:bg-green-600/20  px-4 py-2 rounded-md border border-green-300 dark:border-green-600">
+                        <span className="text-lg font-semibold">
+                          {firstRes.terms_and_conditions.check_in_time}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="w-full sm:w-1/2">
+                      <div className="font-semibold mb-1 text-[var(--foreground)] ">
+                        Horario de Check-out
+                      </div>
+                      <div className="flex items-center gap-2 bg-red-100 text-dozeblue dark:bg-red-600/20 px-4 py-2 rounded-md border border-red-300 dark:border-red-600">
+                        <span className="text-lg font-semibold">
+                          {firstRes.terms_and_conditions.check_out_time}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="font-semibold mb-1">
+                      Política de cancelación
+                    </div>
+                    <div>
+                      {firstRes.terms_and_conditions.cancellation_policy}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="font-semibold mb-1">
+                      Información adicional
+                    </div>
+                    <div>
+                      {firstRes.terms_and_conditions.additional_information}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
       })}
