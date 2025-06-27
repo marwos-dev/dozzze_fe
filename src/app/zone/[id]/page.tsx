@@ -92,8 +92,9 @@ export default function ZoneDetailPage({ params }: PageProps) {
             alt={`Imagen principal de ${selectedZone.name}`}
             fill
             className="object-cover"
-            sizes="100vw"
+            sizes="(max-width: 768px) 100vw, 75vw"
             priority
+            unoptimized
           />
 
           {/* Caja tipo glassmorphism */}
@@ -148,6 +149,8 @@ export default function ZoneDetailPage({ params }: PageProps) {
                   alt={`Miniatura ${i + 2}`}
                   fill
                   className="object-cover"
+                  sizes="25vw"
+                  unoptimized
                 />
               </div>
             ))}
