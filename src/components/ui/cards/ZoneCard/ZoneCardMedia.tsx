@@ -12,6 +12,8 @@ import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
 const MapView = dynamic(() => import('../../maps/MapZoneVIew'), { ssr: false });
 const MapModal = dynamic(() => import('../../maps/MapModal'), { ssr: false });
 
+const fallbackImage = '/logo.png';
+
 interface ZoneCardMediaProps {
   showMap: boolean;
   selectedImage: string;
@@ -47,8 +49,15 @@ export default function ZoneCardMedia({
   const closeMapModal = () => setIsModalOpen(false);
   const handleExpand = () => setShowOverlayMap(true);
   const handleCollapse = () => setShowOverlayMap(false);
-  const isValidImage = selectedImage && selectedImage.trim() !== '';
+
+  const isValidImage =
+    typeof selectedImage === 'string' &&
+    selectedImage.trim().length > 10 &&
+    selectedImage.startsWith('http');
+
+  const imageToRender = isValidImage ? selectedImage : fallbackImage;
   const selectedIndex = imageUrls.findIndex((url) => url === selectedImage);
+
   return (
     <>
       <motion.div
@@ -84,9 +93,9 @@ export default function ZoneCardMedia({
                 Expandir
               </button>
             </motion.div>
-          ) : isValidImage ? (
+          ) : (
             <motion.div
-              key={selectedImage}
+              key={imageToRender}
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -30 }}
@@ -94,20 +103,21 @@ export default function ZoneCardMedia({
               className="absolute inset-0"
             >
               <Image
-                src={selectedImage}
+                src={imageToRender}
                 alt="Imagen de la zona"
                 fill
                 sizes="(max-width: 768px) 100vw, 700px"
-                style={{ objectFit: 'cover', cursor: 'pointer' }}
-                className="rounded-none"
+                placeholder="empty"
+                className="object-cover cursor-pointer"
                 onClick={() => setIsGalleryOpen(true)}
+                priority
+                unoptimized
               />
             </motion.div>
-          ) : null}
+          )}
         </AnimatePresence>
       </motion.div>
 
-      {/* Modal para pantalla completa del mapa */}
       <MapModal
         isOpen={isModalOpen}
         onClose={closeMapModal}
@@ -119,7 +129,6 @@ export default function ZoneCardMedia({
         onZoomChange={setMapZoom}
       />
 
-      {/* Overlay intermedio con opción de fullscreen */}
       {showOverlayMap && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -156,7 +165,6 @@ export default function ZoneCardMedia({
         </motion.div>
       )}
 
-      {/* Galería de imágenes fullscreen */}
       {isGalleryOpen && (
         <ImageGalleryModal
           images={imageUrls}

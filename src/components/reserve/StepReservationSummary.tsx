@@ -1,9 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, CalendarDays, Users, X } from 'lucide-react';
+import { MapPin, CalendarDays, Users, X, FileText } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store';
 import { ReservationData } from '@/store/reserveSlice';
+import { fetchAvailability } from '@/store/propertiesSlice';
 
 interface Props {
   reservations: ReservationData[];
@@ -19,9 +22,7 @@ export default function StepReservationSummary({
   onNext,
 }: Props) {
   const router = useRouter();
-  const [acceptedTerms, setAcceptedTerms] = useState<Record<number, boolean>>(
-    {}
-  );
+  const dispatch = useDispatch<AppDispatch>();
 
   const grouped = useMemo(() => {
     const map = new Map<number, ReservationData[]>();
@@ -38,13 +39,27 @@ export default function StepReservationSummary({
     return reservations.reduce((sum, r) => sum + r.total_price, 0);
   }, [reservations]);
 
+  const handleAddReservation = async () => {
+    if (reservations.length === 0) {
+      onAddReservation();
+      return;
+    }
+
+    const lastRes = reservations[reservations.length - 1];
+
+    const payload = {
+      check_in: lastRes.check_in,
+      check_out: lastRes.check_out,
+      guests: lastRes.pax_count,
+    };
+
+    await dispatch(fetchAvailability(payload));
+    router.push(`/`);
+  };
+
   const handleSearchAnotherInProperty = (propertyId: number) => {
     router.push(`/properties/${propertyId}`);
   };
-
-  const allTermsAccepted = grouped.every(
-    ([propertyId]) => acceptedTerms[propertyId]
-  );
 
   return (
     <div className="space-y-4">
@@ -61,7 +76,8 @@ export default function StepReservationSummary({
           (sum, r) => sum + r.total_price,
           0
         );
-        const accepted = acceptedTerms[propertyId] || false;
+
+        const firstRes = propertyReservations[0];
 
         return (
           <div
@@ -69,7 +85,7 @@ export default function StepReservationSummary({
             className="space-y-2 border border-dozeblue/10 rounded-xl p-4 bg-dozeblue/5 dark:bg-dozeblue/10"
           >
             <div className="font-bold text-dozeblue mb-2">
-              Propiedad {propertyId}
+              {firstRes.property_name || `Propiedad ${propertyId}`}
             </div>
 
             {propertyReservations.map((res, index) => (
@@ -120,32 +136,66 @@ export default function StepReservationSummary({
                 Total propiedad {propertyId}: ${totalProperty}
               </span>
             </div>
+            {firstRes.terms_and_conditions && (
+              <div className="bg-white dark:bg-dozegray/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 mt-2 shadow-sm">
+                <div className="flex items-center gap-2 mb-3 text-dozeblue font-semibold text-base">
+                  <FileText className="w-5 h-5" />
+                  Términos y condiciones de la propiedad
+                </div>
 
-            {/* Términos y condiciones visibles */}
-            <div className="bg-white dark:bg-dozegray/5 border border-gray-200 dark:border-white/10 rounded p-3 mt-2">
-              <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                Términos y condiciones de la propiedad {propertyId}: Lorem ipsum
-                dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                aliquip ex ea commodo consequat.
-              </p>
-              <div className="mt-2">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={accepted}
-                    onChange={(e) =>
-                      setAcceptedTerms((prev) => ({
-                        ...prev,
-                        [propertyId]: e.target.checked,
-                      }))
-                    }
-                  />
-                  Acepto términos y condiciones
-                </label>
+                <div className="space-y-4 text-sm text-[var(--foreground)] leading-relaxed">
+                  <div>
+                    <div className="font-semibold mb-1">
+                      Condición de confirmación
+                    </div>
+                    <div>
+                      {firstRes.terms_and_conditions.condition_of_confirmation}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
+                    <div className="w-full sm:w-1/2">
+                      <div className="font-semibold mb-1 text-[var(--foreground)] ">
+                        Horario de Check-in
+                      </div>
+                      <div className="flex items-center gap-2 bg-green-100 text-dozeblue dark:bg-green-600/20  px-4 py-2 rounded-md border border-green-300 dark:border-green-600">
+                        <span className="text-lg font-semibold">
+                          {firstRes.terms_and_conditions.check_in_time}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="w-full sm:w-1/2">
+                      <div className="font-semibold mb-1 text-[var(--foreground)] ">
+                        Horario de Check-out
+                      </div>
+                      <div className="flex items-center gap-2 bg-red-100 text-dozeblue dark:bg-red-600/20 px-4 py-2 rounded-md border border-red-300 dark:border-red-600">
+                        <span className="text-lg font-semibold">
+                          {firstRes.terms_and_conditions.check_out_time}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="font-semibold mb-1">
+                      Política de cancelación
+                    </div>
+                    <div>
+                      {firstRes.terms_and_conditions.cancellation_policy}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="font-semibold mb-1">
+                      Información adicional
+                    </div>
+                    <div>
+                      {firstRes.terms_and_conditions.additional_information}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         );
       })}
@@ -156,7 +206,7 @@ export default function StepReservationSummary({
 
       <div className="flex flex-wrap justify-between gap-2 mt-4">
         <button
-          onClick={onAddReservation}
+          onClick={handleAddReservation}
           className="text-dozeblue border border-dozeblue px-4 py-2 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
         >
           Volver / Agregar otra reservación
@@ -164,12 +214,7 @@ export default function StepReservationSummary({
 
         <button
           onClick={onNext}
-          disabled={!allTermsAccepted}
-          className={`px-6 py-3 rounded-lg text-sm font-semibold transition-colors ${
-            allTermsAccepted
-              ? 'bg-dozeblue text-white hover:bg-dozeblue/90'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+          className="px-6 py-3 rounded-lg text-sm font-semibold bg-dozeblue text-white hover:bg-dozeblue/90 transition-colors"
         >
           Continuar
         </button>

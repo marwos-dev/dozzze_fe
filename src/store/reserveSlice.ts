@@ -1,7 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Property } from '@/types/property';
 
 export interface ReservationData {
   property_id: number;
+  property_name?: string;
+  terms_and_conditions?: Property['terms_and_conditions'];
+  cover_image?: string;
   channel: string;
   pax_count: number;
   currency: string;

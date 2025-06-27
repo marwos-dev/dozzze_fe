@@ -47,14 +47,12 @@ export default function PropertyDetailPage() {
   const [hasFetched, setHasFetched] = useState(false);
   const calendarRef = useRef<HTMLDivElement | null>(null);
 
-  // Cargar propiedad por ID
   useEffect(() => {
     if (!property && propertyId) {
       dispatch(loadFullPropertyById(propertyId));
     }
   }, [dispatch, property, propertyId]);
 
-  // Búsqueda automática solo una vez
   useEffect(() => {
     if (property?.id && !hasFetched) {
       const selected = range[0];
@@ -69,7 +67,6 @@ export default function PropertyDetailPage() {
     }
   }, [dispatch, property?.id, hasFetched, range, guests]);
 
-  // Cerrar calendario al hacer clic afuera
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -83,11 +80,10 @@ export default function PropertyDetailPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Enviar búsqueda manual (formulario)
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-
     const selected = range[0];
+
     if (!selected.startDate || !selected.endDate) {
       setError('Por favor seleccioná una fecha válida');
       return;
@@ -122,12 +118,18 @@ export default function PropertyDetailPage() {
       <div className="relative rounded-xl overflow-hidden mb-6">
         <div className="relative w-full h-[240px] md:h-[320px] rounded-xl overflow-hidden">
           <Image
-            src={property.cover_image || '/logo.png'}
+            src={
+              typeof property.cover_image === 'string' &&
+              property.cover_image.startsWith('http')
+                ? property.cover_image
+                : '/logo.png'
+            }
             alt={`Imagen de ${property.name}`}
             fill
             priority
+            unoptimized
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 66vw"
             className="object-cover"
-            sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex flex-col justify-end p-6">
             <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow">
