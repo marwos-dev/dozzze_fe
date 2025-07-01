@@ -1,5 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { customerSignup } from '@/services/customersApi';
+import {
+  customerSignup,
+  customerLogin,
+  fetchCustomerProfile,
+} from '@/services/customersApi';
 
 interface CustomerState {
   loading: boolean;
@@ -17,11 +21,36 @@ export const signupCustomer = createAsyncThunk(
   'customer/signup',
   async (payload: { email: string; password: string }, thunkAPI) => {
     try {
-      const response = await customerSignup(payload);
-      return response;
+      return await customerSignup(payload);
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
         error?.response?.data?.error || 'Error en el registro'
+      );
+    }
+  }
+);
+
+export const loginCustomer = createAsyncThunk(
+  'customer/login',
+  async (payload: { email: string; password: string }, thunkAPI) => {
+    try {
+      return await customerLogin(payload);
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error?.response?.data?.error || 'Error al iniciar sesión'
+      );
+    }
+  }
+);
+
+export const getCustomerProfile = createAsyncThunk(
+  'customer/profile',
+  async (_, thunkAPI) => {
+    try {
+      return await fetchCustomerProfile();
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error?.response?.data?.error || 'Error al obtener el perfil'
       );
     }
   }
@@ -50,6 +79,21 @@ const customerSlice = createSlice({
       .addCase(signupCustomer.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(loginCustomer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginCustomer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = action.payload;
+      })
+      .addCase(loginCustomer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(getCustomerProfile.fulfilled, (state, action) => {
+        state.profile = action.payload;
       });
   },
 });

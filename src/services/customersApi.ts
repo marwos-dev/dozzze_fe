@@ -5,8 +5,28 @@ interface SignupData {
   password: string;
 }
 
+interface LoginData {
+  email: string;
+  password: string;
+}
+
 export const customerSignup = async (data: SignupData) => {
-  const response = await axios.post('/customers/signup', data);
-  console.log(response);
+  const response = await axios.post('/customers/signup', data, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+export const customerLogin = async (data: LoginData) => {
+  const response = await axios.post('/customers/login', data, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+export const fetchCustomerProfile = async () => {
+  const response = await axios.get('/customers/profile', {
+    withCredentials: true,
+  });
   return response.data;
 };
