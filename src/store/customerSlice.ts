@@ -4,6 +4,7 @@ import {
   customerLogin,
   fetchCustomerProfile,
 } from '@/services/customersApi';
+import { showToast } from './toastSlice';
 
 interface CustomerState {
   loading: boolean;
@@ -19,39 +20,53 @@ const initialState: CustomerState = {
 
 export const signupCustomer = createAsyncThunk(
   'customer/signup',
-  async (payload: { email: string; password: string }, thunkAPI) => {
+  async (
+    payload: { email: string; password: string },
+    { rejectWithValue, dispatch }
+  ) => {
     try {
-      return await customerSignup(payload);
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error?.response?.data?.error || 'Error en el registro'
+      const res = await customerSignup(payload);
+      dispatch(
+        showToast({ message: 'Cuenta creada exitosamente', color: 'green' })
       );
+      return res;
+    } catch (error: any) {
+      const msg = error?.response?.data?.error || 'Error en el registro';
+      dispatch(showToast({ message: msg, color: 'red' }));
+      return rejectWithValue(msg);
     }
   }
 );
 
 export const loginCustomer = createAsyncThunk(
   'customer/login',
-  async (payload: { email: string; password: string }, thunkAPI) => {
+  async (
+    payload: { email: string; password: string },
+    { rejectWithValue, dispatch }
+  ) => {
     try {
-      return await customerLogin(payload);
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error?.response?.data?.error || 'Error al iniciar sesión'
+      const res = await customerLogin(payload);
+      dispatch(
+        showToast({ message: 'Sesión iniciada correctamente', color: 'green' })
       );
+      return res;
+    } catch (error: any) {
+      const msg = error?.response?.data?.error || 'Error al iniciar sesión';
+      dispatch(showToast({ message: msg, color: 'red' }));
+      return rejectWithValue(msg);
     }
   }
 );
 
 export const getCustomerProfile = createAsyncThunk(
   'customer/profile',
-  async (_, thunkAPI) => {
+  async (_, { rejectWithValue, dispatch }) => {
     try {
       return await fetchCustomerProfile();
     } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error?.response?.data?.error || 'Error al obtener el perfil'
-      );
+      const msg = error?.response?.data?.error || 'Error al obtener el perfil';
+      dispatch(showToast({ message: msg, color: 'red' }));
+      return rejectWithValue(msg);
     }
   }
 );
@@ -80,6 +95,7 @@ const customerSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
       .addCase(loginCustomer.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -92,6 +108,7 @@ const customerSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
       .addCase(getCustomerProfile.fulfilled, (state, action) => {
         state.profile = action.payload;
       });

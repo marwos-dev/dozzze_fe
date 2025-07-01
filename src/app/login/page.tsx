@@ -99,12 +99,6 @@ export default function LoginPage() {
             </motion.div>
           </AnimatePresence>
 
-          {error && (
-            <div className="text-sm text-red-500 text-center -mt-2">
-              {error}
-            </div>
-          )}
-
           <button
             type="submit"
             className="w-full bg-dozeblue text-white font-semibold py-3 rounded-md hover:bg-dozeblue/90 transition disabled:opacity-50"
