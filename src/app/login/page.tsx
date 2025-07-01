@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const { loading, error } = useSelector((state: RootState) => state.customer);
+  const { loading } = useSelector((state: RootState) => state.customer);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

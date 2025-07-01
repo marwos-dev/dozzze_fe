@@ -1,15 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { AxiosError } from 'axios';
 import {
   customerSignup,
   customerLogin,
   fetchCustomerProfile,
 } from '@/services/customersApi';
 import { showToast } from './toastSlice';
-
+import { Customer } from '@/types/costumers';
 interface CustomerState {
   loading: boolean;
   error: string | null;
-  profile: any | null;
+  profile: Customer | null;
 }
 
 const initialState: CustomerState = {
@@ -30,8 +31,9 @@ export const signupCustomer = createAsyncThunk(
         showToast({ message: 'Cuenta creada exitosamente', color: 'green' })
       );
       return res;
-    } catch (error: any) {
-      const msg = error?.response?.data?.error || 'Error en el registro';
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ error: string }>;
+      const msg = axiosError?.response?.data?.error || 'Error en el registro';
       dispatch(showToast({ message: msg, color: 'red' }));
       return rejectWithValue(msg);
     }
@@ -50,8 +52,10 @@ export const loginCustomer = createAsyncThunk(
         showToast({ message: 'Sesión iniciada correctamente', color: 'green' })
       );
       return res;
-    } catch (error: any) {
-      const msg = error?.response?.data?.error || 'Error al iniciar sesión';
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ error: string }>;
+      const msg =
+        axiosError?.response?.data?.error || 'Error al iniciar sesión';
       dispatch(showToast({ message: msg, color: 'red' }));
       return rejectWithValue(msg);
     }
@@ -63,13 +67,17 @@ export const getCustomerProfile = createAsyncThunk(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       return await fetchCustomerProfile();
-    } catch (error: any) {
-      const msg = error?.response?.data?.error || 'Error al obtener el perfil';
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ error: string }>;
+      const msg =
+        axiosError?.response?.data?.error || 'Error al obtener el perfil';
       dispatch(showToast({ message: msg, color: 'red' }));
       return rejectWithValue(msg);
     }
   }
 );
+
+// Resto del slice sin cambios
 
 const customerSlice = createSlice({
   name: 'customer',
