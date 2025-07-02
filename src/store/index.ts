@@ -4,6 +4,7 @@ import propertiesReducer from './propertiesSlice';
 import roomsReducer from './roomsSlice';
 import reserveReducer from './reserveSlice';
 import toastReducer from './toastSlice';
+import customerReducer from './customerSlice';
 import storageSession from 'redux-persist/lib/storage/session';
 import { persistReducer, persistStore } from 'redux-persist';
 
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   rooms: roomsReducer,
   reserve: reserveReducer,
   toast: toastReducer,
+  customer: customerReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
