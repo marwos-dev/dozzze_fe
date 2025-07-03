@@ -30,3 +30,12 @@ export const fetchCustomerProfile = async () => {
   });
   return response.data;
 };
+export const activateCustomerAccount = async (token: string) => {
+  const response = await axios.get(
+    `/customers/activate-account?token=${token}`,
+    {
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};

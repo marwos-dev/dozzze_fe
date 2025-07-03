@@ -7,6 +7,7 @@ import {
 } from '@/services/customersApi';
 import { showToast } from './toastSlice';
 import { Customer } from '@/types/costumers';
+import { activateCustomerAccount as apiActivateCustomerAccount } from '@/services/customersApi';
 interface CustomerState {
   loading: boolean;
   error: string | null;
@@ -76,6 +77,27 @@ export const getCustomerProfile = createAsyncThunk(
     }
   }
 );
+export const activateCustomerAccount = createAsyncThunk(
+  'customer/activate',
+  async (token: string, { rejectWithValue, dispatch }) => {
+    try {
+      const res = await apiActivateCustomerAccount(token);
+      dispatch(
+        showToast({
+          message: res.message || 'Cuenta activada exitosamente',
+          color: 'green',
+        })
+      );
+      return res;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ detail?: string }>;
+      const msg =
+        axiosError?.response?.data?.detail || 'Error al activar la cuenta';
+      dispatch(showToast({ message: msg, color: 'red' }));
+      return rejectWithValue(msg);
+    }
+  }
+);
 
 // Resto del slice sin cambios
 
@@ -119,6 +141,17 @@ const customerSlice = createSlice({
 
       .addCase(getCustomerProfile.fulfilled, (state, action) => {
         state.profile = action.payload;
+      })
+      .addCase(activateCustomerAccount.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(activateCustomerAccount.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(activateCustomerAccount.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
