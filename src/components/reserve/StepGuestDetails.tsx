@@ -32,6 +32,11 @@ export default function StepGuestDetails({
   const [guestCountry, setGuestCountry] = useState('');
   const [guestCp, setGuestCp] = useState('');
   const [guestRemarks, setGuestRemarks] = useState('');
+  const [guestCorporate, setGuestCorporate] = useState('');
+  const [guestRegion, setGuestRegion] = useState('');
+  const [guestCountryIso, setGuestCountryIso] = useState('');
+  const [paidOnline, setPaidOnline] = useState<number | null>(null);
+  const [payOnArrival, setPayOnArrival] = useState<number | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -44,6 +49,11 @@ export default function StepGuestDetails({
       setGuestCountry(data.guest_country || '');
       setGuestCp(data.guest_cp || '');
       setGuestRemarks(data.guest_remarks || '');
+      setGuestCorporate(data.guest_corporate || '');
+      setGuestRegion(data.guest_region || '');
+      setGuestCountryIso(data.guest_country_iso || '');
+      setPaidOnline(data.paid_online ?? null);
+      setPayOnArrival(data.pay_on_arrival ?? null);
     }
   }, [data]);
 
@@ -108,6 +118,11 @@ export default function StepGuestDetails({
           guest_country: guestCountry,
           guest_cp: guestCp,
           guest_remarks: guestRemarks,
+          guest_corporate: guestCorporate,
+          guest_region: guestRegion,
+          guest_country_iso: guestCountryIso,
+          paid_online: paidOnline ?? undefined,
+          pay_on_arrival: payOnArrival ?? undefined,
         },
       })
     );
@@ -134,7 +149,7 @@ export default function StepGuestDetails({
               Para ingresar los datos del huésped, primero debés iniciar sesión.
             </p>
             <Link
-              href="/login"
+              href="/login?redirect=/reserve?step=1"
               className="inline-block px-4 py-2 bg-dozeblue text-white rounded-md hover:bg-dozeblue/90 transition"
             >
               Ir al login
@@ -284,6 +299,75 @@ export default function StepGuestDetails({
                   {errors.guestRemarks}
                 </p>
               )}
+            </div>
+          </div>
+
+          {/* Campos nuevos */}
+          <div>
+            <label className="text-sm font-medium block mb-1 text-dozeblue">
+              Empresa / Cliente corporativo
+            </label>
+            <input
+              type="text"
+              value={guestCorporate}
+              onChange={(e) => setGuestCorporate(e.target.value)}
+              className={inputClass('guestCorporate')}
+            />
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium block mb-1 text-dozeblue">
+                Región
+              </label>
+              <input
+                type="text"
+                value={guestRegion}
+                onChange={(e) => setGuestRegion(e.target.value)}
+                className={inputClass('guestRegion')}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium block mb-1 text-dozeblue">
+                Código país (ISO)
+              </label>
+              <input
+                type="text"
+                value={guestCountryIso}
+                onChange={(e) => setGuestCountryIso(e.target.value)}
+                className={inputClass('guestCountryIso')}
+              />
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium block mb-1 text-dozeblue">
+                Pagado online
+              </label>
+              <input
+                type="number"
+                min={0}
+                step={0.01}
+                value={paidOnline ?? ''}
+                onChange={(e) => setPaidOnline(Number(e.target.value))}
+                className={inputClass('paidOnline')}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium block mb-1 text-dozeblue">
+                Pago en destino
+              </label>
+              <input
+                type="number"
+                min={0}
+                step={0.01}
+                value={payOnArrival ?? ''}
+                onChange={(e) => setPayOnArrival(Number(e.target.value))}
+                className={inputClass('payOnArrival')}
+              />
             </div>
           </div>
         </div>
