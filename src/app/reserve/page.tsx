@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { RootState, AppDispatch } from '@/store';
 import { deleteReservation, updateReservation } from '@/store/reserveSlice';
 import StepReservationSummary from '@/components/reserve/StepReservationSummary';
@@ -12,7 +12,12 @@ import StepConfirmation from '@/components/reserve/StepConfirmation';
 const steps = ['Tu selección', 'Tus datos', 'Terminar reserva'];
 
 export default function ReservePage() {
-  const [currentStep, setCurrentStep] = useState(0);
+  const searchParams = useSearchParams();
+  const initialStepParam = parseInt(searchParams.get('step') || '0', 10);
+  const [currentStep, setCurrentStep] = useState(
+    isNaN(initialStepParam) ? 0 : Math.min(initialStepParam, steps.length - 1)
+  );
+
   const reservations = useSelector((state: RootState) => state.reserve.data);
   const zones = useSelector((state: RootState) => state.zones.data);
   const dispatch = useDispatch<AppDispatch>();

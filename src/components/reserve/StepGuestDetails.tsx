@@ -134,7 +134,7 @@ export default function StepGuestDetails({
               Para ingresar los datos del huésped, primero debés iniciar sesión.
             </p>
             <Link
-              href="/login"
+              href="/login?redirect=/reserve?step=1"
               className="inline-block px-4 py-2 bg-dozeblue text-white rounded-md hover:bg-dozeblue/90 transition"
             >
               Ir al login
