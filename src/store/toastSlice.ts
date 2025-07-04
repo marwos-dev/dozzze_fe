@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface ToastData {
   message: string;
   color: 'red' | 'green' | 'blue' | 'yellow';
+  duration: number;
 }
 
 interface ToastState {

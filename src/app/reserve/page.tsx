@@ -85,7 +85,6 @@ export default function ReservePage() {
         />
       )}
 
-      {currentStep === 2 && <StepConfirmation onBack={goBack} />}
     </div>
   );
 }
