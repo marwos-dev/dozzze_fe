@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { LogIn, UserPlus } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginCustomer, signupCustomer } from '@/store/customerSlice';
@@ -14,6 +14,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/';
   const { loading } = useSelector((state: RootState) => state.customer);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -30,7 +32,7 @@ export default function LoginPage() {
       (isLogin && loginCustomer.fulfilled.match(res)) ||
       (!isLogin && signupCustomer.fulfilled.match(res))
     ) {
-      router.push('/dashboard');
+      router.push(redirect);
     }
   };
 
