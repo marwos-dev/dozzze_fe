@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { RootState, AppDispatch } from '@/store';
-import { deleteReservation } from '@/store/reserveSlice';
+import { deleteReservation, updateReservation } from '@/store/reserveSlice';
 import StepReservationSummary from '@/components/reserve/StepReservationSummary';
 import StepGuestDetails from '@/components/reserve/StepGuestDetails';
 import StepConfirmation from '@/components/reserve/StepConfirmation';
@@ -12,14 +12,43 @@ import StepConfirmation from '@/components/reserve/StepConfirmation';
 const steps = ['Tu selección', 'Tus datos', 'Terminar reserva'];
 
 export default function ReservePage() {
-  const [currentStep, setCurrentStep] = useState(0);
+  const searchParams = useSearchParams();
+  const initialStepParam = parseInt(searchParams.get('step') || '0', 10);
+  const [currentStep, setCurrentStep] = useState(
+    isNaN(initialStepParam) ? 0 : Math.min(initialStepParam, steps.length - 1)
+  );
+
   const reservations = useSelector((state: RootState) => state.reserve.data);
+  const zones = useSelector((state: RootState) => state.zones.data);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   const goNext = () =>
     setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+
   const goBack = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
+
+  useEffect(() => {
+    reservations.forEach((res, index) => {
+      if (!res.terms_and_conditions) {
+        const property = zones
+          .flatMap((zone) => zone.properties || [])
+          .find((p) => p.id === res.property_id);
+
+        if (property?.terms_and_conditions) {
+          dispatch(
+            updateReservation({
+              index,
+              data: {
+                terms_and_conditions: property.terms_and_conditions,
+                property_name: property.name,
+              },
+            })
+          );
+        }
+      }
+    });
+  }, [reservations, zones, dispatch]);
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
@@ -68,18 +97,14 @@ export default function ReservePage() {
         <StepReservationSummary
           onNext={goNext}
           reservations={reservations}
-          onAddReservation={() => {
-            router.push('/#seeker');
-          }}
-          onDeleteReservation={(index: number) => {
-            dispatch(deleteReservation(index));
-          }}
+          onAddReservation={() => router.push('/#seeker')}
+          onDeleteReservation={(index) => dispatch(deleteReservation(index))}
         />
       )}
 
       {currentStep === 1 && (
         <StepGuestDetails
-          reservationIndex={0} // Esto deberías ajustar si quieres soportar múltiples reservas activas
+          reservationIndex={0}
           onNext={goNext}
           onBack={goBack}
         />

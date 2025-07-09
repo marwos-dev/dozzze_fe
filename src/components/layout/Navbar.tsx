@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Menu, X, Search } from 'lucide-react';
+import { Menu, X, Search, LogIn } from 'lucide-react';
 import Seeker from '@/components/sections/Seeker';
 import FilterModal from '@/components/ui/modals/FilterModal';
 import Image from 'next/image';
@@ -82,7 +82,16 @@ export default function Navbar() {
               </span>
             </button>
 
-            {/* Dark mode toggle (Desktop) */}
+            {/* Botón login */}
+            <Link
+              href="/login"
+              className="flex items-center gap-2 bg-dozeblue hover:bg-dozeblue/90 text-white font-semibold px-4 py-1.5 rounded-full transition"
+            >
+              <LogIn size={18} />
+              Iniciar sesión
+            </Link>
+
+            {/* Dark mode toggle */}
             <div
               onClick={toggleDarkMode}
               className="cursor-pointer text-xl"
@@ -140,6 +149,7 @@ export default function Navbar() {
               </a>
             )
           )}
+
           <button
             onClick={() => {
               setSearchOpen(true);
@@ -149,6 +159,14 @@ export default function Navbar() {
           >
             Buscar
           </button>
+
+          <Link
+            href="/login"
+            className="block mx-6 mt-4 mb-6 text-center bg-dozeblue text-white font-semibold px-4 py-2 rounded-full hover:bg-dozeblue/90 transition"
+            onClick={() => setOpen(false)}
+          >
+            Iniciar sesión
+          </Link>
         </div>
       </div>
 

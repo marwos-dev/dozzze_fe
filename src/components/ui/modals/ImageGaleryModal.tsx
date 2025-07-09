@@ -47,7 +47,10 @@ export default function ImageGalleryModal({
 
   if (!images || images.length === 0) return null;
 
-  const currentImage = images[index];
+  const currentImage =
+    typeof images[index] === 'string' && images[index].startsWith('http')
+      ? images[index]
+      : '/logo.png';
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
@@ -62,8 +65,10 @@ export default function ImageGalleryModal({
             src={currentImage}
             alt={`Imagen ${index + 1}`}
             fill
+            sizes="(max-width: 768px) 100vw, 80vw"
             className="object-contain"
             unoptimized
+            priority
           />
         )}
       </div>
