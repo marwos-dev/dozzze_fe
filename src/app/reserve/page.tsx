@@ -7,7 +7,7 @@ import { RootState, AppDispatch } from '@/store';
 import { deleteReservation, updateReservation } from '@/store/reserveSlice';
 import StepReservationSummary from '@/components/reserve/StepReservationSummary';
 import StepGuestDetails from '@/components/reserve/StepGuestDetails';
-import StepConfirmation from '@/components/reserve/StepConfirmation';
+// import StepConfirmation from '@/components/reserve/StepConfirmation';
 
 const steps = ['Tu selección', 'Tus datos', 'Terminar reserva'];
 
@@ -110,7 +110,6 @@ export default function ReservePage() {
         />
       )}
 
-      {currentStep === 2 && <StepConfirmation onBack={goBack} />}
     </div>
   );
 }

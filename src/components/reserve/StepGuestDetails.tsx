@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { updateReservation } from '@/store/reserveSlice';
 import { RootState } from '@/store';
+import { postReservation } from '@/services/reservationApi';
+import { showToast } from '@/store/toastSlice';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import Link from 'next/link';
 
@@ -24,6 +26,7 @@ export default function StepGuestDetails({
   );
   const profile = useSelector(selectCustomerProfile);
 
+
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
@@ -32,6 +35,15 @@ export default function StepGuestDetails({
   const [guestCountry, setGuestCountry] = useState('');
   const [guestCp, setGuestCp] = useState('');
   const [guestRemarks, setGuestRemarks] = useState('');
+  const [redsysData, setRedsysData] = useState<null | {
+    endpoint: string;
+    Ds_SignatureVersion: string;
+    Ds_MerchantParameters: string;
+    Ds_Signature: string;
+  }>(null);
+
+  const [loading, setLoading] = useState(false);
+
   const [guestCorporate, setGuestCorporate] = useState('');
   const [guestRegion, setGuestRegion] = useState('');
   const [guestCountryIso, setGuestCountryIso] = useState('');
@@ -127,7 +139,24 @@ export default function StepGuestDetails({
       })
     );
 
-    onNext();
+    console.log(onNext) // esta puesto para que no salte el linter
+    postReservation(data) // Hay que preparar esto para enviar todas las reservas en esa data {reservations: [data]}
+      .then((res) => {
+        dispatch(
+          showToast({
+            message: 'Reserva Confirmada',
+            color: 'green',
+            duration: 5000,
+          })
+        );
+        if (res.redsys_args) setRedsysData(res?.redsys_args);
+      })
+      .catch((err) => {
+        console.log({ err });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const inputClass = (field: string) =>
@@ -136,6 +165,49 @@ export default function StepGuestDetails({
         ? 'border-red-500 focus:ring-red-500'
         : 'border-dozeblue focus:ring-dozeblue'
     } bg-white dark:bg-dozegray/10 dark:border-white/10 focus:outline-none focus:ring-2`;
+
+  const renderButton = () => {
+    if (redsysData) {
+      return (
+        <form
+          action={redsysData.endpoint}
+          method="POST"
+          id="redsys-payment-form"
+        >
+          <input
+            type="hidden"
+            name="Ds_SignatureVersion"
+            value={redsysData.Ds_SignatureVersion}
+          />
+          <input
+            type="hidden"
+            name="Ds_MerchantParameters"
+            value={redsysData.Ds_MerchantParameters}
+          />
+          <input
+            type="hidden"
+            name="Ds_Signature"
+            value={redsysData.Ds_Signature}
+          />
+          <button
+            type="submit"
+            className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-green-700 transition-colors"
+          >
+            Pagar reserva
+          </button>
+        </form>
+      );
+    }
+
+    return (
+      <button
+        onClick={handleContinue}
+        className="bg-dozeblue text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-dozeblue/90 transition-colors"
+      >
+        {loading ? 'Procesando...' : 'Continuar'}
+      </button>
+    );
+  };
 
   return (
     <div className="relative">
@@ -372,20 +444,14 @@ export default function StepGuestDetails({
           </div>
         </div>
 
-        <div className="flex justify-between pt-4">
+        <div className="flex justify-between">
           <button
             onClick={onBack}
             className="text-dozeblue border border-dozeblue px-6 py-3 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
           >
             Atrás
           </button>
-
-          <button
-            onClick={handleContinue}
-            className="bg-dozeblue text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-dozeblue/90 transition-colors"
-          >
-            Continuar
-          </button>
+          {renderButton()}
         </div>
       </div>
     </div>
