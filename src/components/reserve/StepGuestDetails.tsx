@@ -26,6 +26,7 @@ export default function StepGuestDetails({
   );
   const profile = useSelector(selectCustomerProfile);
 
+
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
@@ -40,6 +41,7 @@ export default function StepGuestDetails({
     Ds_MerchantParameters: string;
     Ds_Signature: string;
   }>(null);
+
   const [loading, setLoading] = useState(false);
 
   const [guestCorporate, setGuestCorporate] = useState('');
@@ -136,7 +138,9 @@ export default function StepGuestDetails({
         },
       })
     );
-    postReservation(data)
+
+    console.log(onNext) // esta puesto para que no salte el linter
+    postReservation(data) // Hay que preparar esto para enviar todas las reservas en esa data {reservations: [data]}
       .then((res) => {
         dispatch(
           showToast({
