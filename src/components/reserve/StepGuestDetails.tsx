@@ -7,6 +7,7 @@ import { postReservation } from '@/services/reservationApi';
 import { showToast } from '@/store/toastSlice';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import Link from 'next/link';
+import { setRedsysData } from '@/store/reserveSlice';
 
 interface Props {
   reservationIndex: number;
@@ -33,12 +34,6 @@ export default function StepGuestDetails({
   const [guestCountry, setGuestCountry] = useState('');
   const [guestCp, setGuestCp] = useState('');
   const [guestRemarks, setGuestRemarks] = useState('');
-  const [redsysData, setRedsysData] = useState<null | {
-    endpoint: string;
-    Ds_SignatureVersion: string;
-    Ds_MerchantParameters: string;
-    Ds_Signature: string;
-  }>(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -133,17 +128,9 @@ export default function StepGuestDetails({
 
     try {
       const res = await postReservation(fullReservations);
-      if (res) {
-        dispatch(
-          showToast({
-            message: 'Reserva Confirmada',
-            color: 'green',
-            duration: 5000,
-          })
-        );
-        onNext();
-        setRedsysData(res);
-      }
+      dispatch(showToast({ message: 'Reserva Confirmada', color: 'green' }));
+      dispatch(setRedsysData(res));
+      onNext();
     } catch (err) {
       console.error('Error al confirmar reservas:', err);
       dispatch(
@@ -160,49 +147,6 @@ export default function StepGuestDetails({
         ? 'border-red-500 focus:ring-red-500'
         : 'border-dozeblue focus:ring-dozeblue'
     } bg-white dark:bg-dozegray/10 dark:border-white/10 focus:outline-none focus:ring-2`;
-
-  const renderButton = () => {
-    if (redsysData) {
-      return (
-        <form
-          action={redsysData.endpoint}
-          method="POST"
-          id="redsys-payment-form"
-        >
-          <input
-            type="hidden"
-            name="Ds_SignatureVersion"
-            value={redsysData.Ds_SignatureVersion}
-          />
-          <input
-            type="hidden"
-            name="Ds_MerchantParameters"
-            value={redsysData.Ds_MerchantParameters}
-          />
-          <input
-            type="hidden"
-            name="Ds_Signature"
-            value={redsysData.Ds_Signature}
-          />
-          <button
-            type="submit"
-            className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-green-700 transition-colors"
-          >
-            Pagar reserva
-          </button>
-        </form>
-      );
-    }
-
-    return (
-      <button
-        onClick={handleContinue}
-        className="bg-dozeblue text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-dozeblue/90 transition-colors"
-      >
-        {loading ? 'Procesando...' : 'Continuar'}
-      </button>
-    );
-  };
 
   return (
     <div className="relative">
@@ -416,7 +360,12 @@ export default function StepGuestDetails({
           >
             Atrás
           </button>
-          {renderButton()}
+          <button
+            onClick={handleContinue}
+            className="bg-dozeblue text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-dozeblue/90 transition-colors"
+          >
+            {loading ? 'Procesando...' : 'Continuar'}
+          </button>
         </div>
       </div>
     </div>
