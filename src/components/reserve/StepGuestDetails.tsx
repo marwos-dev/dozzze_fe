@@ -14,7 +14,11 @@ interface Props {
   onBack: () => void;
 }
 
-export default function StepGuestDetails({ reservationIndex, onBack }: Props) {
+export default function StepGuestDetails({
+  reservationIndex,
+  onBack,
+  onNext,
+}: Props) {
   const dispatch = useDispatch();
   const data = useSelector(
     (state: RootState) => state.reserve.data[reservationIndex]
@@ -129,14 +133,15 @@ export default function StepGuestDetails({ reservationIndex, onBack }: Props) {
 
     try {
       const res = await postReservation(fullReservations);
-      dispatch(
-        showToast({
-          message: 'Reserva Confirmada',
-          color: 'green',
-          duration: 5000,
-        })
-      );
-      if (res.Ds_MerchantParameters) {
+      if (res) {
+        dispatch(
+          showToast({
+            message: 'Reserva Confirmada',
+            color: 'green',
+            duration: 5000,
+          })
+        );
+        onNext();
         setRedsysData(res);
       }
     } catch (err) {
