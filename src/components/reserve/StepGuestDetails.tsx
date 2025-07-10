@@ -8,7 +8,7 @@ import { showToast } from '@/store/toastSlice';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import Link from 'next/link';
 import { setRedsysData } from '@/store/reserveSlice';
-
+import type { ReservationRequest } from '@/types/reservation';
 interface Props {
   reservationIndex: number;
   onNext: () => void;
@@ -129,7 +129,16 @@ export default function StepGuestDetails({
     try {
       const res = await postReservation(fullReservations);
       dispatch(showToast({ message: 'Reserva Confirmada', color: 'green' }));
-      dispatch(setRedsysData(res));
+      if (res.redsys_args) {
+        dispatch(setRedsysData(res.redsys_args));
+      } else {
+        dispatch(
+          showToast({
+            message: 'No se recibió información de pago',
+            color: 'red',
+          })
+        );
+      }
       onNext();
     } catch (err) {
       console.error('Error al confirmar reservas:', err);

@@ -18,7 +18,7 @@ export default function StepConfirmation({ onBack }: Props) {
 
       {redsysData && (
         <form
-          action={redsysData.redsys_args?.endpoint}
+          action={redsysData.endpoint}
           method="POST"
           id="redsys-payment-form"
           className="text-center"
@@ -26,17 +26,17 @@ export default function StepConfirmation({ onBack }: Props) {
           <input
             type="hidden"
             name="Ds_SignatureVersion"
-            value={redsysData.redsys_args.Ds_SignatureVersion}
+            value={redsysData.Ds_SignatureVersion}
           />
           <input
             type="hidden"
             name="Ds_MerchantParameters"
-            value={redsysData.redsys_args.Ds_MerchantParameters}
+            value={redsysData.Ds_MerchantParameters}
           />
           <input
             type="hidden"
             name="Ds_Signature"
-            value={redsysData.redsys_args.Ds_Signature}
+            value={redsysData.Ds_Signature}
           />
           <button
             type="submit"
