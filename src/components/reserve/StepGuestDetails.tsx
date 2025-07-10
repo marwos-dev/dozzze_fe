@@ -2,7 +2,6 @@
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { updateReservation } from '@/store/reserveSlice';
 import { RootState } from '@/store';
 import { postReservation } from '@/services/reservationApi';
 import { showToast } from '@/store/toastSlice';
@@ -15,11 +14,7 @@ interface Props {
   onBack: () => void;
 }
 
-export default function StepGuestDetails({
-  reservationIndex,
-  onNext,
-  onBack,
-}: Props) {
+export default function StepGuestDetails({ reservationIndex, onBack }: Props) {
   const dispatch = useDispatch();
   const data = useSelector(
     (state: RootState) => state.reserve.data[reservationIndex]
@@ -101,8 +96,10 @@ export default function StepGuestDetails({
     setErrors((prev) => ({ ...prev, [field]: error }));
     return error;
   };
+  // Obtener todas las reservas del store
+  const allReservations = useSelector((state: RootState) => state.reserve.data);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const newErrors = {
       guestName: validateField('guestName', guestName),
       guestEmail: validateField('guestEmail', guestEmail),
@@ -113,43 +110,43 @@ export default function StepGuestDetails({
 
     if (Object.values(newErrors).some((e) => e !== '')) return;
 
-    dispatch(
-      updateReservation({
-        index: reservationIndex,
-        data: {
-          guest_name: guestName,
-          guest_email: guestEmail,
-          guest_phone: guestPhone,
-          guest_address: guestAddress,
-          guest_city: guestCity,
-          guest_country: guestCountry,
-          guest_cp: guestCp,
-          guest_remarks: guestRemarks,
-          guest_corporate: guestCorporate,
-          guest_region: guestRegion,
-          guest_country_iso: guestCountryIso,
-        },
-      })
-    );
+    const fullReservations = allReservations.map((res) => ({
+      ...res,
+      guest_name: guestName,
+      guest_email: guestEmail,
+      guest_phone: guestPhone,
+      guest_address: guestAddress,
+      guest_city: guestCity,
+      guest_country: guestCountry,
+      guest_cp: guestCp,
+      guest_remarks: guestRemarks,
+      guest_corporate: guestCorporate,
+      guest_region: guestRegion,
+      guest_country_iso: guestCountryIso,
+    }));
 
-    console.log(onNext); // esta puesto para que no salte el linter
-    postReservation(data) // Hay que preparar esto para enviar todas las reservas en esa data {reservations: [data]}
-      .then((res) => {
-        dispatch(
-          showToast({
-            message: 'Reserva Confirmada',
-            color: 'green',
-            duration: 5000,
-          })
-        );
-        if (res.redsys_args) setRedsysData(res?.redsys_args);
-      })
-      .catch((err) => {
-        console.log({ err });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    setLoading(true);
+
+    try {
+      const res = await postReservation(fullReservations);
+      dispatch(
+        showToast({
+          message: 'Reserva Confirmada',
+          color: 'green',
+          duration: 5000,
+        })
+      );
+      if (res.Ds_MerchantParameters) {
+        setRedsysData(res);
+      }
+    } catch (err) {
+      console.error('Error al confirmar reservas:', err);
+      dispatch(
+        showToast({ message: 'Error al confirmar reservas', color: 'red' })
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputClass = (field: string) =>
