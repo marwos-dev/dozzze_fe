@@ -8,7 +8,6 @@ import { showToast } from '@/store/toastSlice';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import Link from 'next/link';
 import { setRedsysData } from '@/store/reserveSlice';
-import type { ReservationRequest } from '@/types/reservation';
 interface Props {
   reservationIndex: number;
   onNext: () => void;
