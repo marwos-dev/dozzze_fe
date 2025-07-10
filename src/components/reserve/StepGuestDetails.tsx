@@ -35,8 +35,6 @@ export default function StepGuestDetails({
   const [guestCorporate, setGuestCorporate] = useState('');
   const [guestRegion, setGuestRegion] = useState('');
   const [guestCountryIso, setGuestCountryIso] = useState('');
-  const [paidOnline, setPaidOnline] = useState<number | null>(null);
-  const [payOnArrival, setPayOnArrival] = useState<number | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -52,8 +50,6 @@ export default function StepGuestDetails({
       setGuestCorporate(data.guest_corporate || '');
       setGuestRegion(data.guest_region || '');
       setGuestCountryIso(data.guest_country_iso || '');
-      setPaidOnline(data.paid_online ?? null);
-      setPayOnArrival(data.pay_on_arrival ?? null);
     }
   }, [data]);
 
@@ -121,8 +117,6 @@ export default function StepGuestDetails({
           guest_corporate: guestCorporate,
           guest_region: guestRegion,
           guest_country_iso: guestCountryIso,
-          paid_online: paidOnline ?? undefined,
-          pay_on_arrival: payOnArrival ?? undefined,
         },
       })
     );
@@ -337,36 +331,6 @@ export default function StepGuestDetails({
                 value={guestCountryIso}
                 onChange={(e) => setGuestCountryIso(e.target.value)}
                 className={inputClass('guestCountryIso')}
-              />
-            </div>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium block mb-1 text-dozeblue">
-                Pagado online
-              </label>
-              <input
-                type="number"
-                min={0}
-                step={0.01}
-                value={paidOnline ?? ''}
-                onChange={(e) => setPaidOnline(Number(e.target.value))}
-                className={inputClass('paidOnline')}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium block mb-1 text-dozeblue">
-                Pago en destino
-              </label>
-              <input
-                type="number"
-                min={0}
-                step={0.01}
-                value={payOnArrival ?? ''}
-                onChange={(e) => setPayOnArrival(Number(e.target.value))}
-                className={inputClass('payOnArrival')}
               />
             </div>
           </div>
