@@ -2,7 +2,6 @@
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { updateReservation } from '@/store/reserveSlice';
 import { RootState } from '@/store';
 import { postReservation } from '@/services/reservationApi';
 import { showToast } from '@/store/toastSlice';
@@ -15,17 +14,12 @@ interface Props {
   onBack: () => void;
 }
 
-export default function StepGuestDetails({
-  reservationIndex,
-  onNext,
-  onBack,
-}: Props) {
+export default function StepGuestDetails({ reservationIndex, onBack }: Props) {
   const dispatch = useDispatch();
   const data = useSelector(
     (state: RootState) => state.reserve.data[reservationIndex]
   );
   const profile = useSelector(selectCustomerProfile);
-
 
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
@@ -47,8 +41,6 @@ export default function StepGuestDetails({
   const [guestCorporate, setGuestCorporate] = useState('');
   const [guestRegion, setGuestRegion] = useState('');
   const [guestCountryIso, setGuestCountryIso] = useState('');
-  const [paidOnline, setPaidOnline] = useState<number | null>(null);
-  const [payOnArrival, setPayOnArrival] = useState<number | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -64,8 +56,6 @@ export default function StepGuestDetails({
       setGuestCorporate(data.guest_corporate || '');
       setGuestRegion(data.guest_region || '');
       setGuestCountryIso(data.guest_country_iso || '');
-      setPaidOnline(data.paid_online ?? null);
-      setPayOnArrival(data.pay_on_arrival ?? null);
     }
   }, [data]);
 
@@ -106,8 +96,10 @@ export default function StepGuestDetails({
     setErrors((prev) => ({ ...prev, [field]: error }));
     return error;
   };
+  // Obtener todas las reservas del store
+  const allReservations = useSelector((state: RootState) => state.reserve.data);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const newErrors = {
       guestName: validateField('guestName', guestName),
       guestEmail: validateField('guestEmail', guestEmail),
@@ -118,45 +110,43 @@ export default function StepGuestDetails({
 
     if (Object.values(newErrors).some((e) => e !== '')) return;
 
-    dispatch(
-      updateReservation({
-        index: reservationIndex,
-        data: {
-          guest_name: guestName,
-          guest_email: guestEmail,
-          guest_phone: guestPhone,
-          guest_address: guestAddress,
-          guest_city: guestCity,
-          guest_country: guestCountry,
-          guest_cp: guestCp,
-          guest_remarks: guestRemarks,
-          guest_corporate: guestCorporate,
-          guest_region: guestRegion,
-          guest_country_iso: guestCountryIso,
-          paid_online: paidOnline ?? undefined,
-          pay_on_arrival: payOnArrival ?? undefined,
-        },
-      })
-    );
+    const fullReservations = allReservations.map((res) => ({
+      ...res,
+      guest_name: guestName,
+      guest_email: guestEmail,
+      guest_phone: guestPhone,
+      guest_address: guestAddress,
+      guest_city: guestCity,
+      guest_country: guestCountry,
+      guest_cp: guestCp,
+      guest_remarks: guestRemarks,
+      guest_corporate: guestCorporate,
+      guest_region: guestRegion,
+      guest_country_iso: guestCountryIso,
+    }));
 
-    console.log(onNext) // esta puesto para que no salte el linter
-    postReservation(data) // Hay que preparar esto para enviar todas las reservas en esa data {reservations: [data]}
-      .then((res) => {
-        dispatch(
-          showToast({
-            message: 'Reserva Confirmada',
-            color: 'green',
-            duration: 5000,
-          })
-        );
-        if (res.redsys_args) setRedsysData(res?.redsys_args);
-      })
-      .catch((err) => {
-        console.log({ err });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    setLoading(true);
+
+    try {
+      const res = await postReservation(fullReservations);
+      dispatch(
+        showToast({
+          message: 'Reserva Confirmada',
+          color: 'green',
+          duration: 5000,
+        })
+      );
+      if (res.Ds_MerchantParameters) {
+        setRedsysData(res);
+      }
+    } catch (err) {
+      console.error('Error al confirmar reservas:', err);
+      dispatch(
+        showToast({ message: 'Error al confirmar reservas', color: 'red' })
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputClass = (field: string) =>
@@ -409,36 +399,6 @@ export default function StepGuestDetails({
                 value={guestCountryIso}
                 onChange={(e) => setGuestCountryIso(e.target.value)}
                 className={inputClass('guestCountryIso')}
-              />
-            </div>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium block mb-1 text-dozeblue">
-                Pagado online
-              </label>
-              <input
-                type="number"
-                min={0}
-                step={0.01}
-                value={paidOnline ?? ''}
-                onChange={(e) => setPaidOnline(Number(e.target.value))}
-                className={inputClass('paidOnline')}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium block mb-1 text-dozeblue">
-                Pago en destino
-              </label>
-              <input
-                type="number"
-                min={0}
-                step={0.01}
-                value={payOnArrival ?? ''}
-                onChange={(e) => setPayOnArrival(Number(e.target.value))}
-                className={inputClass('payOnArrival')}
               />
             </div>
           </div>

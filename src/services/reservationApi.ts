@@ -1,19 +1,43 @@
 'use server';
 
 import axios from './axios';
-import { ReservationData } from "@/store/reserveSlice";
-import { ReservationRequest } from "@/types/reservation";
+import { ReservationData } from '@/store/reserveSlice';
+import type { Reservation, RedsysArgs } from '@/types/reservation';
 
-// Obtener propiedad por ID
-export const postReservation = async (reservation: ReservationData): Promise<ReservationRequest> => {
-  const data_to_send = {...reservation, room_type: reservation.roomType};
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  delete data_to_send.roomType; // Eliminar roomType para evitar duplicados
-   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  delete data_to_send.rooms;
-  console.log("la reserva: ",{data_to_send})
-  const response = await axios.post(`/reservations/`, data_to_send);
+const transformReservation = (reservation: ReservationData): Reservation => {
+  const { roomType, ...rest } = reservation;
+
+  return {
+    ...rest,
+    room_type: typeof roomType === 'string' ? parseInt(roomType, 10) : roomType,
+
+    guest_name: reservation.guest_name ?? '',
+    guest_email: reservation.guest_email ?? '',
+
+    guest_corporate: reservation.guest_corporate ?? null,
+    guest_phone: reservation.guest_phone ?? '',
+    guest_address: reservation.guest_address ?? '',
+    guest_city: reservation.guest_city ?? '',
+    guest_country: reservation.guest_country ?? '',
+    guest_region: reservation.guest_region ?? '',
+    guest_country_iso: reservation.guest_country_iso ?? '',
+    guest_cp: reservation.guest_cp ?? '',
+    guest_remarks: reservation.guest_remarks ?? '',
+
+    cancellation_date: reservation.cancellation_date ?? null,
+    modification_date: reservation.modification_date ?? null,
+    paid_online: reservation.paid_online ?? 0,
+    pay_on_arrival: reservation.pay_on_arrival ?? 1,
+  };
+};
+
+export const postReservation = async (
+  reservations: ReservationData[]
+): Promise<RedsysArgs> => {
+  const payload: Reservation[] = reservations.map(transformReservation);
+
+  console.log('Enviando reservas:', payload);
+
+  const response = await axios.post('/reservations/', payload);
   return response.data;
 };

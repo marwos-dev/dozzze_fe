@@ -1,11 +1,18 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Menu, X, Search, LogIn } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import {
+  selectCustomerProfile,
+  selectIsCustomerLoggedIn,
+} from '@/store/selectors/customerSelectors';
 import Seeker from '@/components/sections/Seeker';
 import FilterModal from '@/components/ui/modals/FilterModal';
-import Image from 'next/image';
+import UserMenu from '@/components/ui/menus/UserMenu';
 
 const navLinks = [
   { label: 'Inicio', href: '/' },
@@ -14,6 +21,13 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const profile = useSelector((state: RootState) =>
+    selectCustomerProfile(state)
+  );
+  const isLoggedIn = useSelector((state: RootState) =>
+    selectIsCustomerLoggedIn(state)
+  );
+
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -50,7 +64,7 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Desktop */}
+          {/* Desktop nav */}
           <div className="hidden md:flex space-x-6 items-center">
             {navLinks.map(({ label, href }) =>
               href.startsWith('/') ? (
@@ -82,16 +96,18 @@ export default function Navbar() {
               </span>
             </button>
 
-            {/* Botón login */}
-            <Link
-              href="/login"
-              className="flex items-center gap-2 bg-dozeblue hover:bg-dozeblue/90 text-white font-semibold px-4 py-1.5 rounded-full transition"
-            >
-              <LogIn size={18} />
-              Iniciar sesión
-            </Link>
+            {isLoggedIn && profile ? (
+              <UserMenu email={profile.email} variant="desktop" />
+            ) : (
+              <Link
+                href="/login"
+                className="flex items-center gap-2 bg-dozeblue hover:bg-dozeblue/90 text-white font-semibold px-4 py-1.5 rounded-full transition"
+              >
+                <LogIn size={18} />
+                Iniciar sesión
+              </Link>
+            )}
 
-            {/* Dark mode toggle */}
             <div
               onClick={toggleDarkMode}
               className="cursor-pointer text-xl"
@@ -101,7 +117,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Mobile */}
+          {/* Mobile toggle */}
           <div className="md:hidden flex items-center space-x-3">
             <div
               onClick={toggleDarkMode}
@@ -160,13 +176,17 @@ export default function Navbar() {
             Buscar
           </button>
 
-          <Link
-            href="/login"
-            className="block mx-6 mt-4 mb-6 text-center bg-dozeblue text-white font-semibold px-4 py-2 rounded-full hover:bg-dozeblue/90 transition"
-            onClick={() => setOpen(false)}
-          >
-            Iniciar sesión
-          </Link>
+          {isLoggedIn && profile ? (
+            <UserMenu email={profile.email} variant="mobile" />
+          ) : (
+            <Link
+              href="/login"
+              className="block mx-6 mt-4 mb-6 text-center bg-dozeblue text-white font-semibold px-4 py-2 rounded-full hover:bg-dozeblue/90 transition"
+              onClick={() => setOpen(false)}
+            >
+              Iniciar sesión
+            </Link>
+          )}
         </div>
       </div>
 
