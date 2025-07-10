@@ -26,7 +26,6 @@ export default function StepGuestDetails({
   );
   const profile = useSelector(selectCustomerProfile);
 
-
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
@@ -139,7 +138,7 @@ export default function StepGuestDetails({
       })
     );
 
-    console.log(onNext) // esta puesto para que no salte el linter
+    console.log(onNext); // esta puesto para que no salte el linter
     postReservation(data) // Hay que preparar esto para enviar todas las reservas en esa data {reservations: [data]}
       .then((res) => {
         dispatch(
