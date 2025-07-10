@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X, Search, LogIn } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { clearCustomer } from '@/store/customerSlice';
 import {
   selectCustomerProfile,
   selectIsCustomerLoggedIn,
@@ -22,7 +21,6 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const dispatch = useDispatch();
   const profile = useSelector((state: RootState) =>
     selectCustomerProfile(state)
   );
