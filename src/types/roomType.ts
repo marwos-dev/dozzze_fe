@@ -11,6 +11,7 @@ export interface Rate {
 export interface AvailabilityItem {
   date: string;
   room_type: string;
+  room_type_id: number;
   availability: number;
   rates: Rate[];
   property_id: number;

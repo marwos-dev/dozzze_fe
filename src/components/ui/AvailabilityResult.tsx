@@ -55,7 +55,8 @@ export default function AvailabilityResult() {
     rateIndex: number,
     pax: number,
     total: number,
-    propertyId: number
+    propertyId: number,
+    roomTypeID: number,
   ) => {
     if (!range?.check_in || !range?.check_out) return;
 
@@ -68,8 +69,9 @@ export default function AvailabilityResult() {
         pax_count: pax,
         total_price: total,
         channel: 'WEB',
-        currency: 'ARS',
+        currency: 'EUR',
         roomType,
+        roomTypeID,
       })
     );
 
@@ -82,6 +84,7 @@ export default function AvailabilityResult() {
         const rates = items[0].rates;
         const ratesCount = rates.length;
         const propertyId = items[0].property_id;
+        const roomTypeID = items[0].room_type_id;
 
         const paxOptions = (() => {
           const validPax = new Set<number>();
@@ -250,7 +253,8 @@ export default function AvailabilityResult() {
                         selectedIndex,
                         pax,
                         total,
-                        propertyId
+                        propertyId,
+                        roomTypeID,
                       )
                     }
                     className="bg-dozeblue text-white font-semibold px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors text-sm"

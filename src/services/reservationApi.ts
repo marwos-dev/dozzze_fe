@@ -9,11 +9,10 @@ const transformReservation = (reservation: ReservationData): Reservation => {
 
   return {
     ...rest,
-    room_type: typeof roomType === 'string' ? parseInt(roomType, 10) : roomType,
-
+    room_type: roomType,
+    room_type_id: reservation.roomTypeID,
     guest_name: reservation.guest_name ?? '',
     guest_email: reservation.guest_email ?? '',
-
     guest_corporate: reservation.guest_corporate ?? null,
     guest_phone: reservation.guest_phone ?? '',
     guest_address: reservation.guest_address ?? '',
@@ -35,9 +34,6 @@ export const postReservation = async (
   reservations: ReservationData[]
 ): Promise<RedsysArgs> => {
   const payload: Reservation[] = reservations.map(transformReservation);
-
-  console.log('Enviando reservas:', payload);
-
   const response = await axios.post('/reservations/', payload);
   return response.data;
 };

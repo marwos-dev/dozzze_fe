@@ -3,7 +3,8 @@ export interface Reservation {
   channel: string;
   pax_count: number;
   currency: string;
-  room_type: number;
+  room_type: string;
+  room_type_id: number;
   total_price: number;
   check_in: string;
   check_out: string;

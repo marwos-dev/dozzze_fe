@@ -10,6 +10,7 @@ export interface ReservationData {
   pax_count: number;
   currency: string;
   roomType: string;
+  roomTypeID: number;
   rooms: number;
   total_price: number;
   check_in: string;
