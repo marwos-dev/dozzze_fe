@@ -6,14 +6,16 @@ import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import Link from 'next/link';
 import { useEffect, useState, useMemo } from 'react';
 import { getMyReservations } from '@/services/reservationApi';
-import type { ReservationData } from '@/store/reserveSlice';
+import type { ReservationDataWithRooms } from '@/store/reserveSlice';
 
 export default function ProfilePage() {
   const profile = useSelector((state: RootState) =>
     selectCustomerProfile(state)
   );
 
-  const [reservations, setReservations] = useState<ReservationData[]>([]);
+  const [reservations, setReservations] = useState<ReservationDataWithRooms[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
