@@ -3,7 +3,7 @@ import {
   ReservationData,
   ReservationDataWithRooms,
 } from '@/store/reserveSlice';
-import type { Reservation, RedsysArgs, ReservationRequest } from '@/types/reservation';
+import type { Reservation, ReservationRequest } from '@/types/reservation';
 
 
 const transformReservation = (reservation: ReservationData): Reservation => {
