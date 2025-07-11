@@ -1,0 +1,9 @@
+# evita copiar basura a la imagen
+node_modules
+.next
+dist
+.git
+.vscode
+.DS_Store
+*.log
+.env*
