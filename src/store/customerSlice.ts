@@ -8,16 +8,21 @@ import {
 import { showToast } from './toastSlice';
 import { Customer } from '@/types/costumers';
 import { activateCustomerAccount as apiActivateCustomerAccount } from '@/services/customersApi';
+import Cookies from 'js-cookie';
+import axios from '@/services/axios';
+
 interface CustomerState {
   loading: boolean;
   error: string | null;
   profile: Customer | null;
+  checked: boolean;
 }
 
 const initialState: CustomerState = {
   loading: false,
   error: null,
   profile: null,
+  checked: false,
 };
 
 export const signupCustomer = createAsyncThunk(
@@ -28,6 +33,7 @@ export const signupCustomer = createAsyncThunk(
   ) => {
     try {
       const res = await customerSignup(payload);
+
       dispatch(
         showToast({ message: 'Cuenta creada exitosamente', color: 'green' })
       );
@@ -49,6 +55,14 @@ export const loginCustomer = createAsyncThunk(
   ) => {
     try {
       const res = await customerLogin(payload);
+      const token = res.access;
+      Cookies.set('accessToken', token, {
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        expires: 30, // días
+      });
+
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       dispatch(
         showToast({ message: 'Sesión iniciada correctamente', color: 'green' })
       );
@@ -141,6 +155,10 @@ const customerSlice = createSlice({
 
       .addCase(getCustomerProfile.fulfilled, (state, action) => {
         state.profile = action.payload;
+        state.checked = true;
+      })
+      .addCase(getCustomerProfile.rejected, (state) => {
+        state.checked = true;
       })
       .addCase(activateCustomerAccount.pending, (state) => {
         state.loading = true;

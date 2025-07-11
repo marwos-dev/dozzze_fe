@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
-import { clearCustomer } from '@/store/customerSlice';
+import { logoutCustomer } from '@/utils/axiosAuth';
 
 interface Props {
   email: string;
@@ -16,7 +16,7 @@ export default function UserMenu({ email, variant = 'desktop' }: Props) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
-    dispatch(clearCustomer());
+    logoutCustomer(dispatch);
     setOpen(false);
   };
 

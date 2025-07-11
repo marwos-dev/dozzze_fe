@@ -1,5 +1,3 @@
-'use server';
-
 import axios from './axios';
 import { ReservationData } from '@/store/reserveSlice';
 import type { Reservation, RedsysArgs } from '@/types/reservation';
@@ -35,5 +33,10 @@ export const postReservation = async (
 ): Promise<RedsysArgs> => {
   const payload: Reservation[] = reservations.map(transformReservation);
   const response = await axios.post('/reservations/', payload);
+  return response.data;
+};
+
+export const getMyReservations = async (): Promise<ReservationData[]> => {
+  const response = await axios.get('/reservations/my');
   return response.data;
 };

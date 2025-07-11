@@ -1,6 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Property } from '@/types/property';
 
+export type RoomReservationData = {
+  room_type: string;
+  price: number;
+  guests: number;
+};
+
 export interface ReservationData {
   property_id: number;
   property_name?: string;
@@ -30,6 +36,7 @@ export interface ReservationData {
   modification_date?: string;
   paid_online?: number;
   pay_on_arrival?: number;
+  room_reservations: RoomReservationData[];
 }
 
 interface ReserveState {
