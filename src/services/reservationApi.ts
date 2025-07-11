@@ -1,6 +1,10 @@
 import axios from './axios';
-import { ReservationData } from '@/store/reserveSlice';
-import type { Reservation, ReservationRequest } from '@/types/reservation';
+import {
+  ReservationData,
+  ReservationDataWithRooms,
+} from '@/store/reserveSlice';
+import type { Reservation, RedsysArgs, ReservationRequest } from '@/types/reservation';
+
 
 const transformReservation = (reservation: ReservationData): Reservation => {
   const { roomType, ...rest } = reservation;
@@ -36,7 +40,9 @@ export const postReservation = async (
   return response.data;
 };
 
-export const getMyReservations = async (): Promise<ReservationData[]> => {
+export const getMyReservations = async (): Promise<
+  ReservationDataWithRooms[]
+> => {
   const response = await axios.get('/reservations/my');
   return response.data;
 };

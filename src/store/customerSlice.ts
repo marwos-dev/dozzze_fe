@@ -81,6 +81,7 @@ export const getCustomerProfile = createAsyncThunk(
   'customer/profile',
   async (_, { rejectWithValue, dispatch }) => {
     try {
+      if (!Cookies.get('accessToken')) return;
       return await fetchCustomerProfile();
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ error: string }>;
@@ -158,7 +159,10 @@ const customerSlice = createSlice({
         state.checked = true;
       })
       .addCase(getCustomerProfile.rejected, (state) => {
+        state.profile = null;
         state.checked = true;
+        Cookies.remove('accessToken');
+        delete axios.defaults.headers.common['Authorization'];
       })
       .addCase(activateCustomerAccount.pending, (state) => {
         state.loading = true;
