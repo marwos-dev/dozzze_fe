@@ -72,13 +72,6 @@ export default function AvailabilityResult() {
         currency: 'EUR',
         roomType,
         roomTypeID,
-        room_reservations: [
-          {
-            room_type: roomType,
-            price: total,
-            guests: pax,
-          },
-        ],
       })
     );
 
