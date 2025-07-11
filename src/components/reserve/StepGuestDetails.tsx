@@ -7,14 +7,18 @@ import { postReservation } from '@/services/reservationApi';
 import { showToast } from '@/store/toastSlice';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import Link from 'next/link';
-
+import { setRedsysData, updateReservations } from '@/store/reserveSlice';
 interface Props {
   reservationIndex: number;
   onNext: () => void;
   onBack: () => void;
 }
 
-export default function StepGuestDetails({ reservationIndex, onBack }: Props) {
+export default function StepGuestDetails({
+  reservationIndex,
+  onBack,
+  onNext,
+}: Props) {
   const dispatch = useDispatch();
   const data = useSelector(
     (state: RootState) => state.reserve.data[reservationIndex]
@@ -29,12 +33,6 @@ export default function StepGuestDetails({ reservationIndex, onBack }: Props) {
   const [guestCountry, setGuestCountry] = useState('');
   const [guestCp, setGuestCp] = useState('');
   const [guestRemarks, setGuestRemarks] = useState('');
-  const [redsysData, setRedsysData] = useState<null | {
-    endpoint: string;
-    Ds_SignatureVersion: string;
-    Ds_MerchantParameters: string;
-    Ds_Signature: string;
-  }>(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -129,16 +127,19 @@ export default function StepGuestDetails({ reservationIndex, onBack }: Props) {
 
     try {
       const res = await postReservation(fullReservations);
-      dispatch(
-        showToast({
-          message: 'Reserva Confirmada',
-          color: 'green',
-          duration: 5000,
-        })
-      );
-      if (res.Ds_MerchantParameters) {
-        setRedsysData(res);
+      dispatch(updateReservations(fullReservations));
+      dispatch(showToast({ message: 'Reserva Confirmada', color: 'green' }));
+      if (res.redsys_args) {
+        dispatch(setRedsysData(res.redsys_args));
+      } else {
+        dispatch(
+          showToast({
+            message: 'No se recibió información de pago',
+            color: 'red',
+          })
+        );
       }
+      onNext();
     } catch (err) {
       console.error('Error al confirmar reservas:', err);
       dispatch(
@@ -155,49 +156,6 @@ export default function StepGuestDetails({ reservationIndex, onBack }: Props) {
         ? 'border-red-500 focus:ring-red-500'
         : 'border-dozeblue focus:ring-dozeblue'
     } bg-white dark:bg-dozegray/10 dark:border-white/10 focus:outline-none focus:ring-2`;
-
-  const renderButton = () => {
-    if (redsysData) {
-      return (
-        <form
-          action={redsysData.endpoint}
-          method="POST"
-          id="redsys-payment-form"
-        >
-          <input
-            type="hidden"
-            name="Ds_SignatureVersion"
-            value={redsysData.Ds_SignatureVersion}
-          />
-          <input
-            type="hidden"
-            name="Ds_MerchantParameters"
-            value={redsysData.Ds_MerchantParameters}
-          />
-          <input
-            type="hidden"
-            name="Ds_Signature"
-            value={redsysData.Ds_Signature}
-          />
-          <button
-            type="submit"
-            className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-green-700 transition-colors"
-          >
-            Pagar reserva
-          </button>
-        </form>
-      );
-    }
-
-    return (
-      <button
-        onClick={handleContinue}
-        className="bg-dozeblue text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-dozeblue/90 transition-colors"
-      >
-        {loading ? 'Procesando...' : 'Continuar'}
-      </button>
-    );
-  };
 
   return (
     <div className="relative">
@@ -411,7 +369,12 @@ export default function StepGuestDetails({ reservationIndex, onBack }: Props) {
           >
             Atrás
           </button>
-          {renderButton()}
+          <button
+            onClick={handleContinue}
+            className="bg-dozeblue text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-dozeblue/90 transition-colors"
+          >
+            {loading ? 'Procesando...' : 'Continuar'}
+          </button>
         </div>
       </div>
     </div>

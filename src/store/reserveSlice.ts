@@ -42,12 +42,21 @@ export interface ReservationDataWithRooms extends ReservationData {
   room_reservations: RoomReservationData[];
 }
 
+export interface RedsysData {
+  endpoint: string;
+  Ds_SignatureVersion: string;
+  Ds_MerchantParameters: string;
+  Ds_Signature: string;
+}
+
 interface ReserveState {
   data: ReservationData[];
+  redsysData: RedsysData | null;
 }
 
 const initialState: ReserveState = {
   data: [],
+  redsysData: null,
 };
 
 const reserveSlice = createSlice({
@@ -66,11 +75,18 @@ const reserveSlice = createSlice({
         state.data[index] = { ...state.data[index], ...data };
       }
     },
+    updateReservations(state, action: PayloadAction<ReservationData[]>) {
+      state.data = action.payload;
+    },
     deleteReservation(state, action: PayloadAction<number>) {
       state.data.splice(action.payload, 1);
     },
     clearReservations(state) {
       state.data = [];
+      state.redsysData = null;
+    },
+    setRedsysData(state, action: PayloadAction<RedsysData>) {
+      state.redsysData = action.payload;
     },
   },
 });
@@ -78,8 +94,10 @@ const reserveSlice = createSlice({
 export const {
   addReservation,
   updateReservation,
+  updateReservations,
   deleteReservation,
   clearReservations,
+  setRedsysData,
 } = reserveSlice.actions;
 
 export default reserveSlice.reducer;

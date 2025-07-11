@@ -56,7 +56,7 @@ export default function AvailabilityResult() {
     pax: number,
     total: number,
     propertyId: number,
-    roomTypeID: number,
+    roomTypeID: number
   ) => {
     if (!range?.check_in || !range?.check_out) return;
 
@@ -254,7 +254,7 @@ export default function AvailabilityResult() {
                         pax,
                         total,
                         propertyId,
-                        roomTypeID,
+                        roomTypeID
                       )
                     }
                     className="bg-dozeblue text-white font-semibold px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors text-sm"

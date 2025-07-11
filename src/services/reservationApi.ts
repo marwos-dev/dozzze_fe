@@ -3,7 +3,8 @@ import {
   ReservationData,
   ReservationDataWithRooms,
 } from '@/store/reserveSlice';
-import type { Reservation, RedsysArgs } from '@/types/reservation';
+import type { Reservation, ReservationRequest } from '@/types/reservation';
+
 
 const transformReservation = (reservation: ReservationData): Reservation => {
   const { roomType, ...rest } = reservation;
@@ -33,7 +34,7 @@ const transformReservation = (reservation: ReservationData): Reservation => {
 
 export const postReservation = async (
   reservations: ReservationData[]
-): Promise<RedsysArgs> => {
+): Promise<ReservationRequest> => {
   const payload: Reservation[] = reservations.map(transformReservation);
   const response = await axios.post('/reservations/', payload);
   return response.data;
