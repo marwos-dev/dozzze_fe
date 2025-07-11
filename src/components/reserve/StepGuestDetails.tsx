@@ -7,7 +7,7 @@ import { postReservation } from '@/services/reservationApi';
 import { showToast } from '@/store/toastSlice';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import Link from 'next/link';
-import { setRedsysData } from '@/store/reserveSlice';
+import { setRedsysData, updateReservations } from '@/store/reserveSlice';
 interface Props {
   reservationIndex: number;
   onNext: () => void;
@@ -127,6 +127,7 @@ export default function StepGuestDetails({
 
     try {
       const res = await postReservation(fullReservations);
+      dispatch(updateReservations(fullReservations));
       dispatch(showToast({ message: 'Reserva Confirmada', color: 'green' }));
       if (res.redsys_args) {
         dispatch(setRedsysData(res.redsys_args));

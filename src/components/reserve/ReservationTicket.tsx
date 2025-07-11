@@ -15,9 +15,8 @@ export default function ReservationTicket() {
     );
   }
 
-  const guest = reservations[0]; // usamos la primera reserva para mostrar datos del huésped
+  const guest = reservations[0];
   const totalGeneral = reservations.reduce((acc, r) => acc + r.total_price, 0);
-
   return (
     <div className="bg-white dark:bg-dozegray/5 border border-dozeblue/10 dark:border-white/10 rounded-2xl shadow-md max-w-3xl mx-auto p-6 space-y-6">
       <h2 className="text-2xl font-bold text-dozeblue text-center">
@@ -132,11 +131,6 @@ export default function ReservationTicket() {
           </div>
         </div>
       )}
-
-      <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
-        Este ticket fue generado automáticamente. Gracias por reservar con
-        nosotros.
-      </p>
     </div>
   );
 }

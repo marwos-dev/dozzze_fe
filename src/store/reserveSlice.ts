@@ -72,6 +72,9 @@ const reserveSlice = createSlice({
         state.data[index] = { ...state.data[index], ...data };
       }
     },
+    updateReservations(state, action: PayloadAction<ReservationData[]>) {
+      state.data = action.payload;
+    },
     deleteReservation(state, action: PayloadAction<number>) {
       state.data.splice(action.payload, 1);
     },
@@ -88,6 +91,7 @@ const reserveSlice = createSlice({
 export const {
   addReservation,
   updateReservation,
+  updateReservations,
   deleteReservation,
   clearReservations,
   setRedsysData,
