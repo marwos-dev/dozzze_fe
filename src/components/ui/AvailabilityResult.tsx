@@ -11,6 +11,7 @@ import { AvailabilityItem } from '@/types/roomType';
 import {
   selectAvailability,
   selectLastAvailabilityParams,
+  selectSelectedProperty,
 } from '@/store/selectors/propertiesSelectors';
 import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
 
@@ -31,7 +32,8 @@ export default function AvailabilityResult() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
-
+  const allZones = useSelector((state: RootState) => state.zones.data);
+  const selectedProperty = useSelector(selectSelectedProperty);
   const grouped = useMemo(() => {
     const map = new Map<string, AvailabilityItem[]>();
     availability.forEach((item) => {
@@ -148,8 +150,31 @@ export default function AvailabilityResult() {
         const selectedKey = `${propertyId}-${roomType}-${selectedIndex}`;
         const isSelectedReserved =
           reservedKeys.has(selectedKey) || noMoreAvailable;
+        const rawImages = useMemo(() => {
+          const propertyId = items[0].property_id;
+          const roomTypeId = items[0].room_type_id;
 
-        const rawImages = items[0].images;
+          // 🔹 Prioridad 1: si hay propiedad seleccionada
+          if (selectedProperty?.id === propertyId) {
+            const roomType = selectedProperty.room_types?.find(
+              (rt) => rt.id === roomTypeId
+            );
+            if (roomType?.images?.length) return roomType.images;
+          }
+
+          // 🔹 Prioridad 2: buscar entre todas las zonas
+          for (const zone of allZones) {
+            const property = zone.properties?.find((p) => p.id === propertyId);
+            if (property) {
+              const roomType = property.room_types?.find(
+                (rt) => rt.id === roomTypeId
+              );
+              if (roomType?.images?.length) return roomType.images;
+            }
+          }
+
+          return undefined;
+        }, [selectedProperty, allZones, items]);
         const images: string[] =
           Array.isArray(rawImages) && rawImages.length > 0
             ? rawImages
@@ -248,7 +273,7 @@ export default function AvailabilityResult() {
                   </div>
                   <div className="mt-4 mb-4">
                     <div className="inline-flex gap-2 p-2 rounded-2xl bg-dozeblue/10">
-                      {images.slice(0, 4).map((img: string, i: number) => (
+                      {images.slice(0, 6).map((img: string, i: number) => (
                         <div
                           key={i}
                           onClick={() => {
@@ -263,6 +288,7 @@ export default function AvailabilityResult() {
                             alt={`Imagen ${i + 1}`}
                             fill
                             className="object-cover"
+                            unoptimized
                           />
                         </div>
                       ))}
