@@ -12,8 +12,8 @@ interface ZoneSectionProps {
 export default function ZoneSection({ zones, loading }: ZoneSectionProps) {
   return (
     <div id="zones" className="relative py-10">
-      <div className="absolute inset-0 -z-10 bg-dozebg2" />
-      <div className="flex flex-wrap justify-center bg-dozebg2 gap-6">
+      <div className="absolute inset-0 -z-10" />
+      <div className="flex flex-wrap justify-center gap-6">
         {loading
           ? Array.from({ length: 4 }).map((_, index) => (
               <SkeletonCard key={index} />
