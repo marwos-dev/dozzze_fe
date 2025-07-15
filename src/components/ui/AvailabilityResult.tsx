@@ -247,7 +247,7 @@ export default function AvailabilityResult() {
                     })}
                   </div>
 
-                  <div className="flex gap-2 mt-3 overflow-x-auto">
+                  <div className="flex gap-2 mt-4 mb-4 p-2 mr-60 overflow-x-auto bg-dozeblue/10 rounded-2xl ">
                     {images.slice(0, 4).map((img: string, i: number) => (
                       <div
                         key={i}
