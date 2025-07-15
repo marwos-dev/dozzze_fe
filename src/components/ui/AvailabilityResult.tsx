@@ -246,26 +246,27 @@ export default function AvailabilityResult() {
                       );
                     })}
                   </div>
-
-                  <div className="flex gap-2 mt-4 mb-4 p-2 mr-60 overflow-x-auto bg-dozeblue/10 rounded-2xl ">
-                    {images.slice(0, 4).map((img: string, i: number) => (
-                      <div
-                        key={i}
-                        onClick={() => {
-                          setGalleryImages(images);
-                          setGalleryIndex(i);
-                          setIsGalleryOpen(true);
-                        }}
-                        className="w-20 h-16 relative rounded-lg overflow-hidden shadow ring-dozeblue cursor-pointer"
-                      >
-                        <Image
-                          src={img || fallbackThumbnail}
-                          alt={`Imagen ${i + 1}`}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
+                  <div className="mt-4 mb-4">
+                    <div className="inline-flex gap-2 p-2 rounded-2xl bg-dozeblue/10">
+                      {images.slice(0, 4).map((img: string, i: number) => (
+                        <div
+                          key={i}
+                          onClick={() => {
+                            setGalleryImages(images);
+                            setGalleryIndex(i);
+                            setIsGalleryOpen(true);
+                          }}
+                          className="w-20 h-16 relative rounded-lg overflow-hidden shadow ring-dozeblue cursor-pointer"
+                        >
+                          <Image
+                            src={img || fallbackThumbnail}
+                            alt={`Imagen ${i + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
