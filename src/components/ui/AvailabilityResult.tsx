@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
@@ -11,6 +12,9 @@ import {
   selectAvailability,
   selectLastAvailabilityParams,
 } from '@/store/selectors/propertiesSelectors';
+import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
+
+const fallbackThumbnail = '/logo.png';
 
 export default function AvailabilityResult() {
   const dispatch = useDispatch();
@@ -24,6 +28,9 @@ export default function AvailabilityResult() {
     Record<string, number>
   >({});
   const [selectedPax, setSelectedPax] = useState<Record<string, number>>({});
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   const grouped = useMemo(() => {
     const map = new Map<string, AvailabilityItem[]>();
@@ -82,29 +89,27 @@ export default function AvailabilityResult() {
     <div className="space-y-6 mt-6">
       {grouped.map(([roomType, items]) => {
         const rates = items[0].rates;
-        const ratesCount = rates.length;
         const propertyId = items[0].property_id;
         const roomTypeID = items[0].room_type_id;
+        const ratesCount = rates.length;
 
         const paxOptions = (() => {
-          const validPax = new Set<number>();
+          const set = new Set<number>();
           items.forEach((item) => {
             item.rates.forEach((rate) => {
-              rate.prices.forEach((price) => {
-                if (price.price > 0) {
-                  validPax.add(price.occupancy);
-                }
+              rate.prices.forEach((p) => {
+                if (p.price > 0) set.add(p.occupancy);
               });
             });
           });
-          return Array.from(validPax).sort((a, b) => a - b);
+          return Array.from(set).sort((a, b) => a - b);
         })();
 
         if (paxOptions.length === 0) {
           return (
             <div
               key={roomType}
-              className="border border-gray-300 dark:border-white/10 rounded-2xl bg-[var(--background)] shadow-sm overflow-hidden p-6"
+              className="rounded-2xl border border-white/10 p-6 bg-[var(--background)] shadow-sm"
             >
               <h3 className="text-lg font-semibold text-dozeblue mb-2">
                 {roomType}
@@ -120,7 +125,6 @@ export default function AvailabilityResult() {
         const defaultPax = paxOptions.includes(guestsFromSearch || 0)
           ? guestsFromSearch!
           : paxOptions[0];
-
         const pax = selectedPax[roomType] ?? defaultPax;
 
         const rateTotals = Array.from({ length: ratesCount }).map((_, idx) =>
@@ -145,17 +149,24 @@ export default function AvailabilityResult() {
         const isSelectedReserved =
           reservedKeys.has(selectedKey) || noMoreAvailable;
 
+        const rawImages = items[0].images;
+        const images: string[] =
+          Array.isArray(rawImages) && rawImages.length > 0
+            ? rawImages
+            : [fallbackThumbnail];
+
         return (
           <div
             key={roomType}
             className="border border-gray-300 dark:border-white/10 rounded-2xl bg-[var(--background)] shadow-sm overflow-hidden transition-colors"
           >
             <div className="grid grid-cols-1 sm:grid-cols-[280px_1fr]">
-              <div className="p-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-dozegray/10 transition-colors">
+              {/* LEFT */}
+              <div className="p-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-dozegray/10">
                 <h3 className="text-lg font-semibold text-dozeblue mb-2">
                   {roomType}
                 </h3>
-                <p className="text-sm text-[var(--foreground)] flex items-center gap-1 mb-3">
+                <p className="text-sm flex items-center gap-1 text-[var(--foreground)] mb-3">
                   <Users size={16} className="text-dozeblue" /> Hasta {maxPax}{' '}
                   huésped{maxPax > 1 ? 'es' : ''}
                 </p>
@@ -172,7 +183,7 @@ export default function AvailabilityResult() {
                         [roomType]: Number(e.target.value),
                       }))
                     }
-                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-dozeblue bg-white dark:bg-dozegray/10 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-dozeblue"
+                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue bg-white dark:bg-dozegray/10"
                   >
                     {rateTotals.map((sumPrice, idx) => {
                       const key = `${propertyId}-${roomType}-${idx}`;
@@ -203,7 +214,7 @@ export default function AvailabilityResult() {
                         [roomType]: Number(e.target.value),
                       }))
                     }
-                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue dark:border-dozeblue bg-white dark:bg-dozegray/10 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-dozeblue"
+                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue bg-white dark:bg-dozegray/10"
                   >
                     {paxOptions.map((n) => (
                       <option key={n} value={n}>
@@ -214,7 +225,8 @@ export default function AvailabilityResult() {
                 </div>
               </div>
 
-              <div className="p-6 flex flex-col justify-between gap-4 transition-colors">
+              {/* RIGHT */}
+              <div className="p-6 flex flex-col justify-between gap-4">
                 <div className="space-y-3">
                   <div className="flex flex-wrap gap-2 text-sm">
                     {paxOptions.map((occ) => {
@@ -233,6 +245,27 @@ export default function AvailabilityResult() {
                         </span>
                       );
                     })}
+                  </div>
+
+                  <div className="flex gap-2 mt-3 overflow-x-auto">
+                    {images.slice(0, 4).map((img: string, i: number) => (
+                      <div
+                        key={i}
+                        onClick={() => {
+                          setGalleryImages(images);
+                          setGalleryIndex(i);
+                          setIsGalleryOpen(true);
+                        }}
+                        className="w-20 h-16 relative rounded-lg overflow-hidden shadow ring-dozeblue cursor-pointer"
+                      >
+                        <Image
+                          src={img || fallbackThumbnail}
+                          alt={`Imagen ${i + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -270,6 +303,14 @@ export default function AvailabilityResult() {
           </div>
         );
       })}
+
+      {isGalleryOpen && (
+        <ImageGalleryModal
+          images={galleryImages}
+          initialIndex={galleryIndex}
+          onClose={() => setIsGalleryOpen(false)}
+        />
+      )}
     </div>
   );
 }
