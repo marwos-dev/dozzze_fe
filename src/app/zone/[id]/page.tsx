@@ -149,25 +149,36 @@ export default function ZoneDetailPage({ params }: PageProps) {
           )}
         </div>
 
-        {/* Miniaturas con scroll */}
+        {/* Miniaturas con fondo blanco alineado */}
         {galleryImages.length > 0 && (
-          <div className="hidden md:flex flex-col gap-2 w-[25%] p-1 pr-2 overflow-y-auto max-h-[360px]">
-            {galleryImages.map((src, i) => (
-              <button
-                key={i}
-                onClick={() => setMainImage(src)}
-                className="relative w-full h-[80px] rounded-xl overflow-hidden border border-white/20 shadow-sm focus:outline-none focus:ring-2 focus:ring-dozeblue"
-              >
-                <Image
-                  src={src}
-                  alt={`Miniatura ${i + 2}`}
-                  fill
-                  className="object-cover"
-                  sizes="25vw"
-                  unoptimized
-                />
-              </button>
-            ))}
+          <div className="hidden md:flex w-[25%]">
+            <div className="relative flex flex-col gap-2 w-full p-2 pr-3 overflow-y-auto max-h-[360px] scroll-smooth bg-white/70 backdrop-blur-sm rounded-xl">
+              {/* Gradiente arriba */}
+              <div className="absolute top-0  left-0 w-full h-6 from-dozebg2 to-transparent z-10 pointer-events-none" />
+
+              {/* Miniaturas */}
+              <div className="relative z-20 flex flex-col gap-2">
+                {galleryImages.map((src, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setMainImage(src)}
+                    className="relative w-full h-[80px] rounded-xl overflow-hidden border border-white/20 shadow-sm focus:outline-none focus:ring-2 focus:ring-dozeblue"
+                  >
+                    <Image
+                      src={src}
+                      alt={`Miniatura ${i + 2}`}
+                      fill
+                      className="object-cover"
+                      sizes="25vw"
+                      unoptimized
+                    />
+                  </button>
+                ))}
+              </div>
+
+              {/* Gradiente abajo */}
+              <div className="absolute bottom-0 left-0 w-full h-6 from-dozebg2 to-transparent z-10 pointer-events-none" />
+            </div>
           </div>
         )}
       </div>
