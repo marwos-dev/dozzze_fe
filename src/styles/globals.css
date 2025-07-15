@@ -21,7 +21,8 @@ body {
 }
 
 .dark body {
-  background: var(--background);
+  background: var(--background) url('/bg-logo-pattern-dark.svg') repeat fixed;
+  background-size: 200px 200px;
   color: var(--foreground);
 }
 
