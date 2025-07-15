@@ -14,18 +14,23 @@ export default function PropertyCardMedia({
   coverImage,
   onImageClick,
 }: PropertyCardMediaProps) {
-  const fullImageList = useMemo(() => {
-    const hasImgs = images.length > 0;
+  const fallbackThumbnail = '/logo.png';
 
-    if (!hasImgs && coverImage) return [coverImage];
-    if (coverImage && !images.includes(coverImage))
-      return [coverImage, ...images];
-    return images;
+  const fullImageList = useMemo(() => {
+    const validImages = images.filter((src) => src && src.startsWith('http'));
+    if (coverImage && !validImages.includes(coverImage)) {
+      return [coverImage, ...validImages];
+    }
+    if (validImages.length === 0 && coverImage) {
+      return [coverImage];
+    }
+    return validImages.length > 0 ? validImages : [fallbackThumbnail];
   }, [images, coverImage]);
 
-  const thumbnails = fullImageList.slice(0, 4);
+  const thumbnails =
+    fullImageList.length > 0 ? fullImageList.slice(0, 3) : [fallbackThumbnail];
   const [mainImage, setMainImage] = useState(
-    coverImage || thumbnails[0] || '/logo.png'
+    fullImageList[0] || fallbackThumbnail
   );
 
   const extraImagesCount =
@@ -43,35 +48,28 @@ export default function PropertyCardMedia({
     if (src !== mainImage) setMainImage(src);
   };
 
-  const getSafeSrc = (src: string | undefined) =>
-    typeof src === 'string' && src.trim().length > 10 && src.startsWith('http')
-      ? src
-      : '/logo.png';
-
   return (
     <div className="flex flex-col w-full md:w-[330px] gap-2 md:h-full">
       {/* Desktop */}
       <div className="hidden md:flex gap-2 h-full">
         {/* Thumbnails */}
-        <div className="flex flex-col rounded-xl gap-2 p-2 justify-start bg-[#a5b1d3]">
+        <div className="flex flex-col rounded-xl gap-3 p-2  justify-start bg-[#a5b1d3] h-full">
           {thumbnails.map((src, i) => {
-            const safeSrc = getSafeSrc(src);
-            const isSelected = safeSrc === mainImage;
+            const isSelected = src === mainImage;
             return (
               <button
                 key={`thumb-${i}`}
-                onClick={() => handleSetImage(safeSrc)}
+                onClick={() => handleSetImage(src)}
                 className={`relative w-[70px] h-[55px] rounded-xl overflow-hidden border shadow-sm hover:scale-[1.03] transition ${
                   isSelected ? 'ring-2 ring-white' : ''
                 }`}
               >
                 <div className="relative w-full h-full">
                   <Image
-                    key={safeSrc}
-                    src={safeSrc}
+                    src={src || fallbackThumbnail}
                     alt={`Thumbnail ${i + 1}`}
                     fill
-                    sizes="70px"
+                    sizes="80px"
                     placeholder="empty"
                     className="object-cover"
                     unoptimized
@@ -90,12 +88,12 @@ export default function PropertyCardMedia({
         {/* Main Image */}
         <div
           onClick={handleImageClick}
-          className="relative flex-1 rounded-xl overflow-hidden cursor-pointer"
+          className="relative flex-1 rounded-xl overflow-hidden cursor-pointer h-full"
         >
           <div className="relative w-full h-full">
             <Image
               key={mainImage}
-              src={getSafeSrc(mainImage)}
+              src={mainImage}
               alt="Main image"
               fill
               sizes="(max-width: 768px) 100vw, 330px"
@@ -116,7 +114,7 @@ export default function PropertyCardMedia({
         >
           <Image
             key={mainImage}
-            src={getSafeSrc(mainImage)}
+            src={mainImage}
             alt="Main image"
             fill
             sizes="100vw"
@@ -129,20 +127,18 @@ export default function PropertyCardMedia({
 
         <div className="flex gap-2 p-2 rounded-xl bg-[#a5b1d3]">
           {thumbnails.map((src, i) => {
-            const safeSrc = getSafeSrc(src);
-            const isSelected = safeSrc === mainImage;
+            const isSelected = src === mainImage;
             return (
               <button
                 key={`mobile-thumb-${i}`}
-                onClick={() => handleSetImage(safeSrc)}
+                onClick={() => handleSetImage(src)}
                 className={`relative w-[80px] h-[54px] rounded-xl overflow-hidden border shadow-sm hover:scale-[1.03] transition ${
                   isSelected ? 'ring-2 ring-white' : ''
                 }`}
               >
                 <div className="relative w-full h-full">
                   <Image
-                    key={safeSrc}
-                    src={safeSrc}
+                    src={src || fallbackThumbnail}
                     alt={`Thumbnail ${i + 1}`}
                     fill
                     sizes="80px"
