@@ -25,6 +25,8 @@ export default function ZoneDetailPage({ params }: PageProps) {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
   const toggleExpanded = () => setIsExpanded((prev) => !prev);
 
   const {
@@ -78,27 +80,27 @@ export default function ZoneDetailPage({ params }: PageProps) {
   const zoneCoordinates = parseAreaToCoordinates(selectedZone.area);
   const pointsCoordinates = extractPoints(selectedZone.properties);
 
-  const coverImage = selectedZone.images?.[0] || '/logo.png';
   const galleryImages = selectedZone.images?.slice(1) || [];
+  const coverImage = selectedZone.images?.[selectedImageIndex] || '/logo.png';
 
   return (
     <div className="md:full bg-dozebg2 mx-auto px-4 sm:px-6 py-6">
       {/* Imagen destacada con galeria al lado y contenido superpuesto */}
       <div className="mb-6 md:ml-2 flex flex-col md:flex-row gap-4 relative rounded-2xl overflow-hidden shadow">
         {/* Imagen principal */}
-        <div className="relative w-full md:w-[75%] h-[340px] md:h-[360px]">
+        <div className="relative w-full md:w-[75%] h-[340px] md:h-[360px] transition-all duration-500">
           <Image
             src={coverImage}
             alt={`Imagen principal de ${selectedZone.name}`}
             fill
-            className="object-cover"
+            className="object-cover transition-opacity duration-300"
             sizes="(max-width: 768px) 100vw, 75vw"
             priority
             unoptimized
           />
 
           {/* Caja tipo glassmorphism */}
-          <div className="absolute bottom-0  left-0 max-w-2xl bg-white/10 backdrop-blur-sm rounded-xl p-4 text-white space-y-3 shadow-md">
+          <div className="absolute bottom-0 left-0 max-w-2xl bg-white/10 backdrop-blur-sm rounded-xl p-4 text-white space-y-3 shadow-md">
             <h1 className="text-2xl md:text-3xl text-dozeblue font-bold">
               {selectedZone.name}
             </h1>
@@ -139,21 +141,29 @@ export default function ZoneDetailPage({ params }: PageProps) {
         {/* Miniaturas */}
         {galleryImages.length > 0 && (
           <div className="hidden md:flex flex-col gap-2 w-[25%] p-1 pr-2">
-            {galleryImages.slice(0, 4).map((src, i) => (
-              <div
-                key={i}
-                className="relative w-full h-[80px] rounded-xl overflow-hidden border border-white/20 shadow-sm"
-              >
-                <Image
-                  src={src}
-                  alt={`Miniatura ${i + 2}`}
-                  fill
-                  className="object-cover"
-                  sizes="25vw"
-                  unoptimized
-                />
-              </div>
-            ))}
+            {galleryImages.slice(0, 4).map((src, i) => {
+              const absoluteIndex = i + 1;
+              return (
+                <div
+                  key={i}
+                  onClick={() => setSelectedImageIndex(absoluteIndex)}
+                  className={`relative w-full h-[80px] rounded-xl overflow-hidden border-2 shadow-sm cursor-pointer transition-all ${
+                    selectedImageIndex === absoluteIndex
+                      ? 'border-dozeblue'
+                      : 'border-white/20'
+                  }`}
+                >
+                  <Image
+                    src={src}
+                    alt={`Miniatura ${absoluteIndex + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="25vw"
+                    unoptimized
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
