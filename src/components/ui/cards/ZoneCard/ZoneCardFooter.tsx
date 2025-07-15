@@ -42,7 +42,7 @@ export default function ZoneCardFooter({
             return (
               <div
                 key={index}
-                className={`relative w-20 h-14 rounded-md cursor-pointer overflow-hidden border-2 ${
+                className={`relative min-w-[80px] h-[56px] rounded-md cursor-pointer overflow-hidden border-2 flex-shrink-0 ${
                   isSelected ? 'border-dozeblue' : 'border-transparent'
                 }`}
                 onClick={() => {
