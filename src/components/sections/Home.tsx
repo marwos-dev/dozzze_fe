@@ -1,19 +1,32 @@
 'use client';
 import HomeSlider from '@/components/sliders/HomeSlider';
 import AnimatedButton from '../ui/buttons/AnimatedButton';
+import { motion } from 'framer-motion';
 
 export default function Home() {
   return (
-    <div className="max-w-6xl mt-4 bg-dozebg1 mx-auto  py-10 px-6 mb-10 lg:px-16 flex flex-col-reverse lg:flex-row items-center justify-between gap-10  rounded-2xl shadow-2xl">
+    <div className="relative max-w-6xl mt-10 bg-dozebg1/90 backdrop-blur-lg mx-auto py-14 px-6 mb-10 lg:px-16 flex flex-col-reverse lg:flex-row items-center justify-between gap-10 rounded-2xl shadow-2xl overflow-hidden">
+      <span className="pointer-events-none absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-br from-dozeblue/40 via-greenlight/40 to-transparent rounded-full blur-3xl" />
+      <span className="pointer-events-none absolute bottom-0 right-0 w-72 h-72 bg-gradient-to-tr from-greenlight/30 via-dozeblue/30 to-transparent rounded-full blur-2xl" />
       {/* Texto a la izquierda en pantallas grandes */}
       <div className="max-w-xl">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6 text-dozeblue">
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-4xl md:text-5xl font-bold mb-6 text-dozeblue"
+        >
           Descubrí el hospedaje ideal para tu estadía
-        </h1>
-        <p className="text-lg text-[var(--foreground)] mb-12">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-lg text-[var(--foreground)] mb-12"
+        >
           Espacios cómodos, naturales y flexibles. Reservá por días y personas
           fácilmente.
-        </p>
+        </motion.p>
         <AnimatedButton text="Busca tu lugar" sectionId="#seeker" />
       </div>
 

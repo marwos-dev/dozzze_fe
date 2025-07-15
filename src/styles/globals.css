@@ -13,15 +13,23 @@
 }
 
 body {
+  background: var(--background) url('/bg-pattern.svg') no-repeat fixed;
+  background-size: cover;
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+.dark body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 @theme {
   --color-greenlight: #a5b1d3;
   --color-dozeblue: #1e3a8a;
-  --color-dozegray: #808080;
+  /* darker gray for better legibility in light mode */
+  --color-dozegray: #4b5563;
   --color-dozebg1: #f8f8f6;
   --color-dozebg2: #e6e4ff;
 }

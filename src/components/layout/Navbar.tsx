@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X, Search, LogIn } from 'lucide-react';
+import { Menu, X, Search, LogIn, ShoppingCart, Sun, Moon } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import {
@@ -17,7 +17,7 @@ import UserMenu from '@/components/ui/menus/UserMenu';
 const navLinks = [
   { label: 'Inicio', href: '/' },
   { label: 'Nosotros', href: '/aboutUs' },
-  { label: 'Reservas', href: '/reserve' },
+  { label: 'Reservas', href: '/reserve', icon: ShoppingCart },
 ];
 
 export default function Navbar() {
@@ -31,6 +31,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isTop, setIsTop] = useState(true);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
@@ -43,6 +44,15 @@ export default function Navbar() {
     document.documentElement.classList.toggle('dark', initialDark);
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsTop(window.scrollY <= 0);
+    };
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const toggleDarkMode = () => {
     const newDarkMode = !isDarkMode;
     setIsDarkMode(newDarkMode);
@@ -51,7 +61,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-greenlight shadow-md sticky top-0 z-50 transition-colors">
+    <nav className="bg-greenlight/80 dark:bg-dozeblue/60 backdrop-blur-md shadow-md sticky top-0 z-50 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <Link href="/" className="flex items-center">
@@ -66,22 +76,36 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <div className="hidden md:flex space-x-6 items-center">
-            {navLinks.map(({ label, href }) =>
+            {navLinks.map(({ label, href, icon: Icon }) =>
               href.startsWith('/') ? (
                 <Link
                   key={href}
                   href={href}
-                  className="text-dozegray font-semibold hover:text-dozeblue transition"
+                  className={`${isTop ? 'text-dozeblue' : 'text-dozegray'} font-semibold hover:text-dozeblue transition flex items-center`}
                 >
-                  {label}
+                  {Icon ? (
+                    <>
+                      <Icon size={18} />
+                      <span className="sr-only">{label}</span>
+                    </>
+                  ) : (
+                    label
+                  )}
                 </Link>
               ) : (
                 <a
                   key={href}
                   href={href}
-                  className="text-dozegray font-semibold hover:text-dozeblue transition"
+                  className={`${isTop ? 'text-dozeblue' : 'text-dozegray'} font-semibold hover:text-dozeblue transition flex items-center`}
                 >
-                  {label}
+                  {Icon ? (
+                    <>
+                      <Icon size={18} />
+                      <span className="sr-only">{label}</span>
+                    </>
+                  ) : (
+                    label
+                  )}
                 </a>
               )
             )}
@@ -90,8 +114,13 @@ export default function Navbar() {
               onClick={() => setSearchOpen(true)}
               className="flex items-center space-x-1 hover:text-dozeblue transition"
             >
-              <Search className="text-dozegray hover:text-dozeblue" size={18} />
-              <span className="text-dozegray font-semibold hover:text-dozeblue transition">
+              <Search
+                className={`${isTop ? 'text-dozeblue' : 'text-dozegray'} hover:text-dozeblue`}
+                size={18}
+              />
+              <span
+                className={`${isTop ? 'text-dozeblue' : 'text-dozegray'} font-semibold hover:text-dozeblue transition`}
+              >
                 Buscar
               </span>
             </button>
@@ -113,7 +142,7 @@ export default function Navbar() {
               className="cursor-pointer text-xl"
               title="Cambiar modo"
             >
-              {isDarkMode ? '🌙' : '🌞'}
+              {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
             </div>
           </div>
 
@@ -124,7 +153,7 @@ export default function Navbar() {
               className="cursor-pointer text-xl"
               title="Cambiar modo"
             >
-              {isDarkMode ? '🌙' : '🌞'}
+              {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
             </div>
 
             <button
@@ -144,24 +173,38 @@ export default function Navbar() {
         }`}
       >
         <div className="pt-20">
-          {navLinks.map(({ label, href }) =>
+          {navLinks.map(({ label, href, icon: Icon }) =>
             href.startsWith('/') ? (
               <Link
                 key={href}
                 href={href}
-                className="block px-6 py-4 text-lg font-semibold hover:text-dozeblue transition border-b border-dozegray/30"
+                className="block px-6 py-4 text-lg font-semibold hover:text-dozeblue transition border-b border-dozegray/30 flex items-center"
                 onClick={() => setOpen(false)}
               >
-                {label}
+                {Icon ? (
+                  <>
+                    <Icon size={18} />
+                    <span className="sr-only">{label}</span>
+                  </>
+                ) : (
+                  label
+                )}
               </Link>
             ) : (
               <a
                 key={href}
                 href={href}
-                className="block px-6 py-4 text-lg font-semibold hover:text-dozeblue transition border-b border-dozegray/30"
+                className="block px-6 py-4 text-lg font-semibold hover:text-dozeblue transition border-b border-dozegray/30 flex items-center"
                 onClick={() => setOpen(false)}
               >
-                {label}
+                {Icon ? (
+                  <>
+                    <Icon size={18} />
+                    <span className="sr-only">{label}</span>
+                  </>
+                ) : (
+                  label
+                )}
               </a>
             )
           )}
