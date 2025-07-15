@@ -12,6 +12,7 @@ export const initAxiosAuthHeader = () => {
 
 export const logoutCustomer = (dispatch: AppDispatch) => {
   Cookies.remove('accessToken', { path: '/' });
+  Cookies.remove('customerProfile', { path: '/' });
   delete axios.defaults.headers.common['Authorization'];
   dispatch(clearCustomer());
 };

@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
 import {
   customerSignup,
@@ -62,6 +62,12 @@ export const loginCustomer = createAsyncThunk(
         expires: 30, // días
       });
 
+      Cookies.set('customerProfile', JSON.stringify(res), {
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        expires: 30,
+      });
+
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       dispatch(
         showToast({ message: 'Sesión iniciada correctamente', color: 'green' })
@@ -82,7 +88,13 @@ export const getCustomerProfile = createAsyncThunk(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       if (!Cookies.get('accessToken')) return;
-      return await fetchCustomerProfile();
+      const profile = await fetchCustomerProfile();
+      Cookies.set('customerProfile', JSON.stringify(profile), {
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        expires: 30,
+      });
+      return profile;
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ error: string }>;
       const msg =
@@ -125,6 +137,10 @@ const customerSlice = createSlice({
       state.error = null;
       state.loading = false;
     },
+    setCustomer: (state, action: PayloadAction<Customer>) => {
+      state.profile = action.payload;
+      state.checked = true;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -162,6 +178,7 @@ const customerSlice = createSlice({
         state.profile = null;
         state.checked = true;
         Cookies.remove('accessToken');
+        Cookies.remove('customerProfile');
         delete axios.defaults.headers.common['Authorization'];
       })
       .addCase(activateCustomerAccount.pending, (state) => {
@@ -178,5 +195,5 @@ const customerSlice = createSlice({
   },
 });
 
-export const { clearCustomer } = customerSlice.actions;
+export const { clearCustomer, setCustomer } = customerSlice.actions;
 export default customerSlice.reducer;
