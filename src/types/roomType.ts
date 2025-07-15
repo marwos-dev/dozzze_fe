@@ -15,6 +15,7 @@ export interface AvailabilityItem {
   availability: number;
   rates: Rate[];
   property_id: number;
+  images?: string[];
 }
 
 export interface RoomType {
