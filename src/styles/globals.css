@@ -28,7 +28,8 @@ body {
 @theme {
   --color-greenlight: #a5b1d3;
   --color-dozeblue: #1e3a8a;
-  --color-dozegray: #808080;
+  /* darker gray for better legibility in light mode */
+  --color-dozegray: #4b5563;
   --color-dozebg1: #f8f8f6;
   --color-dozebg2: #e6e4ff;
 }
