@@ -51,7 +51,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-greenlight shadow-md sticky top-0 z-50 transition-colors">
+    <nav className="bg-greenlight/80 dark:bg-dozeblue/60 backdrop-blur-md shadow-md sticky top-0 z-50 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <Link href="/" className="flex items-center">
