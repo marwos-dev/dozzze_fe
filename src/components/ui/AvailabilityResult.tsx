@@ -14,8 +14,31 @@ import {
   selectSelectedProperty,
 } from '@/store/selectors/propertiesSelectors';
 import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
-
+import type { Property } from '@/types/property';
+import type { Zone } from '@/types/zone';
 const fallbackThumbnail = '/logo.png';
+
+function findRoomTypeImages(
+  propertyId: number,
+  roomTypeId: number,
+  selectedProperty: Property | null | undefined,
+  allZones: Zone[]
+): string[] {
+  if (selectedProperty?.id === propertyId) {
+    const roomType = selectedProperty.room_types?.find(
+      (rt) => rt.id === roomTypeId
+    );
+    if (roomType?.images?.length) return roomType.images;
+  }
+
+  for (const zone of allZones) {
+    const property = zone.properties?.find((p) => p.id === propertyId);
+    const roomType = property?.room_types?.find((rt) => rt.id === roomTypeId);
+    if (roomType?.images?.length) return roomType.images;
+  }
+
+  return [];
+}
 
 export default function AvailabilityResult() {
   const dispatch = useDispatch();
@@ -32,8 +55,10 @@ export default function AvailabilityResult() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
+
   const allZones = useSelector((state: RootState) => state.zones.data);
   const selectedProperty = useSelector(selectSelectedProperty);
+
   const grouped = useMemo(() => {
     const map = new Map<string, AvailabilityItem[]>();
     availability.forEach((item) => {
@@ -150,35 +175,15 @@ export default function AvailabilityResult() {
         const selectedKey = `${propertyId}-${roomType}-${selectedIndex}`;
         const isSelectedReserved =
           reservedKeys.has(selectedKey) || noMoreAvailable;
-        const rawImages = useMemo(() => {
-          const propertyId = items[0].property_id;
-          const roomTypeId = items[0].room_type_id;
 
-          // 🔹 Prioridad 1: si hay propiedad seleccionada
-          if (selectedProperty?.id === propertyId) {
-            const roomType = selectedProperty.room_types?.find(
-              (rt) => rt.id === roomTypeId
-            );
-            if (roomType?.images?.length) return roomType.images;
-          }
-
-          // 🔹 Prioridad 2: buscar entre todas las zonas
-          for (const zone of allZones) {
-            const property = zone.properties?.find((p) => p.id === propertyId);
-            if (property) {
-              const roomType = property.room_types?.find(
-                (rt) => rt.id === roomTypeId
-              );
-              if (roomType?.images?.length) return roomType.images;
-            }
-          }
-
-          return undefined;
-        }, [selectedProperty, allZones, items]);
+        const rawImages = findRoomTypeImages(
+          propertyId,
+          roomTypeID,
+          selectedProperty,
+          allZones
+        );
         const images: string[] =
-          Array.isArray(rawImages) && rawImages.length > 0
-            ? rawImages
-            : [fallbackThumbnail];
+          rawImages.length > 0 ? rawImages : [fallbackThumbnail];
 
         return (
           <div
@@ -186,7 +191,6 @@ export default function AvailabilityResult() {
             className="border border-gray-300 dark:border-white/10 rounded-2xl bg-[var(--background)] shadow-sm overflow-hidden transition-colors"
           >
             <div className="grid grid-cols-1 sm:grid-cols-[280px_1fr]">
-              {/* LEFT */}
               <div className="p-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-dozegray/10">
                 <h3 className="text-lg font-semibold text-dozeblue mb-2">
                   {roomType}
@@ -250,7 +254,6 @@ export default function AvailabilityResult() {
                 </div>
               </div>
 
-              {/* RIGHT */}
               <div className="p-6 flex flex-col justify-between gap-4">
                 <div className="space-y-3">
                   <div className="flex flex-wrap gap-2 text-sm">
