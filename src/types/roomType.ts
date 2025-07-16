@@ -22,6 +22,7 @@ export interface RoomType {
   id: number;
   name: string;
   description?: string;
+  images?: string[];
 }
 
 export interface AvailabilityPayload {
@@ -29,6 +30,7 @@ export interface AvailabilityPayload {
   check_out: string;
   guests: number;
   property_id?: number;
+  images?: string[];
 }
 
 export interface TotalPricePerRoomType {
@@ -40,5 +42,7 @@ export interface TotalPricePerRoomType {
 
 export interface AvailabilityResponse {
   rooms: AvailabilityItem[];
+  images?: string[];
+
   total_price_per_room_type: TotalPricePerRoomType;
 }
