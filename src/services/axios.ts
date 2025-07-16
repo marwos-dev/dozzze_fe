@@ -1,6 +1,4 @@
 import axios from 'axios';
-import { store } from '@/store';
-import { showToast } from '@/store/toastSlice';
 import errorMessages from '@/utils/errorMessages';
 
 const axiosInstance = axios.create({
