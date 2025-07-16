@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { store } from '@/store';
 import { showToast } from '@/store/toastSlice';
-import { errorMessages } from '@/utils/errorMessages';
+import errorMessages from '@/utils/errorMessages';
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api',
