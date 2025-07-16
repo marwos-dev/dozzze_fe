@@ -29,14 +29,9 @@ axiosInstance.interceptors.response.use(
       | undefined;
 
     if (data) {
-      const message =
-        (data.code && errorMessages[data.code]) ||
+        error.message = (data.code && errorMessages[data.code]) ||
         data.detail ||
         'Ocurrió un error';
-
-      if (typeof window !== 'undefined') {
-        store.dispatch(showToast({ message, color: 'red' }));
-      }
     }
 
     return Promise.reject(error);
