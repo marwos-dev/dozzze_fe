@@ -1,4 +1,4 @@
-export const errorMessages: Record<number, string> = {
+const errorMessages: Record<number, string> = {
   // Reservation errors
   100: 'Error desconocido',
   101: 'No hay disponibilidad',
@@ -33,3 +33,5 @@ export const errorMessages: Record<number, string> = {
   501: 'ID de zona inválido',
   502: 'Área de zona demasiado grande',
 };
+
+export default errorMessages;
