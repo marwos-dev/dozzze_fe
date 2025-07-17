@@ -5,7 +5,11 @@ import { RootState } from '@/store';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import Link from 'next/link';
 import { useEffect, useState, useMemo } from 'react';
-import { getMyReservations } from '@/services/reservationApi';
+import ConfirmModal from '@/components/ui/modals/ConfirmModal';
+import {
+  getMyReservations,
+  cancelReservationRequest,
+} from '@/services/reservationApi';
 import type { ReservationDataWithRooms } from '@/store/reserveSlice';
 
 export default function ProfilePage() {
@@ -17,6 +21,8 @@ export default function ProfilePage() {
     []
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState<number | null>(null);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchReservations() {
@@ -29,6 +35,36 @@ export default function ProfilePage() {
     }
     fetchReservations();
   }, []);
+
+  const handleCancel = (id?: number) => {
+    if (!id) return;
+    setConfirmId(id);
+  };
+
+  const confirmCancellation = async () => {
+    if (!confirmId) return;
+    const id = confirmId;
+    setCancellingId(id);
+    try {
+      await cancelReservationRequest(id);
+      setReservations((prev) =>
+        prev.map((res) =>
+          res.id === id
+            ? { ...res, cancellation_date: new Date().toISOString() }
+            : res
+        )
+      );
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'message' in error) {
+        alert((error as { message: string }).message);
+      } else {
+        alert('Error al cancelar la reserva');
+      }
+    } finally {
+      setCancellingId(null);
+      setConfirmId(null);
+    }
+  };
 
   const totalSpent = useMemo(() => {
     return reservations.reduce((sum, r) => sum + (r.total_price ?? 0), 0);
@@ -141,12 +177,40 @@ export default function ProfilePage() {
                     <span>Total:</span>
                     <span>€ {r.total_price.toFixed(2)}</span>
                   </div>
+
+                  {r.cancellation_date ? (
+                    <p className="mt-3 text-sm text-red-500">
+                      Reserva cancelada
+                    </p>
+                  ) : new Date(r.check_out) < new Date() ? (
+                    <p className="mt-3 text-sm text-gray-500">
+                      Reserva finalizada
+                    </p>
+                  ) : (
+                    <button
+                      onClick={() => handleCancel(r.id)}
+                      disabled={cancellingId === r.id}
+                      className="mt-3 px-4 py-2 rounded-md text-sm text-white bg-red-500 hover:bg-red-600 disabled:opacity-50"
+                    >
+                      {cancellingId === r.id
+                        ? 'Cancelando...'
+                        : 'Cancelar reserva'}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
           </div>
         )}
       </section>
+      <ConfirmModal
+        isOpen={confirmId !== null}
+        message="¿Estás seguro de cancelar esta reserva?"
+        confirmText="Confirmar"
+        cancelText="Volver"
+        onConfirm={confirmCancellation}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   );
 }
