@@ -5,7 +5,11 @@ import { RootState } from '@/store';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import Link from 'next/link';
 import { useEffect, useState, useMemo } from 'react';
-import { getMyReservations } from '@/services/reservationApi';
+import ConfirmModal from '@/components/ui/modals/ConfirmModal';
+import {
+  getMyReservations,
+  cancelReservationRequest,
+} from '@/services/reservationApi';
 import type { ReservationDataWithRooms } from '@/store/reserveSlice';
 
 export default function ProfilePage() {
@@ -17,6 +21,8 @@ export default function ProfilePage() {
     []
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState<number | null>(null);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchReservations() {
@@ -29,6 +35,39 @@ export default function ProfilePage() {
     }
     fetchReservations();
   }, []);
+
+  const handleCancel = (id?: number) => {
+    if (id === undefined || id === null) {
+      alert('Id de reserva no encontrado');
+      return;
+    }
+    setConfirmId(id);
+  };
+
+  const confirmCancellation = async () => {
+    if (!confirmId) return;
+    const id = confirmId;
+    setCancellingId(id);
+    try {
+      await cancelReservationRequest(id);
+      setReservations((prev) =>
+        prev.map((res) =>
+          res.id === id
+            ? { ...res, cancellation_date: new Date().toISOString() }
+            : res
+        )
+      );
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'message' in error) {
+        alert((error as { message: string }).message);
+      } else {
+        alert('Error al cancelar la reserva');
+      }
+    } finally {
+      setCancellingId(null);
+      setConfirmId(null);
+    }
+  };
 
   const totalSpent = useMemo(() => {
     return reservations.reduce((sum, r) => sum + (r.total_price ?? 0), 0);
@@ -102,51 +141,89 @@ export default function ProfilePage() {
             `}</style>
 
             <ul className="space-y-4">
-              {reservations.map((r, index) => (
-                <li
-                  key={`${r.check_in}-${index}`}
-                  className="bg-white dark:bg-dozegray/10 border border-gray-200 dark:border-white/10 rounded-lg p-4 shadow-xs hover:shadow-md transition-shadow duration-200"
-                >
-                  {/* Encabezado */}
-                  <div className="mb-2">
-                    <p className="text-dozeblue font-semibold text-lg">
-                      {r.property_name}
-                    </p>
-                    <p className="text-sm text-dozegray dark:text-white/70">
-                      {new Date(r.check_in).toLocaleDateString()} –{' '}
-                      {new Date(r.check_out).toLocaleDateString()}
-                    </p>
-                  </div>
+              {reservations.map((r, index) => {
+                const isActive =
+                  !r.cancellation_date && new Date(r.check_out) >= new Date();
+                return (
+                  <li
+                    key={`${r.check_in}-${index}`}
+                    className={`bg-white dark:bg-dozegray/10 border border-gray-200 dark:border-white/10 rounded-lg p-4 shadow-xs hover:shadow-md transition-shadow duration-200 ${isActive ? 'ring-2 ring-dozeblue/40' : ''}`}
+                  >
+                    {/* Encabezado */}
+                    <div className="mb-2">
+                      <p className="text-dozeblue font-semibold text-lg">
+                        {r.property_name}
+                      </p>
+                      <p className="text-sm text-dozegray dark:text-white/70">
+                        {new Date(r.check_in).toLocaleDateString()} –{' '}
+                        {new Date(r.check_out).toLocaleDateString()}
+                      </p>
+                    </div>
 
-                  {/* Detalle de habitaciones */}
-                  <ul className="space-y-1 mt-2">
-                    {r.room_reservations.map((rr, i) => (
-                      <li
-                        key={i}
-                        className="text-sm text-dozegray dark:text-white/80 flex justify-between"
+                    {/* Detalle de habitaciones */}
+                    <ul className="space-y-1 mt-2">
+                      {r.room_reservations.map((rr, i) => (
+                        <li
+                          key={i}
+                          className="text-sm text-dozegray dark:text-white/80 flex justify-between"
+                        >
+                          <span>
+                            {rr.room_type} ({rr.guests} huésped
+                            {rr.guests !== 1 ? 'es' : ''})
+                          </span>
+                          <span className="font-semibold text-dozeblue">
+                            € {rr.price.toFixed(2)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Total */}
+                    <div className="mt-2 pt-2 border-t border-gray-100 dark:border-white/10 flex justify-between font-semibold text-dozeblue">
+                      <span>Total:</span>
+                      <span>€ {r.total_price.toFixed(2)}</span>
+                    </div>
+
+                    {r.cancellation_date ? (
+                      <p className="mt-3 text-sm text-red-500">
+                        Reserva cancelada
+                      </p>
+                    ) : new Date(r.check_out) < new Date() ? (
+                      <p className="mt-3 text-sm text-gray-500">
+                        Reserva finalizada
+                      </p>
+                    ) : (
+                      <button
+                        onClick={() => handleCancel(r.id)}
+                        disabled={cancellingId === r.id}
+                        className="mt-3 px-4 py-2 rounded-md text-sm text-white bg-red-500 hover:bg-red-600 disabled:opacity-50"
                       >
-                        <span>
-                          {rr.room_type} ({rr.guests} huésped
-                          {rr.guests !== 1 ? 'es' : ''})
-                        </span>
-                        <span className="font-semibold text-dozeblue">
-                          € {rr.price.toFixed(2)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                        {cancellingId === r.id
+                          ? 'Cancelando...'
+                          : 'Cancelar reserva'}
+                      </button>
+                    )}
 
-                  {/* Total */}
-                  <div className="mt-2 pt-2 border-t border-gray-100 dark:border-white/10 flex justify-between font-semibold text-dozeblue">
-                    <span>Total:</span>
-                    <span>€ {r.total_price.toFixed(2)}</span>
-                  </div>
-                </li>
-              ))}
+                    {isActive && !r.cancellation_date && (
+                      <p className="mt-3 text-sm text-green-600">
+                        Reserva vigente
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
       </section>
+      <ConfirmModal
+        isOpen={confirmId !== null}
+        message="¿Estás seguro de cancelar esta reserva?"
+        confirmText="Confirmar"
+        cancelText="Volver"
+        onConfirm={confirmCancellation}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   );
 }

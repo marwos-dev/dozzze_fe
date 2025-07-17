@@ -8,6 +8,7 @@ export type RoomReservationData = {
 };
 
 export interface ReservationData {
+  id?: number;
   property_id: number;
   property_name?: string;
   terms_and_conditions?: Property['terms_and_conditions'];

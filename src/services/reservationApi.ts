@@ -5,7 +5,6 @@ import {
 } from '@/store/reserveSlice';
 import type { Reservation, ReservationRequest } from '@/types/reservation';
 
-
 const transformReservation = (reservation: ReservationData): Reservation => {
   const { roomType, ...rest } = reservation;
 
@@ -44,5 +43,12 @@ export const getMyReservations = async (): Promise<
   ReservationDataWithRooms[]
 > => {
   const response = await axios.get('/reservations/my');
+  return response.data;
+};
+
+export const cancelReservationRequest = async (
+  reservationId: number
+): Promise<unknown> => {
+  const response = await axios.post(`/reservations/${reservationId}/cancel`);
   return response.data;
 };
