@@ -37,6 +37,7 @@ export interface ReservationData {
   modification_date?: string;
   paid_online?: number;
   pay_on_arrival?: number;
+  images?: string[];
 }
 
 export interface ReservationDataWithRooms extends ReservationData {
