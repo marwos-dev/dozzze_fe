@@ -221,7 +221,7 @@ export default function AvailabilityResult() {
             </div>
 
             {/* Right panel */}
-            <div className="flex flex-col justify-between p-6 gap-4">
+            <div className="flex flex-col justify-between p-6 gap-4 border-l-[4px] border-dozeblue">
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-dozeblue">
                   {roomType}
@@ -290,7 +290,6 @@ export default function AvailabilityResult() {
                   })}
                 </div>
               </div>
-
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="text-sm text-[var(--foreground)]">
                   <div className="font-medium">
