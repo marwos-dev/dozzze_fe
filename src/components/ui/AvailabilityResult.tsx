@@ -17,7 +17,6 @@ import {
 import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
 import type { Property } from '@/types/property';
 import type { Zone } from '@/types/zone';
-
 const fallbackThumbnail = '/logo.png';
 
 function findRoomTypeImages(
@@ -68,6 +67,9 @@ export default function AvailabilityResult() {
     }, 3500);
     return () => clearInterval(interval);
   }, []);
+
+  const allZones = useSelector((state: RootState) => state.zones.data);
+  const selectedProperty = useSelector(selectSelectedProperty);
 
   const grouped = useMemo(() => {
     const map = new Map<string, AvailabilityItem[]>();
@@ -185,6 +187,7 @@ export default function AvailabilityResult() {
             ? rawImages
             : [fallbackThumbnail];
 
+
         const imgIndex = images.length > 0 ? carouselIndex % images.length : 0;
         const currentImage = images[imgIndex];
 
@@ -224,6 +227,7 @@ export default function AvailabilityResult() {
             <div className="flex flex-col justify-between p-6 gap-4 border-l-[4px] border-dozeblue">
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-dozeblue">
+
                   {roomType}
                 </h3>
                 <p className="flex items-center text-sm text-[var(--foreground)] gap-1">
@@ -305,6 +309,7 @@ export default function AvailabilityResult() {
                       </span>
                     );
                   })}
+
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
