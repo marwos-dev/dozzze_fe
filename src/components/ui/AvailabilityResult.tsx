@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { RootState } from '@/store';
 import { addReservation } from '@/store/reserveSlice';
 import { AvailabilityItem } from '@/types/roomType';
@@ -16,6 +17,7 @@ import {
 import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
 import type { Property } from '@/types/property';
 import type { Zone } from '@/types/zone';
+
 const fallbackThumbnail = '/logo.png';
 
 function findRoomTypeImages(
@@ -48,6 +50,9 @@ export default function AvailabilityResult() {
   const reservations = useSelector((state: RootState) => state.reserve.data);
   const guestsFromSearch = range?.guests;
 
+  const selectedProperty = useSelector(selectSelectedProperty);
+  const allZones = useSelector((state: RootState) => state.zones.data);
+
   const [selectedRateIndex, setSelectedRateIndex] = useState<
     Record<string, number>
   >({});
@@ -55,9 +60,14 @@ export default function AvailabilityResult() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
-  const allZones = useSelector((state: RootState) => state.zones.data);
-  const selectedProperty = useSelector(selectSelectedProperty);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCarouselIndex((prev) => prev + 1);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
 
   const grouped = useMemo(() => {
     const map = new Map<string, AvailabilityItem[]>();
@@ -69,11 +79,13 @@ export default function AvailabilityResult() {
     return Array.from(map.entries());
   }, [availability]);
 
-  const reservedKeys = useMemo(() => {
-    return new Set(
-      reservations.map((r) => `${r.property_id}-${r.roomType}-${r.rooms}`)
-    );
-  }, [reservations]);
+  const reservedKeys = useMemo(
+    () =>
+      new Set(
+        reservations.map((r) => `${r.property_id}-${r.roomType}-${r.rooms}`)
+      ),
+    [reservations]
+  );
 
   const reservedCountMap = useMemo(() => {
     const map = new Map<string, number>();
@@ -122,31 +134,17 @@ export default function AvailabilityResult() {
 
         const paxOptions = (() => {
           const set = new Set<number>();
-          items.forEach((item) => {
-            item.rates.forEach((rate) => {
+          items.forEach((item) =>
+            item.rates.forEach((rate) =>
               rate.prices.forEach((p) => {
                 if (p.price > 0) set.add(p.occupancy);
-              });
-            });
-          });
+              })
+            )
+          );
           return Array.from(set).sort((a, b) => a - b);
         })();
 
-        if (paxOptions.length === 0) {
-          return (
-            <div
-              key={roomType}
-              className="rounded-2xl border border-white/10 p-6 bg-[var(--background)] shadow-sm"
-            >
-              <h3 className="text-lg font-semibold text-dozeblue mb-2">
-                {roomType}
-              </h3>
-              <p className="text-sm text-[var(--foreground)]">
-                No hay precios disponibles para los huéspedes seleccionados.
-              </p>
-            </div>
-          );
-        }
+        if (paxOptions.length === 0) return null;
 
         const maxPax = paxOptions[paxOptions.length - 1];
         const defaultPax = paxOptions.includes(guestsFromSearch || 0)
@@ -167,11 +165,9 @@ export default function AvailabilityResult() {
         const selectedIndex = selectedRateIndex[roomType] ?? defaultIndex;
         const total = rateTotals[selectedIndex];
 
-        const reservedCountKey = `${propertyId}-${roomType}`;
-        const reservedCount = reservedCountMap.get(reservedCountKey) || 0;
-        const availabilityCount = items[0].availability;
-        const noMoreAvailable = reservedCount >= availabilityCount;
-
+        const reservedCount =
+          reservedCountMap.get(`${propertyId}-${roomType}`) || 0;
+        const noMoreAvailable = reservedCount >= items[0].availability;
         const selectedKey = `${propertyId}-${roomType}-${selectedIndex}`;
         const isSelectedReserved =
           reservedKeys.has(selectedKey) || noMoreAvailable;
@@ -183,27 +179,59 @@ export default function AvailabilityResult() {
           allZones
         );
         const images: string[] =
-          rawImages.length > 0 ? rawImages : [fallbackThumbnail];
+          Array.isArray(rawImages) && rawImages.length > 0
+            ? rawImages
+            : [fallbackThumbnail];
+
+        const imgIndex = images.length > 0 ? carouselIndex % images.length : 0;
+        const currentImage = images[imgIndex];
 
         return (
           <div
             key={roomType}
-            className="border border-gray-300 dark:border-white/10 rounded-2xl bg-[var(--background)] shadow-sm overflow-hidden transition-colors"
+            className="grid grid-cols-1 sm:grid-cols-[300px_1fr] overflow-hidden rounded-2xl border bg-[var(--background)] shadow"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-[280px_1fr]">
-              <div className="p-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-dozegray/10">
-                <h3 className="text-lg font-semibold text-dozeblue mb-2">
+            {/* Carousel con efecto slide */}
+            <div
+              className="relative h-[300px] sm:h-full cursor-pointer overflow-hidden"
+              onClick={() => {
+                setGalleryImages(images);
+                setGalleryIndex(imgIndex);
+                setIsGalleryOpen(true);
+              }}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentImage}
+                  initial={{ x: 50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -50, opacity: 0 }}
+                  transition={{ duration: 0.6, ease: 'easeInOut' }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={currentImage}
+                    alt={`Habitación ${roomType}`}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Right panel */}
+            <div className="flex flex-col justify-between p-6 gap-4">
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-dozeblue">
                   {roomType}
                 </h3>
-                <p className="text-sm flex items-center gap-1 text-[var(--foreground)] mb-3">
+                <p className="flex items-center text-sm text-[var(--foreground)] gap-1">
                   <Users size={16} className="text-dozeblue" /> Hasta {maxPax}{' '}
                   huésped{maxPax > 1 ? 'es' : ''}
                 </p>
 
-                <div className="mb-3">
-                  <label className="block text-xs font-medium mb-1">
-                    Habitación
-                  </label>
+                <div className="flex flex-col sm:flex-row gap-2">
                   <select
                     value={selectedIndex}
                     onChange={(e) =>
@@ -212,29 +240,19 @@ export default function AvailabilityResult() {
                         [roomType]: Number(e.target.value),
                       }))
                     }
-                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue bg-white dark:bg-dozegray/10"
+                    className="w-full px-4 py-2 text-sm rounded-md border border-dozeblue bg-white dark:bg-dozegray/10"
                   >
                     {rateTotals.map((sumPrice, idx) => {
                       const key = `${propertyId}-${roomType}-${idx}`;
-                      const isReserved = reservedKeys.has(key);
-                      const disabled = isReserved || noMoreAvailable;
+                      const disabled = reservedKeys.has(key) || noMoreAvailable;
                       return (
                         <option key={idx} value={idx} disabled={disabled}>
                           Habitación {idx + 1} – Total ${sumPrice}
-                          {isReserved ? ' (ya reservada)' : ''}
-                          {noMoreAvailable && !isReserved
-                            ? ' (sin disponibilidad)'
-                            : ''}
                         </option>
                       );
                     })}
                   </select>
-                </div>
 
-                <div>
-                  <label className="block text-xs font-medium mb-1">
-                    Huéspedes
-                  </label>
                   <select
                     value={pax}
                     onChange={(e) =>
@@ -243,7 +261,7 @@ export default function AvailabilityResult() {
                         [roomType]: Number(e.target.value),
                       }))
                     }
-                    className="w-full px-4 py-3 text-sm rounded-md border border-dozeblue bg-white dark:bg-dozegray/10"
+                    className="w-full px-4 py-2 text-sm rounded-md border border-dozeblue bg-white dark:bg-dozegray/10"
                   >
                     {paxOptions.map((n) => (
                       <option key={n} value={n}>
@@ -252,82 +270,55 @@ export default function AvailabilityResult() {
                     ))}
                   </select>
                 </div>
+
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {paxOptions.map((occ) => {
+                    const totalByOcc = items.reduce((sum, item) => {
+                      const priceObj = item.rates[selectedIndex].prices.find(
+                        (pr) => pr.occupancy === occ
+                      );
+                      return sum + (priceObj?.price || 0);
+                    }, 0);
+                    return (
+                      <span
+                        key={occ}
+                        className="px-2 py-1 rounded-full bg-dozeblue/30 border border-dozeblue text-xs font-medium"
+                      >
+                        {occ} pax Total ${totalByOcc}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="p-6 flex flex-col justify-between gap-4">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap gap-2 text-sm">
-                    {paxOptions.map((occ) => {
-                      const totalByOcc = items.reduce((sum, item) => {
-                        const priceObj = item.rates[selectedIndex].prices.find(
-                          (pr) => pr.occupancy === occ
-                        );
-                        return sum + (priceObj?.price || 0);
-                      }, 0);
-                      return (
-                        <span
-                          key={occ}
-                          className="px-2 py-1 rounded-full bg-dozeblue/30 border border-dozeblue text-xs font-medium"
-                        >
-                          {occ} pax Total ${totalByOcc}
-                        </span>
-                      );
-                    })}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="text-sm text-[var(--foreground)]">
+                  <div className="font-medium">
+                    {Array(pax).fill('👤').join(' ')} – Habitación{' '}
+                    {selectedIndex + 1} seleccionada
                   </div>
-                  <div className="mt-4 mb-4">
-                    <div className="inline-flex gap-2 p-2 rounded-2xl bg-dozeblue/10">
-                      {images.slice(0, 6).map((img: string, i: number) => (
-                        <div
-                          key={i}
-                          onClick={() => {
-                            setGalleryImages(images);
-                            setGalleryIndex(i);
-                            setIsGalleryOpen(true);
-                          }}
-                          className="w-20 h-16 relative rounded-lg overflow-hidden shadow ring-dozeblue cursor-pointer"
-                        >
-                          <Image
-                            src={img || fallbackThumbnail}
-                            alt={`Imagen ${i + 1}`}
-                            fill
-                            className="object-cover"
-                            unoptimized
-                          />
-                        </div>
-                      ))}
-                    </div>
+                  <div className="text-base font-semibold text-dozeblue">
+                    Total a pagar: ${total}
                   </div>
                 </div>
-
-                <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="text-sm text-[var(--foreground)]">
-                    <div className="font-medium mb-1">
-                      {Array(pax).fill('👤').join(' ')} – Habitación{' '}
-                      {selectedIndex + 1} seleccionada
-                    </div>
-                    <div className="text-base font-semibold text-dozeblue">
-                      Total a pagar: ${total}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() =>
-                      handleReserve(
-                        roomType,
-                        selectedIndex,
-                        pax,
-                        total,
-                        propertyId,
-                        roomTypeID
-                      )
-                    }
-                    className="bg-dozeblue text-white font-semibold px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors text-sm"
-                    disabled={isSelectedReserved}
-                  >
-                    {isSelectedReserved
-                      ? 'Ya reservada / Sin disponibilidad'
-                      : 'Reservar ahora'}
-                  </button>
-                </div>
+                <button
+                  onClick={() =>
+                    handleReserve(
+                      roomType,
+                      selectedIndex,
+                      pax,
+                      total,
+                      propertyId,
+                      roomTypeID
+                    )
+                  }
+                  disabled={isSelectedReserved}
+                  className="bg-dozeblue text-white font-semibold px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors text-sm"
+                >
+                  {isSelectedReserved
+                    ? 'Ya reservada / Sin disponibilidad'
+                    : 'Reservar ahora'}
+                </button>
               </div>
             </div>
           </div>
