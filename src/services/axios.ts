@@ -8,7 +8,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -27,7 +27,8 @@ axiosInstance.interceptors.response.use(
       | undefined;
 
     if (data) {
-        error.message = (data.code && errorMessages[data.code]) ||
+      error.message =
+        (data.code && errorMessages[data.code]) ||
         data.detail ||
         'Ocurrió un error';
     }
