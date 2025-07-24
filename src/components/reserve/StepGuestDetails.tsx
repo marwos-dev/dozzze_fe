@@ -6,8 +6,8 @@ import { RootState } from '@/store';
 import { postReservation } from '@/services/reservationApi';
 import { showToast } from '@/store/toastSlice';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
-import Link from 'next/link';
 import { setRedsysData, updateReservations } from '@/store/reserveSlice';
+
 interface Props {
   reservationIndex: number;
   onNext: () => void;
@@ -94,7 +94,7 @@ export default function StepGuestDetails({
     setErrors((prev) => ({ ...prev, [field]: error }));
     return error;
   };
-  // Obtener todas las reservas del store
+
   const allReservations = useSelector((state: RootState) => state.reserve.data);
 
   const handleContinue = async () => {
@@ -158,224 +158,201 @@ export default function StepGuestDetails({
     } bg-white dark:bg-dozegray/10 dark:border-white/10 focus:outline-none focus:ring-2`;
 
   return (
-    <div className="relative">
-      {!profile && (
-        <div className="absolute inset-0 z-20 bg-black/40 backdrop-blur-md flex items-center justify-center rounded-xl">
-          <div className="bg-dozebg2 text-center p-6 rounded-xl shadow-xl max-w-sm w-full">
-            <h2 className="text-lg font-semibold text-dozeblue mb-2">
-              Iniciá sesión para continuar
-            </h2>
-            <p className="text-sm text-dozegray mb-4">
-              Para ingresar los datos del huésped, primero debés iniciar sesión.
-            </p>
-            <Link
-              href="/login?redirect=/reserve?step=1"
-              className="inline-block px-4 py-2 bg-dozeblue text-white rounded-md hover:bg-dozeblue/90 transition"
-            >
-              Ir al login
-            </Link>
-          </div>
+    <div>
+      <h2 className="text-2xl font-bold text-dozeblue mb-4">
+        Datos del huésped
+      </h2>
+
+      <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-dozegray/5 shadow-sm p-6 space-y-4">
+        {/* Nombre */}
+        <div>
+          <label className="text-sm font-medium block mb-1 text-dozeblue">
+            Nombre completo
+          </label>
+          <input
+            type="text"
+            placeholder="Ej: Juan Pérez"
+            value={guestName}
+            onChange={(e) => setGuestName(e.target.value)}
+            onBlur={(e) => validateField('guestName', e.target.value)}
+            className={inputClass('guestName')}
+          />
+          {errors.guestName && (
+            <p className="text-sm text-red-600 mt-1">{errors.guestName}</p>
+          )}
         </div>
-      )}
 
-      <div className={`${!profile ? 'pointer-events-none opacity-30' : ''}`}>
-        <h2 className="text-2xl font-bold text-dozeblue mb-4">
-          Datos del huésped
-        </h2>
+        {/* Email */}
+        <div>
+          <label className="text-sm font-medium block mb-1 text-dozeblue">
+            Email
+          </label>
+          <input
+            type="email"
+            placeholder="Ej: juan@email.com"
+            value={guestEmail}
+            onChange={(e) => setGuestEmail(e.target.value)}
+            onBlur={(e) => validateField('guestEmail', e.target.value)}
+            className={inputClass('guestEmail')}
+          />
+          {errors.guestEmail && (
+            <p className="text-sm text-red-600 mt-1">{errors.guestEmail}</p>
+          )}
+        </div>
 
-        <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-dozegray/5 shadow-sm p-6 space-y-4">
-          {/* Nombre */}
+        {/* Teléfono */}
+        <div>
+          <label className="text-sm font-medium block mb-1 text-dozeblue">
+            Teléfono
+          </label>
+          <input
+            type="tel"
+            placeholder="Ej: +54 9 11 1234-5678"
+            value={guestPhone}
+            onChange={(e) =>
+              setGuestPhone(e.target.value.replace(/[^\d\s()+-]/g, ''))
+            }
+            onBlur={(e) => validateField('guestPhone', e.target.value)}
+            className={inputClass('guestPhone')}
+          />
+          {errors.guestPhone && (
+            <p className="text-sm text-red-600 mt-1">{errors.guestPhone}</p>
+          )}
+        </div>
+
+        {/* Dirección */}
+        <div>
+          <label className="text-sm font-medium block mb-1 text-dozeblue">
+            Dirección
+          </label>
+          <input
+            type="text"
+            placeholder="Ej: Calle Falsa 123"
+            value={guestAddress}
+            onChange={(e) => setGuestAddress(e.target.value)}
+            className={inputClass('guestAddress')}
+          />
+        </div>
+
+        {/* Ciudad y País */}
+        <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              Nombre completo
+              Ciudad
             </label>
             <input
               type="text"
-              placeholder="Ej: Juan Pérez"
-              value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
-              onBlur={(e) => validateField('guestName', e.target.value)}
-              className={inputClass('guestName')}
+              value={guestCity}
+              onChange={(e) => setGuestCity(e.target.value)}
+              className={inputClass('guestCity')}
             />
-            {errors.guestName && (
-              <p className="text-sm text-red-600 mt-1">{errors.guestName}</p>
-            )}
           </div>
 
-          {/* Email */}
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              Email
+              País
             </label>
             <input
-              type="email"
-              placeholder="Ej: juan@email.com"
-              value={guestEmail}
-              onChange={(e) => setGuestEmail(e.target.value)}
-              onBlur={(e) => validateField('guestEmail', e.target.value)}
-              className={inputClass('guestEmail')}
+              type="text"
+              value={guestCountry}
+              onChange={(e) => setGuestCountry(e.target.value)}
+              className={inputClass('guestCountry')}
             />
-            {errors.guestEmail && (
-              <p className="text-sm text-red-600 mt-1">{errors.guestEmail}</p>
-            )}
           </div>
+        </div>
 
-          {/* Teléfono */}
+        {/* Código postal y comentarios */}
+        <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              Teléfono
+              Código postal
             </label>
             <input
-              type="tel"
-              placeholder="Ej: +54 9 11 1234-5678"
-              value={guestPhone}
+              type="text"
+              value={guestCp}
               onChange={(e) =>
-                setGuestPhone(e.target.value.replace(/[^\d\s()+-]/g, ''))
+                setGuestCp(e.target.value.replace(/\D/g, '').slice(0, 10))
               }
-              onBlur={(e) => validateField('guestPhone', e.target.value)}
-              className={inputClass('guestPhone')}
+              onBlur={(e) => validateField('guestCp', e.target.value)}
+              className={inputClass('guestCp')}
             />
-            {errors.guestPhone && (
-              <p className="text-sm text-red-600 mt-1">{errors.guestPhone}</p>
+            {errors.guestCp && (
+              <p className="text-sm text-red-600 mt-1">{errors.guestCp}</p>
             )}
           </div>
 
-          {/* Dirección */}
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              Dirección
+              Comentarios adicionales
             </label>
             <input
               type="text"
-              placeholder="Ej: Calle Falsa 123"
-              value={guestAddress}
-              onChange={(e) => setGuestAddress(e.target.value)}
-              className={inputClass('guestAddress')}
+              placeholder="Ej: Llegaré después de las 20 hs"
+              value={guestRemarks}
+              maxLength={200}
+              onChange={(e) => setGuestRemarks(e.target.value)}
+              onBlur={(e) => validateField('guestRemarks', e.target.value)}
+              className={inputClass('guestRemarks')}
             />
+            {errors.guestRemarks && (
+              <p className="text-sm text-red-600 mt-1">{errors.guestRemarks}</p>
+            )}
           </div>
+        </div>
 
-          {/* Ciudad y País */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium block mb-1 text-dozeblue">
-                Ciudad
-              </label>
-              <input
-                type="text"
-                value={guestCity}
-                onChange={(e) => setGuestCity(e.target.value)}
-                className={inputClass('guestCity')}
-              />
-            </div>
+        {/* Campos nuevos */}
+        <div>
+          <label className="text-sm font-medium block mb-1 text-dozeblue">
+            Empresa / Cliente corporativo
+          </label>
+          <input
+            type="text"
+            value={guestCorporate}
+            onChange={(e) => setGuestCorporate(e.target.value)}
+            className={inputClass('guestCorporate')}
+          />
+        </div>
 
-            <div>
-              <label className="text-sm font-medium block mb-1 text-dozeblue">
-                País
-              </label>
-              <input
-                type="text"
-                value={guestCountry}
-                onChange={(e) => setGuestCountry(e.target.value)}
-                className={inputClass('guestCountry')}
-              />
-            </div>
-          </div>
-
-          {/* Código postal y comentarios */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium block mb-1 text-dozeblue">
-                Código postal
-              </label>
-              <input
-                type="text"
-                value={guestCp}
-                onChange={(e) =>
-                  setGuestCp(e.target.value.replace(/\D/g, '').slice(0, 10))
-                }
-                onBlur={(e) => validateField('guestCp', e.target.value)}
-                className={inputClass('guestCp')}
-              />
-              {errors.guestCp && (
-                <p className="text-sm text-red-600 mt-1">{errors.guestCp}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="text-sm font-medium block mb-1 text-dozeblue">
-                Comentarios adicionales
-              </label>
-              <input
-                type="text"
-                placeholder="Ej: Llegaré después de las 20 hs"
-                value={guestRemarks}
-                maxLength={200}
-                onChange={(e) => setGuestRemarks(e.target.value)}
-                onBlur={(e) => validateField('guestRemarks', e.target.value)}
-                className={inputClass('guestRemarks')}
-              />
-              {errors.guestRemarks && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.guestRemarks}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Campos nuevos */}
+        <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              Empresa / Cliente corporativo
+              Región
             </label>
             <input
               type="text"
-              value={guestCorporate}
-              onChange={(e) => setGuestCorporate(e.target.value)}
-              className={inputClass('guestCorporate')}
+              value={guestRegion}
+              onChange={(e) => setGuestRegion(e.target.value)}
+              className={inputClass('guestRegion')}
             />
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium block mb-1 text-dozeblue">
-                Región
-              </label>
-              <input
-                type="text"
-                value={guestRegion}
-                onChange={(e) => setGuestRegion(e.target.value)}
-                className={inputClass('guestRegion')}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium block mb-1 text-dozeblue">
-                Código país (ISO)
-              </label>
-              <input
-                type="text"
-                value={guestCountryIso}
-                onChange={(e) => setGuestCountryIso(e.target.value)}
-                className={inputClass('guestCountryIso')}
-              />
-            </div>
+          <div>
+            <label className="text-sm font-medium block mb-1 text-dozeblue">
+              Código país (ISO)
+            </label>
+            <input
+              type="text"
+              value={guestCountryIso}
+              onChange={(e) => setGuestCountryIso(e.target.value)}
+              className={inputClass('guestCountryIso')}
+            />
           </div>
         </div>
+      </div>
 
-        <div className="flex justify-between">
-          <button
-            onClick={onBack}
-            className="text-dozeblue border border-dozeblue px-6 py-3 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
-          >
-            Atrás
-          </button>
-          <button
-            onClick={handleContinue}
-            className="bg-dozeblue text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-dozeblue/90 transition-colors"
-          >
-            {loading ? 'Procesando...' : 'Continuar'}
-          </button>
-        </div>
+      <div className="flex justify-between mt-6">
+        <button
+          onClick={onBack}
+          className="text-dozeblue border border-dozeblue px-6 py-3 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
+        >
+          Atrás
+        </button>
+        <button
+          onClick={handleContinue}
+          className="bg-dozeblue text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-dozeblue/90 transition-colors"
+        >
+          {loading ? 'Procesando...' : 'Continuar'}
+        </button>
       </div>
     </div>
   );
