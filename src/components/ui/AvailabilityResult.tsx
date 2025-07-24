@@ -102,7 +102,8 @@ export default function AvailabilityResult() {
     pax: number,
     total: number,
     propertyId: number,
-    roomTypeID: number
+    roomTypeID: number,
+    images: string[]
   ) => {
     if (!range?.check_in || !range?.check_out) return;
 
@@ -118,6 +119,7 @@ export default function AvailabilityResult() {
         currency: 'EUR',
         roomType,
         roomTypeID,
+        images,
       })
     );
 
@@ -323,7 +325,8 @@ export default function AvailabilityResult() {
                       pax,
                       total,
                       propertyId,
-                      roomTypeID
+                      roomTypeID,
+                      images
                     )
                   }
                   disabled={isSelectedReserved}
