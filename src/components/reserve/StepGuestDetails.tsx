@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import { RootState } from '@/store';
 import { postReservation } from '@/services/reservationApi';
 import { showToast } from '@/store/toastSlice';
-import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import { setRedsysData, updateReservations } from '@/store/reserveSlice';
 
 interface Props {
@@ -23,7 +22,6 @@ export default function StepGuestDetails({
   const data = useSelector(
     (state: RootState) => state.reserve.data[reservationIndex]
   );
-  const profile = useSelector(selectCustomerProfile);
 
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
