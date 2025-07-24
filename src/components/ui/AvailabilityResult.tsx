@@ -178,7 +178,7 @@ export default function AvailabilityResult() {
           selectedProperty,
           allZones
         );
-        const images: string[] =
+        const images =
           Array.isArray(rawImages) && rawImages.length > 0
             ? rawImages
             : [fallbackThumbnail];
@@ -191,7 +191,6 @@ export default function AvailabilityResult() {
             key={roomType}
             className="grid grid-cols-1 sm:grid-cols-[300px_1fr] overflow-hidden rounded-2xl border bg-[var(--background)] shadow"
           >
-            {/* Carousel con efecto slide */}
             <div
               className="relative h-[300px] sm:h-full cursor-pointer overflow-hidden"
               onClick={() => {
@@ -220,7 +219,6 @@ export default function AvailabilityResult() {
               </AnimatePresence>
             </div>
 
-            {/* Right panel */}
             <div className="flex flex-col justify-between p-6 gap-4 border-l-[4px] border-dozeblue">
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-dozeblue">
@@ -230,6 +228,23 @@ export default function AvailabilityResult() {
                   <Users size={16} className="text-dozeblue" /> Hasta {maxPax}{' '}
                   huésped{maxPax > 1 ? 'es' : ''}
                 </p>
+
+                {/* Servicios disponibles (mockup) */}
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {[
+                    'Wifi gratis',
+                    'Desayuno',
+                    'Estacionamiento',
+                    'Piscina',
+                  ].map((service) => (
+                    <span
+                      key={service}
+                      className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full"
+                    >
+                      {service}
+                    </span>
+                  ))}
+                </div>
 
                 <div className="flex flex-col sm:flex-row gap-2">
                   <select
