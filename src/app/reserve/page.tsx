@@ -8,7 +8,7 @@ import { deleteReservation, updateReservation } from '@/store/reserveSlice';
 import StepReservationSummary from '@/components/reserve/StepReservationSummary';
 import StepGuestDetails from '@/components/reserve/StepGuestDetails';
 import StepConfirmation from '@/components/reserve/StepConfirmation';
-
+import VoucherOrLoginPrompt from '@/components/ui/VoucherOrLoginPrompt';
 const steps = ['Tu selección', 'Tus datos', 'Terminar reserva'];
 
 export default function ReservePage() {
@@ -94,12 +94,15 @@ export default function ReservePage() {
 
       {/* Step content */}
       {currentStep === 0 && (
-        <StepReservationSummary
-          onNext={goNext}
-          reservations={reservations}
-          onAddReservation={() => router.push('/#seeker')}
-          onDeleteReservation={(index) => dispatch(deleteReservation(index))}
-        />
+        <>
+          <VoucherOrLoginPrompt />
+          <StepReservationSummary
+            onNext={goNext}
+            reservations={reservations}
+            onAddReservation={() => router.push('/#seeker')}
+            onDeleteReservation={(index) => dispatch(deleteReservation(index))}
+          />
+        </>
       )}
 
       {currentStep === 1 && (
