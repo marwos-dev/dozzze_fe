@@ -15,8 +15,11 @@ import {
   selectSelectedProperty,
 } from '@/store/selectors/propertiesSelectors';
 import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
+import { includedServicesMock } from '@/../public/icons/service'; // <- Import correcto según ubicación
+import { Tooltip } from 'react-tooltip';
 import type { Property } from '@/types/property';
 import type { Zone } from '@/types/zone';
+
 const fallbackThumbnail = '/logo.png';
 
 function findRoomTypeImages(
@@ -48,9 +51,6 @@ export default function AvailabilityResult() {
   const range = useSelector(selectLastAvailabilityParams);
   const reservations = useSelector((state: RootState) => state.reserve.data);
   const guestsFromSearch = range?.guests;
-
-  const selectedProperty = useSelector(selectSelectedProperty);
-  const allZones = useSelector((state: RootState) => state.zones.data);
 
   const [selectedRateIndex, setSelectedRateIndex] = useState<
     Record<string, number>
@@ -187,7 +187,6 @@ export default function AvailabilityResult() {
             ? rawImages
             : [fallbackThumbnail];
 
-
         const imgIndex = images.length > 0 ? carouselIndex % images.length : 0;
         const currentImage = images[imgIndex];
 
@@ -227,7 +226,6 @@ export default function AvailabilityResult() {
             <div className="flex flex-col justify-between p-6 gap-4 border-l-[4px] border-dozeblue">
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-dozeblue">
-
                   {roomType}
                 </h3>
                 <p className="flex items-center text-sm text-[var(--foreground)] gap-1">
@@ -235,21 +233,22 @@ export default function AvailabilityResult() {
                   huésped{maxPax > 1 ? 'es' : ''}
                 </p>
 
-                {/* Servicios disponibles (mockup) */}
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {[
-                    'Wifi gratis',
-                    'Desayuno',
-                    'Estacionamiento',
-                    'Piscina',
-                  ].map((service) => (
-                    <span
-                      key={service}
-                      className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full"
-                    >
-                      {service}
-                    </span>
-                  ))}
+                {/* Íconos SVG */}
+                <div className="flex flex-wrap gap-3 mt-1 items-center">
+                  {includedServicesMock.map((service, idx) => {
+                    const tooltipId = `tooltip-${roomType}-${idx}`;
+                    return (
+                      <div key={idx} className="relative group">
+                        <div
+                          className="w-9 h-9 flex items-center justify-center rounded-full bg-green-100 text-green-700 shadow-inner cursor-pointer"
+                          data-tooltip-id={tooltipId}
+                          data-tooltip-content={service.message}
+                          dangerouslySetInnerHTML={{ __html: service.icon }}
+                        />
+                        <Tooltip id={tooltipId} />
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -309,9 +308,9 @@ export default function AvailabilityResult() {
                       </span>
                     );
                   })}
-
                 </div>
               </div>
+
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="text-sm text-[var(--foreground)]">
                   <div className="font-medium">
