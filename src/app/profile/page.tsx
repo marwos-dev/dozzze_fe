@@ -147,7 +147,7 @@ export default function ProfilePage() {
                 return (
                   <li
                     key={`${r.check_in}-${index}`}
-                    className={`bg-white dark:bg-dozegray/10 border border-gray-200 dark:border-white/10 rounded-lg p-4 shadow-xs hover:shadow-md transition-shadow duration-200 ${isActive ? 'ring-2 ring-dozeblue/40' : ''}`}
+                    className={`bg-white dark:bg-dozegray/10 border border-gray-200 dark:border-white/10 rounded-lg p-4 shadow-xs hover:shadow-md transition-shadow duration-200`}
                   >
                     {/* Encabezado */}
                     <div className="mb-2">

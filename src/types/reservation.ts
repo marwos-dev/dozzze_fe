@@ -1,4 +1,5 @@
 export interface Reservation {
+  id: number;
   property_id: number;
   channel: string;
   pax_count: number;
