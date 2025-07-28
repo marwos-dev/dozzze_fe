@@ -240,7 +240,7 @@ export default function AvailabilityResult() {
                     return (
                       <div key={idx} className="relative group">
                         <div
-                          className="w-9 h-9 flex items-center justify-center rounded-full bg-green-100 text-green-700 shadow-inner cursor-pointer"
+                          className="w-9 h-9 flex items-center justify-center  text-green-700 shadow-inner cursor-pointer"
                           data-tooltip-id={tooltipId}
                           data-tooltip-content={service.message}
                           dangerouslySetInnerHTML={{ __html: service.icon }}
