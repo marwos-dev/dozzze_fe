@@ -3,16 +3,11 @@
 import { showToast } from '@/store/toastSlice';
 import { useDispatch } from 'react-redux';
 import type { Zone } from '@/types/zone';
+import type { PropertyFormData } from '@/types/property';
 
 interface Props {
-  data: {
-    name: string;
-    address: string;
-    description: string;
-    coverImage: string;
-    zone_id: number | null;
-  };
-  onChange: (data: any) => void;
+  data: PropertyFormData;
+  onChange: (data: PropertyFormData) => void;
   onNext: () => void;
   zones: Zone[];
 }
@@ -49,13 +44,20 @@ export default function StepBasicInfo({
         </label>
         <select
           value={data.zone_id || ''}
-          onChange={(e) =>
-            onChange({ ...data, zone_id: Number(e.target.value) || null })
-          }
+          onChange={(e) => {
+            const selectedZone = zones.find(
+              (z) => z.id === Number(e.target.value)
+            );
+            onChange({
+              ...data,
+              zone_id: Number(e.target.value) || null,
+              zone: selectedZone?.name || '',
+            });
+          }}
           className="w-full mt-1 px-4 py-2 border rounded-md border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10"
         >
           <option value="">Seleccionar zona</option>
-          {(zones || []).map((zone) => (
+          {zones.map((zone) => (
             <option key={zone.id} value={zone.id}>
               {zone.name}
             </option>
@@ -64,34 +66,35 @@ export default function StepBasicInfo({
       </div>
 
       {/* Campos: name, address, coverImage, description */}
-      {['name', 'address', 'coverImage', 'description'].map((field) => (
-        <div key={field}>
-          <label className="block text-sm font-medium text-dozegray dark:text-white/80 capitalize">
-            {field === 'coverImage' ? 'Imagen (URL)' : field}
-          </label>
-          {field === 'description' ? (
-            <textarea
-              value={data.description}
-              onChange={(e) =>
-                onChange({ ...data, description: e.target.value })
-              }
-              rows={4}
-              className="w-full mt-1 px-4 py-2 border rounded-md border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10"
-              placeholder="Descripción detallada..."
-            />
-          ) : (
-            <input
-              type="text"
-              value={data[field as keyof typeof data] as string}
-              onChange={(e) => onChange({ ...data, [field]: e.target.value })}
-              className="w-full mt-1 px-4 py-2 border rounded-md border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10"
-              placeholder={
-                field === 'coverImage' ? 'https://...' : `Ingrese ${field}`
-              }
-            />
-          )}
-        </div>
-      ))}
+      {(['name', 'address', 'coverImage', 'description'] as const).map(
+        (field) => (
+          <div key={field}>
+            <label className="block text-sm font-medium text-dozegray dark:text-white/80 capitalize">
+              {field === 'coverImage' ? 'Imagen (URL)' : field}
+            </label>
+            {field === 'description' ? (
+              <textarea
+                value={data.description}
+                onChange={(e) =>
+                  onChange({ ...data, description: e.target.value })
+                }
+                rows={4}
+                className="w-full mt-1 px-4 py-2 border rounded-md border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10"
+                placeholder="Descripción detallada..."
+              />
+            ) : (
+              <input
+                type="text"
+                onChange={(e) => onChange({ ...data, [field]: e.target.value })}
+                className="w-full mt-1 px-4 py-2 border rounded-md border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10"
+                placeholder={
+                  field === 'coverImage' ? 'https://...' : `Ingrese ${field}`
+                }
+              />
+            )}
+          </div>
+        )
+      )}
 
       <div className="flex justify-end pt-2">
         <button

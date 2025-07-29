@@ -20,3 +20,11 @@ export interface Property {
     additional_information: string;
   };
 }
+
+export interface PropertyFormData {
+  name: string;
+  address: string;
+  description: string;
+  zone: string;
+  zone_id: number | null;
+}

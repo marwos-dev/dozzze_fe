@@ -4,22 +4,22 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { getZones } from '@/store/zoneSlice';
+import StepSelectZone from './StepSelectZone';
 import StepBasicInfo from './StepBasicInfo';
 import StepSelectLocation from './StepSelectLocation';
+import type { PropertyFormData } from '@/types/property';
 
 export default function AddPropertyWizard() {
   const dispatch = useDispatch<AppDispatch>();
   const zones = useSelector((state: RootState) => state.zones.data);
 
   const [step, setStep] = useState(1);
-  const [propertyData, setPropertyData] = useState({
+  const [propertyData, setPropertyData] = useState<PropertyFormData>({
     name: '',
     address: '',
     description: '',
-    coverImage: '',
-    latitude: null as number | null,
-    longitude: null as number | null,
-    zone_id: null as number | null,
+    zone: '',
+    zone_id: null,
   });
 
   useEffect(() => {
@@ -34,21 +34,29 @@ export default function AddPropertyWizard() {
   return (
     <div>
       {step === 1 && (
+        <StepSelectZone
+          zones={zones}
+          data={propertyData}
+          onChange={setPropertyData}
+          onNext={goNext}
+        />
+      )}
+      {step === 2 && (
         <StepBasicInfo
           data={propertyData}
           onChange={setPropertyData}
           onNext={goNext}
-          zones={zones || []}
+          zones={zones}
         />
       )}
-      {step === 2 && (
+      {/* {step === 3 && (
         <StepSelectLocation
           data={propertyData}
           onChange={setPropertyData}
           onBack={goBack}
           onNext={goNext}
         />
-      )}
+      )} */}
     </div>
   );
 }
