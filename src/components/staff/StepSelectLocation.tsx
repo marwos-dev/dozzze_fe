@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { geocodeAddress } from '@/utils/mapUtils/geocodeAddress.ts';
 
 interface Props {
   data: {
@@ -46,17 +45,8 @@ export default function StepSelectLocation({
 }: Props) {
   const [mapCenter, setMapCenter] = useState<[number, number]>([-34.6, -58.45]);
 
-  // Si no hay lat/lng, pero sí hay dirección, geocodificamos
   useEffect(() => {
     if (!data.latitude || !data.longitude) {
-      if (data.address) {
-        geocodeAddress(data.address).then((coords) => {
-          if (coords) {
-            const { lat, lon } = coords;
-            setMapCenter([lat, lon]);
-          }
-        });
-      }
     } else {
       setMapCenter([data.latitude, data.longitude]);
     }

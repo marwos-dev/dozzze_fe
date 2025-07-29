@@ -25,6 +25,10 @@ export interface PropertyFormData {
   name: string;
   address: string;
   description: string;
+  coverImage: string;
+  latitude: null;
+  longitude: null;
   zone: string;
   zone_id: number | null;
+  images: string[];
 }
