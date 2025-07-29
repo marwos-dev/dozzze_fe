@@ -1,9 +1,23 @@
-'use server';
-
 import axios from './axios';
-import { Property } from '@/types/property';
+import { Property, PropertyFormData } from '@/types/property';
 import { Room } from '@/types/room';
 import { AvailabilityPayload, AvailabilityResponse } from '@/types/roomType';
+
+export const createProperty = async (data: PropertyFormData) => {
+  const payload = {
+    name: data.name,
+    description: data.description,
+    address: data.address,
+    latitude: data.latitude,
+    longitude: data.longitude,
+    zone_id: data.zone_id,
+    images: data.images,
+  };
+  const response = await axios.post('/properties/my/', payload, {
+    withCredentials: true,
+  });
+  return response.data;
+};
 
 // Obtener propiedad por ID
 export const fetchPropertyById = async (id: number): Promise<Property> => {

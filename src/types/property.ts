@@ -32,3 +32,15 @@ export interface PropertyFormData {
   zone_id: number | null;
   images: string[];
 }
+interface CreatePropertyPayload {
+  name: string;
+  description: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  zone_id: number;
+  cover_image: string;
+  images: string[];
+  pms_id: number;
+  use_pms_information: boolean;
+}
