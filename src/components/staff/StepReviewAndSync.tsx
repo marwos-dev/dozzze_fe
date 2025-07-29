@@ -15,8 +15,6 @@ interface Props {
 
 export default function StepReviewAndSync({ data, onBack, onSubmit }: Props) {
   const dispatch = useDispatch();
-  const [pmsId, setPmsId] = useState('');
-  const [usePms, setUsePms] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
