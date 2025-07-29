@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { getZones } from '@/store/zoneSlice';
@@ -9,6 +9,8 @@ import StepBasicInfo from './StepBasicInfo';
 import StepSelectLocation from './StepSelectLocation';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { PropertyFormData } from '@/types/property';
+import { parseAreaToCoordinates } from '@/utils/mapUtils/parseAreaToCoordiantes';
+import type { LatLngExpression } from 'leaflet';
 
 const stepVariants = {
   initial: { opacity: 0, x: 50 },
@@ -40,6 +42,22 @@ export default function AddPropertyWizard() {
       dispatch(getZones());
     }
   }, [dispatch, zones]);
+
+  const selectedZone = useMemo(() => {
+    return zones.find((z) => z.id === propertyData.zone_id) || null;
+  }, [zones, propertyData.zone_id]);
+
+  // Convertir LatLngExpression[] a [number, number][]
+  const zoneCoordinates: [number, number][] = useMemo(() => {
+    if (!selectedZone) return [];
+    const coords = parseAreaToCoordinates(selectedZone.area);
+    return coords.map((point) => {
+      if (Array.isArray(point) && point.length === 2) {
+        return [point[0] as number, point[1] as number];
+      }
+      return [0, 0];
+    });
+  }, [selectedZone]);
 
   const goNext = () => setStep((s) => Math.min(s + 1, steps.length));
   const goBack = () => setStep((s) => Math.max(s - 1, 1));
@@ -86,6 +104,8 @@ export default function AddPropertyWizard() {
                 onChange={setPropertyData}
                 onBack={goBack}
                 onNext={goNext}
+                zones={zones}
+                zonePolygon={zoneCoordinates}
               />
             )}
           </motion.div>
@@ -93,7 +113,7 @@ export default function AddPropertyWizard() {
       </div>
 
       <div className="flex justify-between">
-        {step > 1 && (
+        {step > 1 && step < 3 && (
           <button
             onClick={goBack}
             className="text-sm text-gray-500 hover:text-gray-700 dark:text-white/70 dark:hover:text-white"
