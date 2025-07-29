@@ -10,7 +10,7 @@ import StepSelectLocation from './StepSelectLocation';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { PropertyFormData } from '@/types/property';
 import { parseAreaToCoordinates } from '@/utils/mapUtils/parseAreaToCoordiantes';
-import type { LatLngExpression } from 'leaflet';
+import StepReviewAndSync from './StepReviewAndSync';
 
 const stepVariants = {
   initial: { opacity: 0, x: 50 },
@@ -18,7 +18,7 @@ const stepVariants = {
   exit: { opacity: 0, x: -50 },
 };
 
-const steps = ['Zona', 'Datos básicos', 'Ubicación'];
+const steps = ['Zona', 'Datos básicos', 'Ubicación', 'Sincronización'];
 
 export default function AddPropertyWizard() {
   const dispatch = useDispatch<AppDispatch>();
@@ -47,7 +47,6 @@ export default function AddPropertyWizard() {
     return zones.find((z) => z.id === propertyData.zone_id) || null;
   }, [zones, propertyData.zone_id]);
 
-  // Convertir LatLngExpression[] a [number, number][]
   const zoneCoordinates: [number, number][] = useMemo(() => {
     if (!selectedZone) return [];
     const coords = parseAreaToCoordinates(selectedZone.area);
@@ -108,19 +107,18 @@ export default function AddPropertyWizard() {
                 zonePolygon={zoneCoordinates}
               />
             )}
+            {step === 4 && (
+              <StepReviewAndSync
+                data={propertyData}
+                onBack={goBack}
+                onSubmit={() => {
+                  console.log('Datos enviados:', propertyData);
+                  alert('Propiedad sincronizada con éxito!');
+                }}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
-      </div>
-
-      <div className="flex justify-between">
-        {step > 1 && step < 3 && (
-          <button
-            onClick={goBack}
-            className="text-sm text-gray-500 hover:text-gray-700 dark:text-white/70 dark:hover:text-white"
-          >
-            ← Atrás
-          </button>
-        )}
       </div>
     </div>
   );
