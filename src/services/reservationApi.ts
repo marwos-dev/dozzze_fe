@@ -35,7 +35,9 @@ export const postReservation = async (
   reservations: ReservationData[]
 ): Promise<ReservationRequest> => {
   const payload: Reservation[] = reservations.map(transformReservation);
-  const response = await axios.post('/reservations/', payload);
+  const response = await axios.post('/reservations/', payload, {
+    withCredentials: true,
+  });
   return response.data;
 };
 

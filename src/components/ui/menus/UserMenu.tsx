@@ -4,13 +4,14 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import { logoutCustomer } from '@/utils/axiosAuth';
+import type { Customer } from '@/types/costumers'; // Asegurate de importar esto
 
 interface Props {
-  email: string;
+  customer: Customer;
   variant?: 'desktop' | 'mobile';
 }
 
-export default function UserMenu({ email, variant = 'desktop' }: Props) {
+export default function UserMenu({ customer, variant = 'desktop' }: Props) {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -38,13 +39,27 @@ export default function UserMenu({ email, variant = 'desktop' }: Props) {
   if (variant === 'mobile') {
     return (
       <div className="px-6 py-4 text-lg font-semibold text-dozegray">
-        {email}
+        {customer.email}
+        {customer.staff && (
+          <div className="text-sm font-normal text-dozegray/70">Staff</div>
+        )}
+
         <Link
           href="/profile"
           className="block px-0 py-4 text-lg font-semibold hover:text-dozeblue border-t border-dozegray/30"
         >
           Perfil
         </Link>
+
+        {customer.staff && (
+          <Link
+            href="/staff"
+            className="block px-0 py-4 text-lg font-semibold hover:text-dozeblue border-t border-dozegray/30"
+          >
+            Panel Staff
+          </Link>
+        )}
+
         <button
           onClick={handleLogout}
           className="block w-full text-left px-0 py-4 text-lg font-semibold hover:text-dozeblue border-t border-dozegray/30"
@@ -62,7 +77,12 @@ export default function UserMenu({ email, variant = 'desktop' }: Props) {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 bg-dozeblue hover:bg-dozeblue/90 text-white font-semibold px-4 py-1.5 rounded-full transition"
       >
-        {email}
+        {customer.email}
+        {customer.staff && (
+          <span className="text-xs bg-white text-dozeblue px-2 py-0.5 rounded-full font-semibold">
+            Staff
+          </span>
+        )}
       </button>
 
       {open && (
@@ -74,6 +94,17 @@ export default function UserMenu({ email, variant = 'desktop' }: Props) {
           >
             Perfil
           </Link>
+
+          {customer.staff && (
+            <Link
+              href="/staff"
+              className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+              onClick={() => setOpen(false)}
+            >
+              Panel Staff
+            </Link>
+          )}
+
           <button
             onClick={handleLogout}
             className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"

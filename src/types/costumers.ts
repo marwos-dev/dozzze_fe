@@ -3,4 +3,5 @@ export interface Customer {
   email: string;
   name?: string;
   created_at?: string;
+  staff: boolean;
 }
