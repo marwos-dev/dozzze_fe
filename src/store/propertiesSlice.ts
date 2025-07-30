@@ -67,8 +67,9 @@ export const syncPropertyPMS = createAsyncThunk<
       dispatch(
         showToast({ message: 'Sincronización exitosa', color: 'green' })
       );
-    } catch (err: any) {
-      const message = err.message || 'Error al sincronizar';
+    } catch (err: unknown) {
+      console.error(err);
+      const message = 'Error al sincronizar';
       dispatch(showToast({ message, color: 'red' }));
       return rejectWithValue(message);
     }
