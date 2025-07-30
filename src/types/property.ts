@@ -32,15 +32,22 @@ export interface PropertyFormData {
   zone_id: number | null;
   images: string[];
 }
-interface CreatePropertyPayload {
-  name: string;
-  description: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-  zone_id: number;
-  cover_image: string;
-  images: string[];
-  pms_id: number;
-  use_pms_information: boolean;
+export interface PropertySyncData {
+  base_url: string;
+  email: string;
+  phone_number: string;
+  pms_token: string;
+  pms_hotel_identifier: string;
+  pms_username: string;
+  pms_password: string;
+}
+
+export interface SyncData {
+  base_url: string;
+  email: string;
+  phone_number: string;
+  pms_token: string;
+  pms_hotel_identifier: string;
+  pms_username: string;
+  pms_password: string;
 }

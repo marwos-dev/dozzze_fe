@@ -13,7 +13,7 @@ interface Props {
   onSubmit: () => void;
 }
 
-export default function StepReviewAndSync({ data, onBack, onSubmit }: Props) {
+export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 

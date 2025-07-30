@@ -1,3 +1,4 @@
+import { ApiResponse } from '@/constants/responseCodes';
 import axios from './axios';
 import { Property, PropertyFormData } from '@/types/property';
 import { Room } from '@/types/room';
@@ -16,6 +17,37 @@ export const createProperty = async (data: PropertyFormData) => {
   const response = await axios.post('/properties/my/', payload, {
     withCredentials: true,
   });
+  return response.data;
+};
+export const syncPropertyPMSData = async (
+  propertyId: number,
+  syncData: {
+    base_url: string;
+    email: string;
+    phone_number: string;
+    pms_token: string;
+    pms_hotel_identifier: string;
+    pms_username: string;
+    pms_password: string;
+  }
+): Promise<void> => {
+  const response = await axios.post(
+    `/properties/my/${propertyId}/pms-data`,
+    syncData,
+    {
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
+
+export const syncFinalPropertyWithPMS = async (
+  propertyId: number
+): Promise<ApiResponse<{ success: boolean; message: string }>> => {
+  const response = await axios.post<
+    ApiResponse<{ success: boolean; message: string }>
+  >(`/properties/my/${propertyId}/sync`, {}, { withCredentials: true });
+  console.log(response, 'que pasa aca');
   return response.data;
 };
 

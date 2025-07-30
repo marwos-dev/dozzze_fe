@@ -10,7 +10,7 @@ import StepSelectLocation from './StepSelectLocation';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { PropertyFormData } from '@/types/property';
 import { parseAreaToCoordinates } from '@/utils/mapUtils/parseAreaToCoordiantes';
-import StepReviewAndSync from './StepReviewAndSync';
+import StepCreateProperty from './StepCreateProperty';
 
 const stepVariants = {
   initial: { opacity: 0, x: 50 },
@@ -108,7 +108,7 @@ export default function AddPropertyWizard() {
               />
             )}
             {step === 4 && (
-              <StepReviewAndSync
+              <StepCreateProperty
                 data={propertyData}
                 onBack={goBack}
                 onSubmit={() => {
