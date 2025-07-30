@@ -5,6 +5,7 @@ import { showToast } from '@/store/toastSlice';
 import { useDispatch } from 'react-redux';
 import type { Zone } from '@/types/zone';
 import type { PropertyFormData } from '@/types/property';
+import Image from 'next/image';
 
 interface Props {
   data: PropertyFormData;
@@ -41,7 +42,7 @@ export default function StepBasicInfo({
     if (urls.length > 0) {
       onChange({
         ...data,
-        coverImage: urls[0], // opcionalmente podrías quitarlo
+        coverImage: urls[0],
         images: urls,
       });
     }
@@ -131,17 +132,22 @@ export default function StepBasicInfo({
           hidden
         />
 
-        {/* Galería scroll horizontal */}
         {data.images?.length > 0 && (
           <div className="mt-4 overflow-x-auto">
             <div className="flex gap-3 min-w-full max-w-full">
               {data.images.map((url, idx) => (
-                <img
+                <div
                   key={idx}
-                  src={url}
-                  alt={`Imagen ${idx}`}
-                  className="h-28 w-36 object-cover rounded-lg border border-gray-300 dark:border-white/20"
-                />
+                  className="relative h-28 w-36 rounded-lg overflow-hidden border border-gray-300 dark:border-white/20 shrink-0"
+                >
+                  <Image
+                    src={url}
+                    alt={`Imagen ${idx}`}
+                    fill
+                    sizes="(max-width: 768px) 50vw, 20vw"
+                    className="object-cover"
+                  />
+                </div>
               ))}
             </div>
           </div>
