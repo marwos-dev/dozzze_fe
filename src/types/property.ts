@@ -23,15 +23,16 @@ export interface Property {
 
 export interface PropertyFormData {
   name: string;
-  address: string;
   description: string;
   coverImage: string;
-  latitude: null;
-  longitude: null;
+  images: string[];
   zone: string;
   zone_id: number | null;
-  images: string[];
+  latitude: number | null;
+  longitude: number | null;
+  address?: string;
 }
+
 export interface PropertySyncData {
   base_url: string;
   email: string;

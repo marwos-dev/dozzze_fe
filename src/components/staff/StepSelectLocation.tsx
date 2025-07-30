@@ -11,29 +11,26 @@ import {
 } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import type { PropertyFormData } from '@/types/property';
 import { Zone } from '@/types/zone';
 
-interface Props {
-  data: {
-    latitude: number | null;
-    longitude: number | null;
-    address?: string;
-    zone_id: number | null;
-  };
-  onChange: (data: any) => void;
-  onBack: () => void;
-  onNext: () => void;
-  zones: Zone[];
-  zonePolygon: [number, number][];
-}
-
 // Fix Leaflet default icons for Next.js
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })
+  ._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: '/leaflet/marker-icon-2x.png',
   iconUrl: '/leaflet/marker-icon.png',
   shadowUrl: '/leaflet/marker-shadow.png',
 });
+
+interface Props {
+  data: PropertyFormData;
+  onChange: (partialData: Partial<PropertyFormData>) => void;
+  onBack: () => void;
+  onNext: () => void;
+  zones: Zone[];
+  zonePolygon: [number, number][];
+}
 
 // Verifica si un punto está dentro de un polígono
 function pointInPolygon(point: [number, number], polygon: [number, number][]) {
@@ -87,17 +84,14 @@ export default function StepSelectLocation({
   onChange,
   onBack,
   onNext,
-  zones,
   zonePolygon,
 }: Props) {
   const [mapCenter, setMapCenter] = useState<[number, number]>([-34.6, -58.45]);
 
-  // Cálculo de bounds para centrado automático
   const polygonBounds = useMemo(() => {
     return L.latLngBounds(zonePolygon.map(([lat, lng]) => L.latLng(lat, lng)));
   }, [zonePolygon]);
 
-  // Centro del mapa por defecto (cuando se crea)
   useEffect(() => {
     if (zonePolygon.length > 0) {
       const center = polygonBounds.getCenter();
@@ -106,7 +100,7 @@ export default function StepSelectLocation({
   }, [polygonBounds, zonePolygon]);
 
   const handleSetCoords = (lat: number, lng: number) => {
-    onChange({ ...data, latitude: lat, longitude: lng });
+    onChange({ latitude: lat, longitude: lng });
   };
 
   return (
@@ -124,7 +118,6 @@ export default function StepSelectLocation({
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {/* Dibujo del polígono y centrado */}
           {zonePolygon.length > 0 && (
             <>
               <Polygon
@@ -139,7 +132,6 @@ export default function StepSelectLocation({
             </>
           )}
 
-          {/* Marker si ya se seleccionó */}
           {data.latitude && data.longitude && (
             <Marker position={[data.latitude, data.longitude]} />
           )}

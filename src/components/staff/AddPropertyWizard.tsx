@@ -100,7 +100,9 @@ export default function AddPropertyWizard() {
             {step === 3 && (
               <StepSelectLocation
                 data={propertyData}
-                onChange={setPropertyData}
+                onChange={(partialData) =>
+                  setPropertyData((prev) => ({ ...prev, ...partialData }))
+                }
                 onBack={goBack}
                 onNext={goNext}
                 zones={zones}

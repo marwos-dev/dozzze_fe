@@ -37,6 +37,7 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
       );
       onSubmit();
     } catch (err) {
+      console.error(err);
       dispatch(
         showToast({ message: 'Error al crear la propiedad', color: 'red' })
       );
