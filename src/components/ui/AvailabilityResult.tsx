@@ -19,8 +19,17 @@ import { includedServicesMock } from '@/../public/icons/service'; // <- Import c
 import { Tooltip } from 'react-tooltip';
 import type { Property } from '@/types/property';
 import type { Zone } from '@/types/zone';
+import type { RoomType } from '@/types/roomType';
 
 const fallbackThumbnail = '/logo.png';
+
+function mergeImages(roomType: RoomType | undefined, property?: Property) {
+  const roomImages = roomType?.images ?? [];
+  const propertyImages = property?.images ?? [];
+  return [...roomImages, ...propertyImages].filter(
+    (img) => typeof img === 'string' && img.startsWith('http')
+  );
+}
 
 function findRoomTypeImages(
   propertyId: number,
@@ -32,13 +41,15 @@ function findRoomTypeImages(
     const roomType = selectedProperty.room_types?.find(
       (rt) => rt.id === roomTypeId
     );
-    if (roomType?.images?.length) return roomType.images;
+    const images = mergeImages(roomType, selectedProperty);
+    if (images.length) return images;
   }
 
   for (const zone of allZones) {
     const property = zone.properties?.find((p) => p.id === propertyId);
     const roomType = property?.room_types?.find((rt) => rt.id === roomTypeId);
-    if (roomType?.images?.length) return roomType.images;
+    const images = mergeImages(roomType, property);
+    if (images.length) return images;
   }
 
   return [];
