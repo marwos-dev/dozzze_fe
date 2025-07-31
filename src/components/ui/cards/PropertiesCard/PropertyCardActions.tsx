@@ -3,11 +3,11 @@
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { setSelectedProperty } from '@/store/propertiesSlice';
+import slugify from '@/utils/slugify';
 import { ArrowRight, Phone, Mail, MessageCircleMore } from 'lucide-react';
 import { Property } from '@/types/property';
 
 interface PropertyCardActionsProps {
-  id: number;
   communication_methods: string[];
   roomsCount: number;
   fullPropertyData: Property;
@@ -24,7 +24,6 @@ const getMethodIcon = (method: string) => {
 };
 
 export default function PropertyCardActions({
-  id,
   communication_methods,
   roomsCount,
   fullPropertyData,
@@ -34,7 +33,7 @@ export default function PropertyCardActions({
 
   const handleSelect = () => {
     dispatch(setSelectedProperty(fullPropertyData));
-    router.push(`/properties/${id}`);
+    router.push(`/properties/${slugify(fullPropertyData.name)}`);
   };
 
   return (

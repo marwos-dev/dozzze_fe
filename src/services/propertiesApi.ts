@@ -11,6 +11,13 @@ export const fetchPropertyById = async (id: number): Promise<Property> => {
   return response.data;
 };
 
+// Obtener propiedad por nombre (slug)
+export const fetchPropertyByName = async (name: string): Promise<Property> => {
+  const encoded = encodeURIComponent(name);
+  const response = await axios.get(`/properties/name/${encoded}`);
+  return response.data;
+};
+
 // ✅ Corregido: obtener habitaciones de propiedad específica
 export const getRooms = async (propertyId: number): Promise<Room[]> => {
   const response = await axios.get(`/properties/${propertyId}/rooms`);
