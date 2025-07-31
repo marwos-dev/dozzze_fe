@@ -39,7 +39,6 @@ export default function PropertiesCard(props: Property) {
         </div>
         <div className="md:w-[220px]">
           <PropertyCardActions
-            id={props.id}
             roomsCount={props.room_types?.length ?? 0}
             communication_methods={props.communication_methods}
             fullPropertyData={props}
