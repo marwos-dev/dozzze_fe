@@ -17,6 +17,7 @@ export const createProperty = async (data: PropertyFormData) => {
   const response = await axios.post('/properties/my/', payload, {
     withCredentials: true,
   });
+  console.log(response.data, 'este es el response');
   return response.data;
 };
 export const syncPropertyPMSData = async (

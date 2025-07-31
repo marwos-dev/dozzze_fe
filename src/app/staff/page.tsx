@@ -6,13 +6,12 @@ import { useRouter } from 'next/navigation';
 import { RootState } from '@/store';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import AddPropertyWizard from '@/components/staff/AddPropertyWizard';
-import SyncPropertyForm from '@/components/staff/SyncPropertyForm';
 export default function StaffPage() {
   const router = useRouter();
   const profile = useSelector((state: RootState) =>
     selectCustomerProfile(state)
   );
-  const [activeTab, setActiveTab] = useState<'home' | 'add' | 'sync'>('home');
+  const [activeTab, setActiveTab] = useState<'add'>('add');
 
   useEffect(() => {
     if (!profile) {
@@ -31,16 +30,6 @@ export default function StaffPage() {
       {/* Submenú */}
       <div className="flex gap-4 border-b border-gray-200 dark:border-white/10 mb-6">
         <button
-          onClick={() => setActiveTab('home')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 ${
-            activeTab === 'home'
-              ? 'border-dozeblue text-dozeblue'
-              : 'border-transparent text-gray-500 hover:text-dozeblue'
-          }`}
-        >
-          Inicio
-        </button>
-        <button
           onClick={() => setActiveTab('add')}
           className={`px-4 py-2 text-sm font-medium border-b-2 ${
             activeTab === 'add'
@@ -50,29 +39,8 @@ export default function StaffPage() {
         >
           Añadir propiedad
         </button>
-        <button
-          onClick={() => setActiveTab('sync')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 ${
-            activeTab === 'sync'
-              ? 'border-dozeblue text-dozeblue'
-              : 'border-transparent text-gray-500 hover:text-dozeblue'
-          }`}
-        >
-          Sincronizar
-        </button>
       </div>
-
-      {/* Contenido de cada vista */}
-      {activeTab === 'home' && (
-        <div className="text-gray-700 dark:text-white/80">
-          <p className="text-sm">
-            Seleccioná una opción del menú para comenzar.
-          </p>
-        </div>
-      )}
-
       {activeTab === 'add' && <AddPropertyWizard />}
-      {activeTab === 'sync' && <SyncPropertyForm />}
     </div>
   );
 }

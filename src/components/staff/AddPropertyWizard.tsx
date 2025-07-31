@@ -7,10 +7,11 @@ import { getZones } from '@/store/zoneSlice';
 import StepSelectZone from './StepSelectZone';
 import StepBasicInfo from './StepBasicInfo';
 import StepSelectLocation from './StepSelectLocation';
+import StepCreateProperty from './StepCreateProperty';
+import SyncPropertyForm from './SyncPropertyForm';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { PropertyFormData } from '@/types/property';
 import { parseAreaToCoordinates } from '@/utils/mapUtils/parseAreaToCoordiantes';
-import StepCreateProperty from './StepCreateProperty';
 
 const stepVariants = {
   initial: { opacity: 0, x: 50 },
@@ -18,13 +19,23 @@ const stepVariants = {
   exit: { opacity: 0, x: -50 },
 };
 
-const steps = ['Zona', 'Datos básicos', 'Ubicación', 'Sincronización'];
+const steps = [
+  'Zona',
+  'Datos básicos',
+  'Ubicación',
+  'Crear propiedad',
+  'Sincronización',
+];
 
 export default function AddPropertyWizard() {
   const dispatch = useDispatch<AppDispatch>();
   const zones = useSelector((state: RootState) => state.zones.data);
 
   const [step, setStep] = useState(1);
+  const [createdPropertyId, setCreatedPropertyId] = useState<number | null>(
+    null
+  );
+
   const [propertyData, setPropertyData] = useState<PropertyFormData>({
     name: '',
     address: '',
@@ -113,11 +124,14 @@ export default function AddPropertyWizard() {
               <StepCreateProperty
                 data={propertyData}
                 onBack={goBack}
-                onSubmit={() => {
-                  console.log('Datos enviados:', propertyData);
-                  alert('Propiedad sincronizada con éxito!');
+                onSubmit={(createdId: number) => {
+                  setCreatedPropertyId(createdId);
+                  setStep(5);
                 }}
               />
+            )}
+            {step === 5 && createdPropertyId !== null && (
+              <SyncPropertyForm propertyId={createdPropertyId} />
             )}
           </motion.div>
         </AnimatePresence>

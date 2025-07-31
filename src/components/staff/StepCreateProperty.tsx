@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux';
 interface Props {
   data: PropertyFormData;
   onBack: () => void;
-  onSubmit: () => void;
+  onSubmit: (propertyId: number) => void; // 🔁 ahora recibe el ID
 }
 
 export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
@@ -31,11 +31,22 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
         coverImage: data.coverImage,
         zone: data.zone,
       };
-      await createProperty(payload);
+
+      const created = await createProperty(payload);
       dispatch(
         showToast({ message: 'Propiedad creada correctamente', color: 'green' })
       );
-      onSubmit();
+
+      if (created?.id) {
+        onSubmit(created.id); // ✅ pasamos el ID al siguiente paso
+      } else {
+        dispatch(
+          showToast({
+            message: 'No se pudo obtener el ID de la propiedad',
+            color: 'red',
+          })
+        );
+      }
     } catch (err) {
       console.error(err);
       dispatch(
@@ -99,6 +110,7 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
 
         <button
           onClick={handleSubmit}
+          disabled={loading}
           className="bg-dozeblue text-white px-6 py-2 rounded-md hover:bg-dozeblue/90 transition disabled:opacity-50"
         >
           {loading ? 'Enviando...' : 'Crear propiedad'}
