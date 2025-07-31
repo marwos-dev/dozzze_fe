@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Property } from '@/types/property';
 import { Star, Mail, MessageCircleMore, Phone, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import slugify from '@/utils/slugify';
 
 interface PropertyBannerProps {
   property: Property;
@@ -115,7 +116,7 @@ export default function PropertyBanner({
 
           <div className="flex flex-col mr-2 md:items-end">
             <Link
-              href={`/properties/${property.id}`}
+              href={`/properties/${slugify(property.name)}`}
               className="flex justify-center items-center text-dozeblue px-4 py-2 rounded-full text-sm bg-greenlight transition mt-2 w-full sm:w-auto text-center"
             >
               Términos y Condiciones

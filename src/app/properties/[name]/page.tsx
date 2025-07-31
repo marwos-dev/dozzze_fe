@@ -10,7 +10,7 @@ import { DateRange, RangeKeyDict, Range } from 'react-date-range';
 import { addDays, format } from 'date-fns';
 import {
   fetchAvailability,
-  loadFullPropertyById,
+  loadFullPropertyByName,
 } from '@/store/propertiesSlice';
 import AvailabilityResult from '@/components/ui/AvailabilityResult';
 import SkeletonAvailabilityResult from '@/components/ui/skeletons/AvailabilityResultSkeleton';
@@ -26,7 +26,7 @@ import 'react-date-range/dist/theme/default.css';
 
 export default function PropertyDetailPage() {
   const params = useParams();
-  const propertyId = Number(params?.id);
+  const propertyName = params?.name as string;
 
   const dispatch = useDispatch<AppDispatch>();
   const property = useSelector(selectSelectedProperty);
@@ -48,10 +48,10 @@ export default function PropertyDetailPage() {
   const calendarRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!property && propertyId) {
-      dispatch(loadFullPropertyById(propertyId));
+    if (!property && propertyName) {
+      dispatch(loadFullPropertyByName(propertyName));
     }
-  }, [dispatch, property, propertyId]);
+  }, [dispatch, property, propertyName]);
 
   useEffect(() => {
     if (property?.id && !hasFetched) {

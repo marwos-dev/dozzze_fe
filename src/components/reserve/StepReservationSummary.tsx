@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import slugify from '@/utils/slugify';
 import { CalendarDays, Users, X, FileText } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
@@ -63,8 +64,12 @@ export default function StepReservationSummary({
     router.push(`/`);
   };
 
-  const handleSearchAnotherInProperty = (propertyId: number) => {
-    router.push(`/properties/${propertyId}`);
+  const handleSearchAnotherInProperty = (
+    propertyId: number,
+    propertyName?: string
+  ) => {
+    const slug = propertyName ? slugify(propertyName) : String(propertyId);
+    router.push(`/properties/${slug}`);
   };
 
   return (
@@ -194,7 +199,9 @@ export default function StepReservationSummary({
 
             <div className="flex justify-between items-center mt-2">
               <button
-                onClick={() => handleSearchAnotherInProperty(propertyId)}
+                onClick={() =>
+                  handleSearchAnotherInProperty(propertyId, firstRes.property_name)
+                }
                 className="text-sm border pt-2 border-dozeblue text-dozeblue px-2 py-1 rounded hover:bg-dozeblue/10 transition"
               >
                 Buscar otra habitación en esta propiedad
