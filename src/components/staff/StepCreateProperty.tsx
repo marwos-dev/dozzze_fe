@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { createProperty } from '@/services/propertiesApi';
+import { createProperty, uploadPropertyImage } from '@/services/propertiesApi';
 import type { PropertyFormData } from '@/types/property';
 import { showToast } from '@/store/toastSlice';
 import { useDispatch } from 'react-redux';
@@ -10,16 +10,29 @@ import { useDispatch } from 'react-redux';
 interface Props {
   data: PropertyFormData;
   onBack: () => void;
-  onSubmit: (propertyId: number) => void; // 🔁 ahora recibe el ID
+  onSubmit: (propertyId: number) => void;
 }
 
 export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [previewUrls, setPreviewUrls] = useState<string[]>(
+    data.images.map((img) =>
+      typeof img === 'string' ? img : URL.createObjectURL(img)
+    )
+  );
+
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [previewUrls]);
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
+
       const payload = {
         name: data.name,
         description: data.description,
@@ -27,26 +40,45 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
         latitude: data.latitude,
         longitude: data.longitude,
         zone_id: data.zone_id,
-        images: data.images,
+        images: data.images.filter(
+          (img): img is string => typeof img === 'string'
+        ),
         coverImage: data.coverImage,
         zone: data.zone,
       };
 
       const created = await createProperty(payload);
-      dispatch(
-        showToast({ message: 'Propiedad creada correctamente', color: 'green' })
-      );
 
-      if (created?.id) {
-        onSubmit(created.id); // ✅ pasamos el ID al siguiente paso
-      } else {
+      if (!created?.id) {
         dispatch(
           showToast({
             message: 'No se pudo obtener el ID de la propiedad',
             color: 'red',
           })
         );
+        return;
       }
+
+      const newImages = data.images.filter(
+        (img): img is File => img instanceof File
+      );
+      if (newImages.length > 0) {
+        setUploadingImages(true);
+        await Promise.all(
+          newImages.map((file) => uploadPropertyImage(created.id, file))
+        );
+        setUploadingImages(false);
+      }
+
+      dispatch(
+        showToast({
+          message: 'Propiedad creada correctamente',
+          color: 'green',
+        })
+      );
+
+      setPreviewUrls([]);
+      onSubmit(created.id);
     } catch (err) {
       console.error(err);
       dispatch(
@@ -54,6 +86,7 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
       );
     } finally {
       setLoading(false);
+      setUploadingImages(false);
     }
   };
 
@@ -87,34 +120,46 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
       <div>
         <strong>Imágenes:</strong>
         <div className="flex gap-2 mt-2 overflow-x-auto">
-          {data.images.map((url, idx) => (
-            <Image
-              key={idx}
-              src={url}
-              alt={`img-${idx}`}
-              width={120}
-              height={80}
-              className="rounded object-cover border"
-            />
-          ))}
+          {data.images.map((img, idx) => {
+            const src = typeof img === 'string' ? img : previewUrls[idx];
+            if (!src) return null;
+            return (
+              <Image
+                key={idx}
+                src={src}
+                alt={`img-${idx}`}
+                width={120}
+                height={80}
+                className="rounded object-cover border"
+              />
+            );
+          })}
         </div>
       </div>
 
-      <div className="flex justify-between pt-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between pt-4 gap-4">
         <button
           onClick={onBack}
-          className="bg-gray-200 dark:bg-dozegray px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-dozegray/50 transition"
+          className="px-4 py-2 rounded-md border border-dozeblue text-dozeblue hover:bg-dozeblue/10 transition"
         >
           Volver
         </button>
 
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="bg-dozeblue text-white px-6 py-2 rounded-md hover:bg-dozeblue/90 transition disabled:opacity-50"
-        >
-          {loading ? 'Enviando...' : 'Crear propiedad'}
-        </button>
+        <div className="flex flex-col items-center min-h-[50px]">
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="bg-dozeblue text-white px-6 py-2 rounded-md hover:bg-dozeblue/90 transition disabled:opacity-50"
+          >
+            {loading ? 'Enviando...' : 'Crear propiedad'}
+          </button>
+
+          {uploadingImages && (
+            <span className="text-sm mt-2 text-gray-500 animate-pulse">
+              Guardando las imágenes, esto tomará un momento...
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

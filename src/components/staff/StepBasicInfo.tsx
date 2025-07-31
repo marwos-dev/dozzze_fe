@@ -38,12 +38,12 @@ export default function StepBasicInfo({
 
   const handleImageSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const urls = files.map((file) => URL.createObjectURL(file));
-    if (urls.length > 0) {
+
+    if (files.length > 0) {
       onChange({
         ...data,
-        coverImage: urls[0],
-        images: urls,
+        coverImage: URL.createObjectURL(files[0]),
+        images: files,
       });
     }
   };
@@ -135,20 +135,24 @@ export default function StepBasicInfo({
         {data.images?.length > 0 && (
           <div className="mt-4 overflow-x-auto">
             <div className="flex gap-3 min-w-full max-w-full">
-              {data.images.map((url, idx) => (
-                <div
-                  key={idx}
-                  className="relative h-28 w-36 rounded-lg overflow-hidden border border-gray-300 dark:border-white/20 shrink-0"
-                >
-                  <Image
-                    src={url}
-                    alt={`Imagen ${idx}`}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 20vw"
-                    className="object-cover"
-                  />
-                </div>
-              ))}
+              {data.images.map((img, idx) => {
+                const previewUrl =
+                  typeof img === 'string' ? img : URL.createObjectURL(img);
+                return (
+                  <div
+                    key={idx}
+                    className="relative h-28 w-36 rounded-lg overflow-hidden border border-gray-300 dark:border-white/20 shrink-0"
+                  >
+                    <Image
+                      src={previewUrl}
+                      alt={`Imagen ${idx}`}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 20vw"
+                      className="object-cover"
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

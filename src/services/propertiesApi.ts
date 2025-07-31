@@ -90,3 +90,16 @@ export const checkPropertyAvailability = async (
   const response = await axios.post('/properties/availability/', data);
   return response.data;
 };
+export async function uploadPropertyImage(
+  propertyId: number,
+  file: File,
+  caption = ''
+): Promise<void> {
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('caption', caption);
+
+  await axios.post(`/properties/my/${propertyId}/images`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+}

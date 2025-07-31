@@ -25,7 +25,7 @@ export interface PropertyFormData {
   name: string;
   description: string;
   coverImage: string;
-  images: string[];
+  images: (string | File)[];
   zone: string;
   zone_id: number | null;
   latitude: number | null;
