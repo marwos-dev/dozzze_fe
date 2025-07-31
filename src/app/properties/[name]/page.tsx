@@ -15,6 +15,7 @@ import {
 import AvailabilityResult from '@/components/ui/AvailabilityResult';
 import SkeletonAvailabilityResult from '@/components/ui/skeletons/AvailabilityResultSkeleton';
 import PropertyDetailSkeleton from '@/components/ui/skeletons/PropertyDetailSkeleton';
+import RoomTypeCarousel from '@/components/sliders/RoomTypeCarousel';
 import {
   selectSelectedProperty,
   selectAvailability,
@@ -147,6 +148,10 @@ export default function PropertyDetailPage() {
           </div>
         </div>
       </div>
+
+      {property.room_types?.some((rt) => rt.images && rt.images.length > 0) && (
+        <RoomTypeCarousel roomTypes={property.room_types} />
+      )}
 
       {/* Formulario de búsqueda */}
       <form onSubmit={handleSubmit} className="space-y-4 mb-6">
