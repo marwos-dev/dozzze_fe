@@ -54,7 +54,7 @@ export default function ImageGalleryModal({
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="relative w-full max-w-4xl h-[80vh] px-6">
+      <div className="relative w-full max-w-4xl h-[70vh] px-6">
         {!currentImage ? (
           <div className="w-full h-full flex items-center justify-center text-white">
             Imagen no disponible
@@ -92,6 +92,25 @@ export default function ImageGalleryModal({
       >
         <X className="w-8 h-8" />
       </button>
+
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto max-w-full px-6">
+        {images.map((img, i) => (
+          <button
+            key={i}
+            onClick={() => setIndex(i)}
+            className={`relative w-20 h-14 flex-shrink-0 rounded-md overflow-hidden border ${i === index ? 'border-dozeblue ring-2 ring-dozeblue' : 'border-transparent'}`}
+          >
+            <Image
+              src={typeof img === 'string' ? img : '/logo.png'}
+              alt={`Miniatura ${i + 1}`}
+              fill
+              className="object-cover"
+              sizes="80px"
+              unoptimized
+            />
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
