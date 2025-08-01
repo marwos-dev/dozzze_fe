@@ -1,20 +1,12 @@
 import axios from './axios';
 
 export async function uploadRoomTypeImages(
-  roomTypeId: number,
-  files: File[]
+  roomId: number,
+  file: File
 ): Promise<void> {
-  for (const file of files) {
-    const formData = new FormData();
-    formData.append('image', file);
-
-    await axios.post(
-      `/properties/my/room-types/${roomTypeId}/images`,
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true,
-      }
-    );
-  }
+  const formData = new FormData();
+  formData.append('image', file);
+  await axios.post(`/api/room-types/${roomId}/upload-image/`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 }
