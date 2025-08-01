@@ -23,6 +23,7 @@ export interface Property {
 
 export interface PropertyFormData {
   name: string;
+  pms_id: number | null;
   description: string;
   coverImage: string;
   images: (string | File)[];

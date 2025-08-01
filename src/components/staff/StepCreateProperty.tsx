@@ -33,6 +33,7 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
     try {
       setLoading(true);
 
+      // 1. Crear propiedad
       const payload = {
         name: data.name,
         description: data.description,
@@ -40,6 +41,7 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
         latitude: data.latitude,
         longitude: data.longitude,
         zone_id: data.zone_id,
+        pms_id: data.pms_id,
         images: data.images.filter(
           (img): img is string => typeof img === 'string'
         ),
@@ -59,6 +61,7 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
         return;
       }
 
+      // 2. Subir imágenes tipo File
       const newImages = data.images.filter(
         (img): img is File => img instanceof File
       );
@@ -137,15 +140,15 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between pt-4 gap-4">
+      <div className="flex flex-col items-start md:flex-row md:items-center justify-between pt-4 gap-3">
         <button
           onClick={onBack}
-          className="px-4 py-2 rounded-md border border-dozeblue text-dozeblue hover:bg-dozeblue/10 transition"
+          className="bg-gray-200 dark:bg-dozegray px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-dozegray/50 transition"
         >
           Volver
         </button>
 
-        <div className="flex flex-col items-center min-h-[50px]">
+        <div className="flex flex-col items-center">
           <button
             onClick={handleSubmit}
             disabled={loading}

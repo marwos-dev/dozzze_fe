@@ -13,6 +13,7 @@ export const createProperty = async (data: PropertyFormData) => {
     longitude: data.longitude,
     zone_id: data.zone_id,
     images: data.images,
+    pms_id: data.pms_id,
   };
   const response = await axios.post('/properties/my/', payload, {
     withCredentials: true,
@@ -44,9 +45,11 @@ export const syncPropertyPMSData = async (
 export const syncFinalPropertyWithPMS = async (
   propertyId: number
 ): Promise<ApiResponse<{ success: boolean; message: string }>> => {
+  console.log('esto entra?');
   const response = await axios.post<
     ApiResponse<{ success: boolean; message: string }>
   >(`/properties/my/${propertyId}/sync`, {}, { withCredentials: true });
+  console.log('esto es lo que responde', response.data);
   return response.data;
 };
 

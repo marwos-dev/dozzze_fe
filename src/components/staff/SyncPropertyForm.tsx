@@ -39,7 +39,7 @@ export default function SyncPropertyForm({ propertyId }: Props) {
 
   const handleSubmit = () => {
     const fields = Object.entries(syncData);
-    const emptyField = fields.find(([_, value]) => !value.trim());
+    const emptyField = fields.find(([value]) => !value.trim());
 
     if (emptyField) {
       dispatch(

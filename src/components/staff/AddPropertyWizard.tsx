@@ -45,6 +45,7 @@ export default function AddPropertyWizard() {
     longitude: null,
     zone_id: null,
     zone: '',
+    pms_id: null,
     images: [],
   });
 

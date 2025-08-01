@@ -48,6 +48,7 @@ export const finalizePropertySync = createAsyncThunk<
   async (propertyId, { dispatch, rejectWithValue }) => {
     try {
       const response = await syncFinalPropertyWithPMS(propertyId);
+      console.log({ response });
       return response;
     } catch (err: unknown) {
       const error = err instanceof Error ? err.message : 'Error al sincronizar';

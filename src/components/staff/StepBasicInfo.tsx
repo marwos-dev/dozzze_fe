@@ -1,11 +1,13 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { showToast } from '@/store/toastSlice';
 import { useDispatch } from 'react-redux';
 import type { Zone } from '@/types/zone';
 import type { PropertyFormData } from '@/types/property';
 import Image from 'next/image';
+import { PmsData } from '@/types/pms';
+import { getPms } from '@/services/pmsApi';
 
 interface Props {
   data: PropertyFormData;
@@ -25,9 +27,33 @@ export default function StepBasicInfo({
   const dispatch = useDispatch();
   const imageInputRef = useRef<HTMLInputElement>(null);
 
+  const [pmsOptions, setPmsOptions] = useState<PmsData[]>([]);
+  const [loadingPms, setLoadingPms] = useState(true);
+
+  useEffect(() => {
+    const fetchPmsOptions = async () => {
+      try {
+        const data = await getPms();
+        setPmsOptions(data);
+      } catch (error) {
+        console.error(error);
+        dispatch(
+          showToast({
+            message: 'Error al cargar los PMS disponibles.',
+            color: 'red',
+          })
+        );
+      } finally {
+        setLoadingPms(false);
+      }
+    };
+
+    fetchPmsOptions();
+  }, [dispatch]);
+
   const handleNext = () => {
-    const { name, address, description, zone_id } = data;
-    if (!name || !address || !description || !zone_id) {
+    const { name, address, description, zone_id, pms_id } = data;
+    if (!name || !address || !description || !zone_id || !pms_id) {
       dispatch(
         showToast({ message: 'Completá todos los campos.', color: 'red' })
       );
@@ -83,6 +109,29 @@ export default function StepBasicInfo({
       </div>
 
       {/* Campos de texto */}
+      <div>
+        <label className="block text-sm font-medium text-dozegray dark:text-white/80">
+          Sistema de PMS
+        </label>
+        <select
+          value={data.pms_id || ''}
+          onChange={(e) =>
+            onChange({
+              ...data,
+              pms_id: Number(e.target.value),
+            })
+          }
+          disabled={loadingPms}
+          className="w-full mt-1 px-4 py-2 border rounded-md border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10"
+        >
+          <option value="">Seleccionar PMS</option>
+          {pmsOptions.map((pms) => (
+            <option key={pms.id} value={pms.id}>
+              {pms.name}
+            </option>
+          ))}
+        </select>
+      </div>
       {(['name', 'address', 'description'] as const).map((field) => (
         <div key={field}>
           <label className="block text-sm font-medium text-dozegray dark:text-white/80 capitalize">
