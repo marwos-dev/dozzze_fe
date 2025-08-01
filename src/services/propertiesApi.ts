@@ -49,7 +49,6 @@ export const syncFinalPropertyWithPMS = async (
   const response = await axios.post<
     ApiResponse<{ success: boolean; message: string }>
   >(`/properties/my/${propertyId}/sync`, {}, { withCredentials: true });
-  console.log('esto es lo que responde', response.data);
   return response.data;
 };
 

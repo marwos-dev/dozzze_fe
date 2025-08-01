@@ -12,6 +12,7 @@ import SyncPropertyForm from './SyncPropertyForm';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { PropertyFormData } from '@/types/property';
 import { parseAreaToCoordinates } from '@/utils/mapUtils/parseAreaToCoordiantes';
+import StepRoomEdit from './StepRoomEdit';
 
 const stepVariants = {
   initial: { opacity: 0, x: 50 },
@@ -25,6 +26,7 @@ const steps = [
   'Ubicación',
   'Crear propiedad',
   'Sincronización',
+  'Editar habitaciones',
 ];
 
 export default function AddPropertyWizard() {
@@ -90,15 +92,17 @@ export default function AddPropertyWizard() {
             transition={{ duration: 0.4 }}
           >
             {step === 1 && (
-              <StepSelectZone
-                zones={zones}
-                data={propertyData}
-                onChange={(data) => {
-                  setPropertyData(data);
-                  setStep(2);
-                }}
-                onNext={goNext}
-              />
+              <StepRoomEdit propertyId={3} />
+
+              // <StepSelectZone
+              //   zones={zones}
+              //   data={propertyData}
+              //   onChange={(data) => {
+              //     setPropertyData(data);
+              //     setStep(2);
+              //   }}
+              //   onNext={goNext}
+              // />
             )}
             {step === 2 && (
               <StepBasicInfo
@@ -133,6 +137,9 @@ export default function AddPropertyWizard() {
             )}
             {step === 5 && createdPropertyId !== null && (
               <SyncPropertyForm propertyId={createdPropertyId} />
+            )}
+            {step === 6 && createdPropertyId !== null && (
+              <StepRoomEdit propertyId={createdPropertyId} />
             )}
           </motion.div>
         </AnimatePresence>
