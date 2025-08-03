@@ -75,16 +75,17 @@ export default function StepRoomEdit({ propertyId }: Props) {
         Editar habitaciones sincronizadas
       </h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 items-stretch">
         {property.room_types.map((room) => (
           <div
             key={room.id}
-            className="relative w-full bg-greenlight text-center shadow-xl px-2 sm:px-3 transition-all m-1 rounded-2xl overflow-hidden flex flex-col border border-gray-200 dark:border-white/10 hover:shadow-2xl cursor-pointer"
+            className="relative w-full bg-greenlight text-center shadow-xl px-2 sm:px-3 transition-all rounded-2xl overflow-hidden flex flex-col border border-gray-200 dark:border-white/10 hover:shadow-2xl cursor-pointer min-h-[260px]"
             onClick={() => {
               setSelectedRoom(room);
               setEditModalOpen(true);
             }}
           >
+            {/* Imagen principal */}
             <div className="relative w-full h-32">
               <Image
                 src={
@@ -97,8 +98,9 @@ export default function StepRoomEdit({ propertyId }: Props) {
               />
             </div>
 
+            {/* Galería de thumbnails */}
             {roomImagesMap[room.id]?.length > 1 && (
-              <div className="flex justify-center mt-1 gap-1 flex-wrap">
+              <div className="flex justify-center mt-1 gap-1 flex-wrap h-fit">
                 {roomImagesMap[room.id].slice(1, 4).map((img, idx) => (
                   <div
                     key={idx}
@@ -120,8 +122,9 @@ export default function StepRoomEdit({ propertyId }: Props) {
               </div>
             )}
 
-            <div className="p-3 text-sm text-dozeblue flex flex-col items-center justify-center">
-              <span className="font-medium text-center break-words max-w-full leading-tight">
+            {/* Nombre y botón */}
+            <div className="p-3 text-sm text-dozeblue flex flex-col items-center justify-center flex-1">
+              <span className="font-medium text-center break-words leading-tight w-full">
                 {room.name}
               </span>
 
