@@ -211,9 +211,9 @@ export default function StepBasicInfo({
       <div className="flex justify-between pt-4">
         <button
           onClick={onBack}
-          className="text-sm text-gray-500 hover:text-gray-700 dark:text-white/70 dark:hover:text-white"
+          className="  px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-dozegray/50 transition"
         >
-          ← Atrás
+          Volver
         </button>
         <button
           onClick={handleNext}

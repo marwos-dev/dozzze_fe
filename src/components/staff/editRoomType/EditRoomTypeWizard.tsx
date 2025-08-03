@@ -97,17 +97,6 @@ export default function EditRoomWizard() {
           </motion.div>
         </AnimatePresence>
       </div>
-
-      {step > 1 && (
-        <div className="text-right">
-          <button
-            onClick={goBack}
-            className="text-sm text-dozeblue underline hover:text-dozeblue/80"
-          >
-            Volver
-          </button>
-        </div>
-      )}
     </div>
   );
 }

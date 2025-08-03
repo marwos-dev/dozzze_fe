@@ -139,7 +139,7 @@ export default function StepSelectLocation({
       <div className="flex justify-between pt-2">
         <button
           onClick={onBack}
-          className="  px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-dozegray/50 transition"
+          className="px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-dozegray/50 transition"
         >
           Volver
         </button>
