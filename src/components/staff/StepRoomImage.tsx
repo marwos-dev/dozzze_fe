@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import Image from 'next/image';
 import { showToast } from '@/store/toastSlice';
 import { uploadRoomTypeImages } from '@/services/roomApi';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Loader2 } from 'lucide-react';
 
 interface Props {
   open: boolean;
@@ -43,7 +43,7 @@ export default function StepRoomImage({
         showToast({ message: 'Imagen subida con éxito', color: 'green' })
       );
       if (onImageUploaded) {
-        await onImageUploaded(); // ✅ dispara recarga
+        await onImageUploaded();
       }
       onClose();
     } catch (err) {
@@ -119,7 +119,7 @@ export default function StepRoomImage({
             disabled={loading}
             className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-dozeblue text-white rounded-md hover:bg-dozeblue/90 transition disabled:opacity-50"
           >
-            <Plus size={18} /> {loading ? 'Subiendo...' : 'Subir nueva imagen'}
+            <Plus size={18} /> Subir nueva imagen
           </button>
 
           <input
@@ -132,7 +132,7 @@ export default function StepRoomImage({
         </div>
 
         {previewImage && (
-          <div className="text-center">
+          <div className="text-center relative">
             <p className="text-sm text-gray-600 dark:text-white/70 mb-2">
               Vista previa:
             </p>
@@ -145,6 +145,12 @@ export default function StepRoomImage({
                 className="object-cover"
                 unoptimized
               />
+              {loading && (
+                <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white space-y-2">
+                  <Loader2 className="animate-spin w-6 h-6" />
+                  <p className="text-sm">Subiendo imagen...</p>
+                </div>
+              )}
             </div>
           </div>
         )}
