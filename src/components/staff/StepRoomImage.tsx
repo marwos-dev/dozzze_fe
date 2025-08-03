@@ -1,16 +1,18 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Image from 'next/image';
 import { showToast } from '@/store/toastSlice';
 import { uploadRoomTypeImages } from '@/services/roomApi';
+import { Plus, X } from 'lucide-react';
 
 interface Props {
   open: boolean;
   onClose: () => void;
   roomId: number;
   initialImages: string[];
+  onImageUploaded?: () => void;
 }
 
 export default function StepRoomImage({
@@ -21,46 +23,29 @@ export default function StepRoomImage({
 }: Props) {
   const dispatch = useDispatch();
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const [images, setImages] = useState<(string | File)[]>([]);
+  const [previewImage, setPreviewImage] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [description, setDescription] = useState('');
 
-  useEffect(() => {
-    setImages(initialImages);
-  }, [initialImages]);
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 0) {
-      setImages((prev) => [...prev, ...files]);
-    }
+  const handleSelectFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPreviewImage(file);
+    await handleUpload(file);
   };
-
-  const handleRemove = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSave = async () => {
+  const handleUpload = async (file: File) => {
+    setLoading(true);
     try {
-      Promise.all(
-        images.map(async (img) => {
-          if (typeof img === 'string') return img;
-          await uploadRoomTypeImages(roomId, img);
-        })
-      );
-
-      // Acá podrías guardar las URLs si tu backend no las hace persistentes automáticamente
-
+      await uploadRoomTypeImages(roomId, file);
       dispatch(
-        showToast({
-          message: 'Imágenes actualizadas correctamente.',
-          color: 'green',
-        })
+        showToast({ message: 'Imagen subida con éxito', color: 'green' })
       );
       onClose();
     } catch (err) {
-      console.error(err);
-      dispatch(
-        showToast({ message: 'Error al guardar imágenes.', color: 'red' })
-      );
+      dispatch(showToast({ message: 'Error al subir imagen', color: 'red' }));
+    } finally {
+      setLoading(false);
+      setPreviewImage(null);
     }
   };
 
@@ -68,73 +53,102 @@ export default function StepRoomImage({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-zinc-900 rounded-xl p-6 max-w-2xl w-full shadow-lg space-y-4"
+        className="relative bg-greenlight rounded-xl p-6 w-full max-w-2xl shadow-xl space-y-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-semibold text-dozzze-primary">
-          Editar imágenes de la habitación
+        {/* Cerrar */}
+        <button
+          className="absolute top-4 right-4 text-dozeblue hover:text-dozeblue/80 transition"
+          onClick={onClose}
+        >
+          <X size={20} />
+        </button>
+
+        {/* Título */}
+        <h2 className="text-xl font-semibold text-dozeblue text-center">
+          Galería de imágenes
         </h2>
 
-        <button
-          onClick={() => imageInputRef.current?.click()}
-          className="w-full px-4 py-3 border border-dashed border-gray-400 dark:border-white/20 rounded-lg bg-gray-50 dark:bg-zinc-700 text-dozegray dark:text-white hover:bg-gray-100 transition"
-        >
-          Seleccionar imágenes desde tu dispositivo
-        </button>
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          ref={imageInputRef}
-          hidden
-          onChange={handleFileSelect}
-        />
+        {/* Descripción */}
+        <div>
+          <label className="block text-sm font-medium text-dozegray dark:text-white/80">
+            Descripción
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={2}
+            placeholder="Descripción"
+            disabled
+            className="w-full mt-1 px-4 py-2 border rounded-md border-gray-300 dark:border-white/20 bg-gray-100 dark:bg-dozzegray/20 text-gray-500"
+          />
+        </div>
 
-        <div className="flex gap-3 overflow-x-auto py-2">
-          {images.map((img, idx) => {
-            const src =
-              typeof img === 'string' ? img : URL.createObjectURL(img);
-            return (
+        {/* Galería */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+          {initialImages.length > 0 ? (
+            initialImages.map((url, idx) => (
               <div
                 key={idx}
-                className="relative w-36 h-28 rounded-md overflow-hidden border border-gray-300 dark:border-white/20"
+                className="relative w-full h-28 sm:h-32 rounded-lg overflow-hidden border border-gray-200 dark:border-white/10"
               >
                 <Image
-                  src={src}
-                  alt={`img-${idx}`}
+                  src={url}
+                  alt={`Imagen ${idx + 1}`}
                   fill
-                  sizes="(max-width: 768px) 50vw, 20vw"
                   className="object-cover"
                 />
-                <button
-                  onClick={() => handleRemove(idx)}
-                  className="absolute top-1 right-1 bg-black/60 text-white text-xs px-1 rounded"
-                >
-                  ✕
-                </button>
               </div>
-            );
-          })}
+            ))
+          ) : (
+            <div className="text-gray-500 col-span-full text-center">
+              No hay imágenes aún.
+            </div>
+          )}
         </div>
 
-        <div className="flex justify-end gap-2 pt-2">
+        {/* Botón de subir */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <button
-            onClick={onClose}
-            className="text-gray-600 dark:text-white/70 hover:text-black dark:hover:text-white text-sm"
+            type="button"
+            onClick={() => imageInputRef.current?.click()}
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-dozeblue text-white rounded-md hover:bg-dozeblue/90 transition disabled:opacity-50"
           >
-            Cancelar
+            <Plus size={18} /> {loading ? 'Subiendo...' : 'Subir nueva imagen'}
           </button>
-          <button
-            onClick={handleSave}
-            className="bg-dozzze-primary text-white px-4 py-2 rounded-md hover:bg-dozzze-primary/90 text-sm"
-          >
-            Guardar imágenes
-          </button>
+
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            ref={imageInputRef}
+            onChange={handleSelectFile}
+          />
         </div>
+
+        {/* Vista previa */}
+        {previewImage && (
+          <div className="text-center">
+            <p className="text-sm text-gray-600 dark:text-white/70 mb-2">
+              Vista previa:
+            </p>
+            <div className="relative w-full h-40 sm:h-56 mx-auto border rounded-lg overflow-hidden">
+              <Image
+                src={URL.createObjectURL(previewImage)}
+                alt="preview"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

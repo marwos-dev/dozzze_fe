@@ -13,6 +13,7 @@ import StepRoomImage from './StepRoomImage';
 import { RoomType } from '@/types/roomType';
 import { Camera } from 'lucide-react';
 import { Tooltip } from '@/components/ui/ToolTip';
+import { getRoomTypeImages } from '@/services/roomApi';
 
 interface Props {
   propertyId: number;
@@ -26,12 +27,39 @@ export default function StepRoomEdit({ propertyId }: Props) {
 
   const [selectedRoom, setSelectedRoom] = useState<RoomType | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [roomImagesMap, setRoomImagesMap] = useState<Record<number, string[]>>(
+    {}
+  );
 
   useEffect(() => {
     if (propertyId) {
       dispatch(getPropertyById(propertyId));
     }
   }, [propertyId, dispatch]);
+
+  const loadImagesForRoom = async (roomId: number) => {
+    try {
+      const images = await getRoomTypeImages(roomId);
+      setRoomImagesMap((prev) => ({
+        ...prev,
+        [roomId]: images,
+      }));
+    } catch (error) {
+      console.error('Error al cargar imágenes del roomType', roomId, error);
+    }
+  };
+
+  useEffect(() => {
+    if (property?.room_types) {
+      property.room_types.forEach((room) => {
+        loadImagesForRoom(room.id);
+      });
+    }
+  }, [property]);
+
+  const handleImageUploaded = async (roomId: number) => {
+    await loadImagesForRoom(roomId);
+  };
 
   if (loading || !property || !property.room_types) {
     return (
@@ -57,15 +85,44 @@ export default function StepRoomEdit({ propertyId }: Props) {
               setEditModalOpen(true);
             }}
           >
+            {/* Imagen principal */}
             <div className="relative w-full h-32">
               <Image
-                src={room.images?.[0] || '/logo.png'}
+                src={
+                  roomImagesMap[room.id]?.[0] || room.images?.[0] || '/logo.png'
+                }
                 alt={room.name}
                 fill
                 className="object-cover rounded-t-2xl"
+                unoptimized
               />
             </div>
 
+            {/* Mini-galería si hay más imágenes */}
+            {roomImagesMap[room.id]?.length > 1 && (
+              <div className="flex justify-center mt-1 gap-1 flex-wrap">
+                {roomImagesMap[room.id].slice(1, 4).map((img, idx) => (
+                  <div
+                    key={idx}
+                    className="relative w-10 h-10 rounded overflow-hidden border"
+                  >
+                    <Image
+                      src={img}
+                      alt="thumb"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+                {roomImagesMap[room.id].length > 4 && (
+                  <div className="w-10 h-10 text-xs bg-gray-200 dark:bg-dozegray/40 text-gray-700 dark:text-white/80 rounded flex items-center justify-center">
+                    +{roomImagesMap[room.id].length - 4}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Nombre + botón */}
             <div className="p-3 text-sm text-dozeblue flex flex-col items-center justify-center">
               <span className="font-medium text-center break-words max-w-full leading-tight">
                 {room.name}
@@ -96,7 +153,8 @@ export default function StepRoomEdit({ propertyId }: Props) {
             setSelectedRoom(null);
           }}
           roomId={selectedRoom.id}
-          initialImages={selectedRoom.images || []}
+          initialImages={roomImagesMap[selectedRoom.id] || []}
+          onImageUploaded={() => handleImageUploaded(selectedRoom.id)}
         />
       )}
     </div>

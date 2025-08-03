@@ -3,10 +3,21 @@ import axios from './axios';
 export async function uploadRoomTypeImages(
   roomId: number,
   file: File
-): Promise<void> {
+): Promise<string> {
   const formData = new FormData();
   formData.append('image', file);
-  await axios.post(`/api/room-types/${roomId}/upload-image/`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  const res = await axios.post(
+    `/properties/my/room-types/${roomId}/images`,
+    formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }
+  );
+  return res.data?.image || '';
+}
+export async function getRoomTypeImages(roomTypeId: number): Promise<string[]> {
+  const response = await axios.get(
+    `/properties/my/room-types/${roomTypeId}/images`
+  );
+  return response.data.map((img: { image: string }) => img.image);
 }
