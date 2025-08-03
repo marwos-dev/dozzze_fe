@@ -92,17 +92,15 @@ export default function AddPropertyWizard() {
             transition={{ duration: 0.4 }}
           >
             {step === 1 && (
-              <StepRoomEdit propertyId={3} />
-
-              // <StepSelectZone
-              //   zones={zones}
-              //   data={propertyData}
-              //   onChange={(data) => {
-              //     setPropertyData(data);
-              //     setStep(2);
-              //   }}
-              //   onNext={goNext}
-              // />
+              <StepSelectZone
+                zones={zones}
+                data={propertyData}
+                onChange={(data) => {
+                  setPropertyData(data);
+                  setStep(2);
+                }}
+                onNext={goNext}
+              />
             )}
             {step === 2 && (
               <StepBasicInfo
@@ -136,7 +134,10 @@ export default function AddPropertyWizard() {
               />
             )}
             {step === 5 && createdPropertyId !== null && (
-              <SyncPropertyForm propertyId={createdPropertyId} />
+              <SyncPropertyForm
+                propertyId={createdPropertyId}
+                onSyncComplete={goNext}
+              />
             )}
             {step === 6 && createdPropertyId !== null && (
               <StepRoomEdit propertyId={createdPropertyId} />

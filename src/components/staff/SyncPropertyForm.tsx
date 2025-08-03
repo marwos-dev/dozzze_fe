@@ -67,14 +67,24 @@ export default function SyncPropertyForm({
         setStatus('done');
         if (onSyncComplete) onSyncComplete();
       } else {
-        setStatus('idle');
-        dispatch(showToast({ message: 'Error al sincronizar.', color: 'red' }));
+        setStatus('done');
+        dispatch(
+          showToast({
+            message: 'Error al sincronizar Continuando...',
+            color: 'yellow',
+          })
+        );
+        if (onSyncComplete) onSyncComplete();
       }
     } else {
-      setStatus('idle');
+      setStatus('done');
       dispatch(
-        showToast({ message: 'Error al guardar datos PMS.', color: 'red' })
+        showToast({
+          message: 'Error al guardar datos Continuando...',
+          color: 'yellow',
+        })
       );
+      if (onSyncComplete) onSyncComplete();
     }
   };
 

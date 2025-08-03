@@ -20,6 +20,7 @@ export default function StepRoomImage({
   onClose,
   roomId,
   initialImages,
+  onImageUploaded,
 }: Props) {
   const dispatch = useDispatch();
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -33,6 +34,7 @@ export default function StepRoomImage({
     setPreviewImage(file);
     await handleUpload(file);
   };
+
   const handleUpload = async (file: File) => {
     setLoading(true);
     try {
@@ -40,6 +42,9 @@ export default function StepRoomImage({
       dispatch(
         showToast({ message: 'Imagen subida con éxito', color: 'green' })
       );
+      if (onImageUploaded) {
+        await onImageUploaded(); // ✅ dispara recarga
+      }
       onClose();
     } catch (err) {
       dispatch(showToast({ message: 'Error al subir imagen', color: 'red' }));
@@ -60,7 +65,6 @@ export default function StepRoomImage({
         className="relative bg-greenlight rounded-xl p-6 w-full max-w-2xl shadow-xl space-y-6"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Cerrar */}
         <button
           className="absolute top-4 right-4 text-dozeblue hover:text-dozeblue/80 transition"
           onClick={onClose}
@@ -68,12 +72,10 @@ export default function StepRoomImage({
           <X size={20} />
         </button>
 
-        {/* Título */}
         <h2 className="text-xl font-semibold text-dozeblue text-center">
           Galería de imágenes
         </h2>
 
-        {/* Descripción */}
         <div>
           <label className="block text-sm font-medium text-dozegray dark:text-white/80">
             Descripción
@@ -88,7 +90,6 @@ export default function StepRoomImage({
           />
         </div>
 
-        {/* Galería */}
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
           {initialImages.length > 0 ? (
             initialImages.map((url, idx) => (
@@ -111,7 +112,6 @@ export default function StepRoomImage({
           )}
         </div>
 
-        {/* Botón de subir */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <button
             type="button"
@@ -131,7 +131,6 @@ export default function StepRoomImage({
           />
         </div>
 
-        {/* Vista previa */}
         {previewImage && (
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-white/70 mb-2">

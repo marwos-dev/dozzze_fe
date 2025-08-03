@@ -85,7 +85,6 @@ export default function StepRoomEdit({ propertyId }: Props) {
               setEditModalOpen(true);
             }}
           >
-            {/* Imagen principal */}
             <div className="relative w-full h-32">
               <Image
                 src={
@@ -98,7 +97,6 @@ export default function StepRoomEdit({ propertyId }: Props) {
               />
             </div>
 
-            {/* Mini-galería si hay más imágenes */}
             {roomImagesMap[room.id]?.length > 1 && (
               <div className="flex justify-center mt-1 gap-1 flex-wrap">
                 {roomImagesMap[room.id].slice(1, 4).map((img, idx) => (
@@ -122,7 +120,6 @@ export default function StepRoomEdit({ propertyId }: Props) {
               </div>
             )}
 
-            {/* Nombre + botón */}
             <div className="p-3 text-sm text-dozeblue flex flex-col items-center justify-center">
               <span className="font-medium text-center break-words max-w-full leading-tight">
                 {room.name}
