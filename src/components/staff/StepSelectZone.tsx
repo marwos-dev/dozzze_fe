@@ -11,6 +11,7 @@ interface Props {
   data: PropertyFormData;
   onChange: (data: PropertyFormData) => void;
   onNext: () => void;
+  returnOnlyId?: boolean;
 }
 
 export default function StepSelectZone({
@@ -18,6 +19,7 @@ export default function StepSelectZone({
   data,
   onChange,
   onNext,
+  returnOnlyId = false,
 }: Props) {
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(
     data.zone_id ?? null
@@ -25,11 +27,19 @@ export default function StepSelectZone({
 
   const handleSelect = (zone: Zone) => {
     setSelectedZoneId(zone.id);
-    onChange({
-      ...data,
-      zone_id: zone.id,
-      zone: zone.name,
-    });
+
+    if (returnOnlyId) {
+      onChange({
+        ...data,
+        zone_id: zone.id,
+      });
+    } else {
+      onChange({
+        ...data,
+        zone_id: zone.id,
+        zone: zone.name,
+      });
+    }
   };
 
   return (

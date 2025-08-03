@@ -7,19 +7,29 @@ import PropertyCardInfo from './PropertyCardInfo';
 import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
 import PropertyCardActions from './PropertyCardActions';
 
-export default function PropertiesCard(props: Property) {
+interface PropertiesCardProps extends Property {
+  onClick?: () => void;
+}
+
+export default function PropertiesCard(props: PropertiesCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalIndex, setModalIndex] = useState(0);
   const [modalImages, setModalImages] = useState<string[]>([]);
 
   const openModalAtIndex = (index: number, imageList: string[]) => {
+    if (props.onClick) return;
     setModalImages(imageList);
     setModalIndex(index);
     setModalOpen(true);
   };
 
   return (
-    <div className="bg-dozebg1 max-w-6xl rounded-xl mx-1 m-2 md:mx-2 shadow-md overflow-hidden p-4 flex flex-col md:flex-row gap-4">
+    <div
+      onClick={props.onClick}
+      className={`bg-dozebg1 max-w-6xl rounded-xl mx-1 m-2 md:mx-2 shadow-md overflow-hidden p-4 flex flex-col md:flex-row gap-4 ${
+        props.onClick ? 'cursor-pointer hover:shadow-lg transition' : ''
+      }`}
+    >
       <div className="rounded-xl">
         <PropertyCardMedia
           images={props.images}

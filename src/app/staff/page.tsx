@@ -6,12 +6,15 @@ import { useRouter } from 'next/navigation';
 import { RootState } from '@/store';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import AddPropertyWizard from '@/components/staff/AddPropertyWizard';
+import EditRoomTypeWizard from '@/components/staff/editRoomType/EditRoomTypeWizard';
+
 export default function StaffPage() {
   const router = useRouter();
   const profile = useSelector((state: RootState) =>
     selectCustomerProfile(state)
   );
-  const [activeTab, setActiveTab] = useState<'add'>('add');
+
+  const [activeTab, setActiveTab] = useState<'add' | 'edit'>('add');
 
   useEffect(() => {
     if (!profile) {
@@ -39,8 +42,22 @@ export default function StaffPage() {
         >
           Añadir propiedad
         </button>
+
+        <button
+          onClick={() => setActiveTab('edit')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 ${
+            activeTab === 'edit'
+              ? 'border-dozeblue text-dozeblue'
+              : 'border-transparent text-gray-500 hover:text-dozeblue'
+          }`}
+        >
+          Editar RoomTypes
+        </button>
       </div>
+
+      {/* Contenido dinámico por tab */}
       {activeTab === 'add' && <AddPropertyWizard />}
+      {activeTab === 'edit' && <EditRoomTypeWizard />}
     </div>
   );
 }
