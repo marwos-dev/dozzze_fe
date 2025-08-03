@@ -47,6 +47,7 @@ export default function StepRoomImage({
       }
       onClose();
     } catch (err) {
+      console.error(err);
       dispatch(showToast({ message: 'Error al subir imagen', color: 'red' }));
     } finally {
       setLoading(false);

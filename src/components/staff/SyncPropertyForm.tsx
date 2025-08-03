@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store';
 import { SyncData } from '@/types/property';
 import { syncPropertyPMS, finalizePropertySync } from '@/store/propertiesSlice';
 import { showToast } from '@/store/toastSlice';
@@ -18,9 +18,6 @@ export default function SyncPropertyForm({
   onSyncComplete,
 }: Props) {
   const dispatch = useDispatch<AppDispatch>();
-  const globalLoading = useSelector(
-    (state: RootState) => state.properties.loading
-  );
 
   const [syncData, setSyncData] = useState<SyncData>({
     base_url: '',
@@ -45,7 +42,7 @@ export default function SyncPropertyForm({
     if (status !== 'idle') return;
 
     const emptyField = Object.entries(syncData).find(
-      ([_, value]) => !value.trim()
+      ([value]) => !value.trim()
     );
 
     if (emptyField) {

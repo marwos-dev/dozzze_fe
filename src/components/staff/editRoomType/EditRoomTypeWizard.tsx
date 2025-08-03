@@ -57,8 +57,6 @@ export default function EditRoomWizard() {
     setStep(3);
   };
 
-  const goBack = () => setStep((s) => Math.max(s - 1, 1));
-
   return (
     <div className="px-4 sm:px-6 max-w-5xl mx-auto py-6 space-y-4">
       <div className="text-sm text-gray-600 dark:text-white/70">
