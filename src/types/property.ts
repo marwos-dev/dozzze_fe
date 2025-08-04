@@ -20,3 +20,36 @@ export interface Property {
     additional_information: string;
   };
 }
+
+export interface PropertyFormData {
+  name: string;
+  pms_id: number | null;
+  description: string;
+  coverImage: string;
+  images: (string | File)[];
+  zone: string;
+  zone_id: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  address?: string;
+}
+
+export interface PropertySyncData {
+  base_url: string;
+  email: string;
+  phone_number: string;
+  pms_token: string;
+  pms_hotel_identifier: string;
+  pms_username: string;
+  pms_password: string;
+}
+
+export interface SyncData {
+  base_url: string;
+  email: string;
+  phone_number: string;
+  pms_token: string;
+  pms_hotel_identifier: string;
+  pms_username: string;
+  pms_password: string;
+}

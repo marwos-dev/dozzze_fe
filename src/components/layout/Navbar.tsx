@@ -126,7 +126,7 @@ export default function Navbar() {
             </button>
 
             {isLoggedIn && profile ? (
-              <UserMenu email={profile.email} variant="desktop" />
+              <UserMenu customer={profile} variant="desktop" />
             ) : (
               <Link
                 href="/login"
@@ -220,7 +220,7 @@ export default function Navbar() {
           </button>
 
           {isLoggedIn && profile ? (
-            <UserMenu email={profile.email} variant="mobile" />
+            <UserMenu customer={profile} variant="mobile" />
           ) : (
             <Link
               href="/login"

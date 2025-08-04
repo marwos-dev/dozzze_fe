@@ -3,9 +3,11 @@ import {
   fetchPropertyById,
   fetchPropertyByName,
   checkPropertyAvailability,
+  syncPropertyPMSData,
+  syncFinalPropertyWithPMS,
 } from '@/services/propertiesApi';
 import slugify from '@/utils/slugify';
-import { Property } from '@/types/property';
+import { Property, SyncData } from '@/types/property';
 import { RootState, AppDispatch } from '@/store';
 import { fetchRooms } from './roomsSlice';
 import { Zone } from '@/types/zone';
@@ -36,6 +38,46 @@ const initialState: PropertiesState = {
   totalPriceMap: {},
   lastAvailabilityParams: null,
 };
+
+export const finalizePropertySync = createAsyncThunk<
+  { success: boolean; message: string },
+  number,
+  { dispatch: AppDispatch; rejectValue: string }
+>(
+  'properties/finalizeSync',
+  async (propertyId, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await syncFinalPropertyWithPMS(propertyId);
+      console.log({ response });
+      return response;
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err.message : 'Error al sincronizar';
+      dispatch(showToast({ message: error, color: 'red' }));
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const syncPropertyPMS = createAsyncThunk<
+  void,
+  { propertyId: number; data: SyncData },
+  { dispatch: AppDispatch; rejectValue: string }
+>(
+  'properties/syncPMS',
+  async ({ propertyId, data }, { dispatch, rejectWithValue }) => {
+    try {
+      await syncPropertyPMSData(propertyId, data);
+      dispatch(
+        showToast({ message: 'Sincronización exitosa', color: 'green' })
+      );
+    } catch (err: unknown) {
+      console.error(err);
+      const message = 'Error al sincronizar';
+      dispatch(showToast({ message, color: 'red' }));
+      return rejectWithValue(message);
+    }
+  }
+);
 
 export const getPropertyById = createAsyncThunk<
   Property,
@@ -255,6 +297,17 @@ const propertiesSlice = createSlice({
       .addCase(fetchAvailability.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? 'Error al consultar disponibilidad';
+      })
+      .addCase(syncPropertyPMS.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(syncPropertyPMS.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(syncPropertyPMS.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? 'Error al sincronizar';
       });
   },
 });
