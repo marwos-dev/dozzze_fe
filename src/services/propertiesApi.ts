@@ -45,7 +45,6 @@ export const syncPropertyPMSData = async (
 export const syncFinalPropertyWithPMS = async (
   propertyId: number
 ): Promise<ApiResponse<{ success: boolean; message: string }>> => {
-  console.log('esto entra?');
   const response = await axios.post<
     ApiResponse<{ success: boolean; message: string }>
   >(`/properties/my/${propertyId}/sync`, {}, { withCredentials: true });
@@ -105,3 +104,7 @@ export async function uploadPropertyImage(
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 }
+export const fetchAllProperties = async (): Promise<Property[]> => {
+  const response = await axios.get(`/properties/`);
+  return response.data;
+};

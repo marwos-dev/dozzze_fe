@@ -4,12 +4,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store';
 import { getZones } from '@/store/zoneSlice';
-import StepSelectZone from '../StepSelectZone';
-import type { PropertyFormData } from '@/types/property';
 import { motion, AnimatePresence } from 'framer-motion';
-import StepSelectPropertyFromZone from './StepSelectedProperty';
 import { getPropertyById } from '@/store/propertiesSlice';
+import type { PropertyFormData } from '@/types/property';
 import StepRoomEdit from '../StepRoomEdit';
+import StepSelectPropertyGrouped from './StepSelectPropertyGrouped';
 
 const stepVariants = {
   initial: { opacity: 0, x: 50 },
@@ -26,10 +25,7 @@ export default function EditRoomWizard() {
   const [step, setStep] = useState(1);
   const [zoneData, setZoneData] = useState<
     Pick<PropertyFormData, 'zone' | 'zone_id'>
-  >({
-    zone: '',
-    zone_id: null,
-  });
+  >({ zone: '', zone_id: null });
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(
     null
@@ -44,12 +40,6 @@ export default function EditRoomWizard() {
       dispatch(getZones());
     }
   }, [dispatch, zones]);
-
-  const handleNext = () => {
-    if (zoneData.zone_id) {
-      setStep(2);
-    }
-  };
 
   const handleSelectProperty = (propertyId: number) => {
     setSelectedPropertyId(propertyId);
@@ -74,17 +64,8 @@ export default function EditRoomWizard() {
             transition={{ duration: 0.4 }}
           >
             {step === 1 && (
-              <StepSelectZone
+              <StepSelectPropertyGrouped
                 zones={zones}
-                data={zoneData as PropertyFormData}
-                onChange={(newData) => setZoneData(newData)}
-                onNext={handleNext}
-              />
-            )}
-
-            {step === 2 && selectedZone && (
-              <StepSelectPropertyFromZone
-                zone={selectedZone}
                 onSelectProperty={handleSelectProperty}
               />
             )}
