@@ -23,7 +23,7 @@ export default function EditRoomWizard({ initialPropertyId }: Props) {
   const zones = useSelector((state: RootState) => state.zones.data);
 
   const [step] = useState(3);
-  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(
+  const [selectedPropertyId] = useState<number | null>(
     initialPropertyId ?? null
   );
 
