@@ -13,7 +13,7 @@ interface Props {
   data: PropertyFormData;
   onChange: (data: PropertyFormData) => void;
   onNext: () => void;
-  onBack: () => void;
+  onBack?: () => void;
   zones: Zone[];
 }
 
@@ -108,7 +108,7 @@ export default function StepBasicInfo({
         </select>
       </div>
 
-      {/* Campos de texto */}
+      {/* PMS */}
       <div>
         <label className="block text-sm font-medium text-dozegray dark:text-white/80">
           Sistema de PMS
@@ -132,6 +132,8 @@ export default function StepBasicInfo({
           ))}
         </select>
       </div>
+
+      {/* Campos */}
       {(['name', 'address', 'description'] as const).map((field) => (
         <div key={field}>
           <label className="block text-sm font-medium text-dozegray dark:text-white/80 capitalize">
@@ -159,7 +161,7 @@ export default function StepBasicInfo({
         </div>
       ))}
 
-      {/* Galería de imágenes */}
+      {/* Galería */}
       <div>
         <label className="block text-sm font-medium text-dozegray dark:text-white/80 mb-1">
           Galería de imágenes
@@ -209,12 +211,17 @@ export default function StepBasicInfo({
 
       {/* Navegación */}
       <div className="flex justify-between pt-4">
-        <button
-          onClick={onBack}
-          className="  px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-dozegray/50 transition"
-        >
-          Volver
-        </button>
+        {onBack ? (
+          <button
+            onClick={onBack}
+            className="px-4 py-2 rounded-md hover:bg-gray-300 dark:hover:bg-dozegray/50 transition"
+          >
+            Volver
+          </button>
+        ) : (
+          <div />
+        )}
+
         <button
           onClick={handleNext}
           className="bg-dozeblue text-white px-6 py-2 rounded-md hover:bg-dozeblue/90 transition"

@@ -25,6 +25,7 @@ export default function StaffPage() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(
     null
   );
+  const [startInZoneId, setStartInZoneId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!profile) {
@@ -47,6 +48,12 @@ export default function StaffPage() {
   };
 
   const handleAddProperty = () => {
+    setStartInZoneId(null);
+    setActiveTab('add');
+  };
+
+  const handleAddPropertyInZone = (zoneId: number) => {
+    setStartInZoneId(zoneId);
     setActiveTab('add');
   };
 
@@ -56,7 +63,6 @@ export default function StaffPage() {
     <div className="max-w-5xl mx-auto px-4 py-10">
       <h1 className="text-3xl font-bold text-dozeblue mb-6">Panel Staff</h1>
 
-      {/* Submenú */}
       <div className="flex gap-4 border-b border-gray-200 dark:border-white/10 mb-6">
         <button
           onClick={() => setActiveTab('home')}
@@ -70,7 +76,7 @@ export default function StaffPage() {
         </button>
 
         <button
-          onClick={() => setActiveTab('add')}
+          onClick={() => handleAddProperty()}
           className={`px-4 py-2 text-sm font-medium border-b-2 ${
             activeTab === 'add'
               ? 'border-dozeblue text-dozeblue'
@@ -92,16 +98,18 @@ export default function StaffPage() {
         </button>
       </div>
 
-      {/* Contenido por tab */}
       {activeTab === 'home' && (
         <StepSelectPropertyGrouped
           zones={zones}
           onEditProperty={handleEditProperty}
           onAddProperty={handleAddProperty}
+          onAddPropertyInZone={handleAddPropertyInZone}
         />
       )}
 
-      {activeTab === 'add' && <AddPropertyWizard />}
+      {activeTab === 'add' && (
+        <AddPropertyWizard startInZoneId={startInZoneId || undefined} />
+      )}
 
       {activeTab === 'edit' && selectedPropertyId && (
         <EditRoomTypeWizard initialPropertyId={selectedPropertyId} />

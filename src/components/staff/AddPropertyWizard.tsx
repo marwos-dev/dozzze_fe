@@ -11,6 +11,7 @@ import StepCreateProperty from './StepCreateProperty';
 import SyncPropertyForm from './SyncPropertyForm';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { PropertyFormData } from '@/types/property';
+import type { Zone } from '@/types/zone';
 import { parseAreaToCoordinates } from '@/utils/mapUtils/parseAreaToCoordiantes';
 import StepRoomEdit from './StepRoomEdit';
 
@@ -29,11 +30,15 @@ const steps = [
   'Editar habitaciones',
 ];
 
-export default function AddPropertyWizard() {
+interface Props {
+  startInZoneId?: number;
+}
+
+export default function AddPropertyWizard({ startInZoneId }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const zones = useSelector((state: RootState) => state.zones.data);
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(startInZoneId ? 2 : 1);
   const [createdPropertyId, setCreatedPropertyId] = useState<number | null>(
     null
   );
@@ -45,11 +50,18 @@ export default function AddPropertyWizard() {
     coverImage: '',
     latitude: null,
     longitude: null,
-    zone_id: null,
+    zone_id: startInZoneId ?? null,
     zone: '',
     pms_id: null,
     images: [],
   });
+
+  const selectedZone: Zone | null = useMemo(() => {
+    return (
+      zones.find((z) => z.id === (startInZoneId ?? propertyData.zone_id)) ||
+      null
+    );
+  }, [zones, startInZoneId, propertyData.zone_id]);
 
   useEffect(() => {
     if (!zones || zones.length === 0) {
@@ -57,19 +69,27 @@ export default function AddPropertyWizard() {
     }
   }, [dispatch, zones]);
 
-  const selectedZone = useMemo(() => {
-    return zones.find((z) => z.id === propertyData.zone_id) || null;
-  }, [zones, propertyData.zone_id]);
+  useEffect(() => {
+    if (startInZoneId && zones.length > 0) {
+      const z = zones.find((z) => z.id === startInZoneId);
+      if (z) {
+        setPropertyData((prev) => ({
+          ...prev,
+          zone_id: z.id,
+          zone: z.name,
+        }));
+      }
+    }
+  }, [startInZoneId, zones]);
 
   const zoneCoordinates: [number, number][] = useMemo(() => {
     if (!selectedZone) return [];
     const coords = parseAreaToCoordinates(selectedZone.area);
-    return coords.map((point) => {
-      if (Array.isArray(point) && point.length === 2) {
-        return [point[0] as number, point[1] as number];
-      }
-      return [0, 0];
-    });
+    return coords.map((point) =>
+      Array.isArray(point) && point.length === 2
+        ? [point[0] as number, point[1] as number]
+        : [0, 0]
+    );
   }, [selectedZone]);
 
   const goNext = () => setStep((s) => Math.min(s + 1, steps.length));
@@ -107,7 +127,7 @@ export default function AddPropertyWizard() {
                 data={propertyData}
                 onChange={setPropertyData}
                 onNext={goNext}
-                onBack={goBack}
+                onBack={startInZoneId ? undefined : goBack}
                 zones={zones}
               />
             )}
