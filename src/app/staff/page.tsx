@@ -1,21 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { RootState } from '@/store';
+import type { AppDispatch, RootState } from '@/store';
+import { getZones } from '@/store/zoneSlice';
+import { getPropertyById } from '@/store/propertiesSlice';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
+
 import AddPropertyWizard from '@/components/staff/AddPropertyWizard';
 import EditRoomTypeWizard from '@/components/staff/editRoomType/EditRoomTypeWizard';
-import { Plus, Settings } from 'lucide-react';
+import StepSelectPropertyGrouped from '@/components/staff/editRoomType/StepSelectPropertyGrouped';
 
 export default function StaffPage() {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+
   const profile = useSelector((state: RootState) =>
     selectCustomerProfile(state)
   );
 
+  const zones = useSelector((state: RootState) => state.zones.data);
   const [activeTab, setActiveTab] = useState<'home' | 'add' | 'edit'>('home');
+  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     if (!profile) {
@@ -24,6 +33,22 @@ export default function StaffPage() {
       router.push('/');
     }
   }, [profile, router]);
+
+  useEffect(() => {
+    if (!zones || zones.length === 0) {
+      dispatch(getZones());
+    }
+  }, [dispatch, zones]);
+
+  const handleEditProperty = (propertyId: number) => {
+    setSelectedPropertyId(propertyId);
+    dispatch(getPropertyById(propertyId));
+    setActiveTab('edit');
+  };
+
+  const handleAddProperty = () => {
+    setActiveTab('add');
+  };
 
   if (!profile || !profile.staff) return null;
 
@@ -67,35 +92,20 @@ export default function StaffPage() {
         </button>
       </div>
 
-      {/* Contenido dinámico por tab */}
+      {/* Contenido por tab */}
       {activeTab === 'home' && (
-        <div className="flex flex-col items-center justify-center min-h-[300px] gap-6">
-          <h2 className="text-2xl font-semibold text-dozeblue">
-            ¿Qué deseas hacer?
-          </h2>
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={() => setActiveTab('add')}
-              className="flex items-center gap-2 px-6 py-3 text-lg"
-            >
-              <Plus className="w-5 h-5" />
-              Añadir propiedad
-            </button>
-
-            <button
-              onClick={() => setActiveTab('edit')}
-              className="flex items-center gap-2 px-6 py-3 text-lg"
-            >
-              <Settings className="w-5 h-5" />
-              Editar habitaciones
-            </button>
-          </div>
-        </div>
+        <StepSelectPropertyGrouped
+          zones={zones}
+          onEditProperty={handleEditProperty}
+          onAddProperty={handleAddProperty}
+        />
       )}
 
       {activeTab === 'add' && <AddPropertyWizard />}
-      {activeTab === 'edit' && <EditRoomTypeWizard />}
+
+      {activeTab === 'edit' && selectedPropertyId && (
+        <EditRoomTypeWizard initialPropertyId={selectedPropertyId} />
+      )}
     </div>
   );
 }

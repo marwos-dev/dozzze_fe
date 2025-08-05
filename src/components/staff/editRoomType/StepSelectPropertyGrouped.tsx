@@ -9,7 +9,6 @@ import AddPropertyCard from '@/components/ui/cards/PropertiesCard/AddPropertyCar
 
 interface Props {
   zones: Zone[];
-  onSelectProperty: (propertyId: number) => void;
   onEditProperty: (propertyId: number) => void;
   onAddProperty: () => void;
 }
@@ -35,7 +34,6 @@ const propertyCardVariants = {
 
 export default function StepSelectPropertyGrouped({
   zones,
-  onSelectProperty,
   onEditProperty,
   onAddProperty,
 }: Props) {
@@ -99,7 +97,6 @@ export default function StepSelectPropertyGrouped({
                   >
                     <PropertiesOwnerCard
                       property={property}
-                      onSelect={() => onSelectProperty(property.id)}
                       onEdit={() => onEditProperty(property.id)}
                     />
                   </motion.div>
