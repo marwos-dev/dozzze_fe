@@ -1,6 +1,7 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { fetchZones, fetchZoneById } from '@/services/zoneApi';
 import { Zone } from '@/types/zone';
+import { Property } from '@/types/property';
 
 interface ZonesState {
   data: Zone[];
@@ -58,12 +59,27 @@ const zoneSlice = createSlice({
     clearSelectedZone: (state) => {
       state.selectedZone = null;
     },
-    setSelectedZone: (state, action) => {
+    setSelectedZone: (state, action: PayloadAction<number>) => {
       const foundZone = state.data.find((z) => z.id === action.payload);
       if (foundZone) {
         state.selectedZone = foundZone;
         state.loading = false;
         state.error = null;
+      }
+    },
+    // ✅ Nuevo reducer para agregar propiedad a zona
+    addPropertyToZone: (state, action: PayloadAction<Property>) => {
+      const property = action.payload;
+      const zone = state.data.find((z) => z.id === property.zone_id);
+      if (zone) {
+        if (!zone.properties) {
+          zone.properties = [property];
+        } else {
+          const exists = zone.properties.some((p) => p.id === property.id);
+          if (!exists) {
+            zone.properties.push(property);
+          }
+        }
       }
     },
   },
@@ -98,5 +114,7 @@ const zoneSlice = createSlice({
   },
 });
 
-export const { clearSelectedZone, setSelectedZone } = zoneSlice.actions;
+export const { clearSelectedZone, setSelectedZone, addPropertyToZone } =
+  zoneSlice.actions;
+
 export default zoneSlice.reducer;

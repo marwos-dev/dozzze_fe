@@ -6,6 +6,7 @@ import { createProperty, uploadPropertyImage } from '@/services/propertiesApi';
 import type { PropertyFormData } from '@/types/property';
 import { showToast } from '@/store/toastSlice';
 import { useDispatch } from 'react-redux';
+import { addPropertyToZone } from '@/store/zoneSlice';
 
 interface Props {
   data: PropertyFormData;
@@ -61,7 +62,10 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
         return;
       }
 
-      // 2. Subir imágenes tipo File
+      // ✅ 2. Agregar propiedad al Redux (zonesSlice)
+      dispatch(addPropertyToZone(created));
+
+      // 3. Subir imágenes tipo File
       const newImages = data.images.filter(
         (img): img is File => img instanceof File
       );
