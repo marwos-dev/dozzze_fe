@@ -113,10 +113,6 @@ const reserveSlice = createSlice({
         name,
         discount_percent: percent,
       };
-      state.data = state.data.map((r) => ({
-        ...r,
-        total_price: r.total_price * (1 - percent / 100),
-      }));
     },
     applyVoucher(
       state,
@@ -128,13 +124,6 @@ const reserveSlice = createSlice({
         type: 'voucher',
         remaining_amount: amount,
       };
-      let remaining = amount;
-      state.data = state.data.map((r) => {
-        if (remaining <= 0) return r;
-        const deduction = Math.min(r.total_price, remaining);
-        remaining -= deduction;
-        return { ...r, total_price: r.total_price - deduction };
-      });
     },
   },
 });
