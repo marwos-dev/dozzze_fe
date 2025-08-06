@@ -2,6 +2,7 @@ import Cookies from 'js-cookie';
 import axios from '@/services/axios';
 import { clearCustomer } from '@/store/customerSlice';
 import { AppDispatch } from '@/store';
+import { clearReserveStorage } from '@/utils/storage';
 
 export const initAxiosAuthHeader = () => {
   const token = Cookies.get('accessToken');
@@ -15,4 +16,5 @@ export const logoutCustomer = (dispatch: AppDispatch) => {
   Cookies.remove('customerProfile', { path: '/' });
   delete axios.defaults.headers.common['Authorization'];
   dispatch(clearCustomer());
+  clearReserveStorage(dispatch);
 };

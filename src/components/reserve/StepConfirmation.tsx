@@ -1,17 +1,30 @@
 'use client';
 
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { RootState, AppDispatch } from '@/store';
 import ReservationTicket from './ReservationTicket';
+import { clearReserveStorage } from '@/utils/storage';
 
 interface Props {
   onBack: () => void;
 }
 
 export default function StepConfirmation({ onBack }: Props) {
+  const dispatch = useDispatch<AppDispatch>();
   const redsysData = useSelector(
     (state: RootState) => state.reserve.redsysData
   );
+
+  useEffect(() => {
+    return () => {
+      clearReserveStorage(dispatch);
+    };
+  }, [dispatch]);
+
+  const handleSubmit = () => {
+    clearReserveStorage(dispatch);
+  };
   return (
     <div className="py-6 space-y-6">
       <ReservationTicket />
@@ -22,6 +35,7 @@ export default function StepConfirmation({ onBack }: Props) {
           method="POST"
           id="redsys-payment-form"
           className="text-center"
+          onSubmit={handleSubmit}
         >
           <input
             type="hidden"
