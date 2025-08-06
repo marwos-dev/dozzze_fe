@@ -4,7 +4,11 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { RootState, AppDispatch } from '@/store';
-import { deleteReservation, updateReservation } from '@/store/reserveSlice';
+import {
+  deleteReservation,
+  updateReservation,
+  clearDiscount,
+} from '@/store/reserveSlice';
 import StepReservationSummary from '@/components/reserve/StepReservationSummary';
 import StepGuestDetails from '@/components/reserve/StepGuestDetails';
 import StepConfirmation from '@/components/reserve/StepConfirmation';
@@ -29,6 +33,13 @@ export default function ReservePage() {
   const goBack = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
   useEffect(() => {
+    router.replace(`?step=${currentStep}`, { scroll: false });
+    if (currentStep === 0) {
+      dispatch(clearDiscount());
+    }
+  }, [currentStep, dispatch, router]);
+
+  useEffect(() => {
     reservations.forEach((res, index) => {
       if (!res.terms_and_conditions) {
         const property = zones
@@ -50,6 +61,8 @@ export default function ReservePage() {
     });
   }, [reservations, zones, dispatch]);
 
+  if (reservations.length === 0) return null;
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
       {/* Stepper */}
@@ -59,7 +72,15 @@ export default function ReservePage() {
           const isCompleted = index < currentStep;
 
           return (
-            <div key={index} className="flex items-center w-full">
+            <div
+              key={index}
+              className={`flex items-center w-full ${
+                index < currentStep ? 'cursor-pointer' : ''
+              }`}
+              onClick={() => {
+                if (index < currentStep) setCurrentStep(index);
+              }}
+            >
               <div className="flex items-center gap-2">
                 <div
                   className={`w-7 h-7 flex items-center justify-center rounded-full border text-sm font-semibold transition-all duration-300 ${

@@ -99,6 +99,9 @@ const reserveSlice = createSlice({
       state.redsysData = null;
       state.discount = null;
     },
+    clearDiscount(state) {
+      state.discount = null;
+    },
     setRedsysData(state, action: PayloadAction<RedsysData>) {
       state.redsysData = action.payload;
     },
@@ -134,6 +137,7 @@ export const {
   updateReservations,
   deleteReservation,
   clearReservations,
+  clearDiscount,
   setRedsysData,
   applyCoupon,
   applyVoucher,
