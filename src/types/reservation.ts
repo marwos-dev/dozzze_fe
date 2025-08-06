@@ -5,6 +5,7 @@ export interface Reservation {
   currency: string;
   room_type: string;
   room_type_id: number;
+  rate_id: number;
   total_price: number;
   check_in: string;
   check_out: string;
