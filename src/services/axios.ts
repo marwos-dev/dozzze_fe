@@ -1,5 +1,7 @@
 import axios from 'axios';
 import errorMessages from '@/utils/errorMessages';
+import { store } from '@/store';
+import { clearReserveStorage } from '@/utils/storage';
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api',
@@ -19,6 +21,10 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error?.response?.status === 401) {
+      clearReserveStorage(store.dispatch);
+    }
+
     const data = error?.response?.data as
       | {
           detail?: string;

@@ -5,6 +5,7 @@ import '../styles/globals.css';
 import Navbar from '@/components/layout/Navbar';
 import ClientProviders from './ClientProvider';
 import AuthInitializer from './AuthInitializer'; // 👈 lo agregás
+import InactivityHandler from './InactivityHandler';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         <ClientProviders>
           <AuthInitializer />
+          <InactivityHandler />
           <Navbar />
           {children}
         </ClientProviders>
