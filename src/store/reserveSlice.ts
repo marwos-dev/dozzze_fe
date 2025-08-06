@@ -51,14 +51,24 @@ export interface RedsysData {
   Ds_Signature: string;
 }
 
+export interface DiscountInfo {
+  code: string;
+  type: 'coupon' | 'voucher';
+  name?: string;
+  discount_percent?: number;
+  remaining_amount?: number;
+}
+
 interface ReserveState {
   data: ReservationData[];
   redsysData: RedsysData | null;
+  discount: DiscountInfo | null;
 }
 
 const initialState: ReserveState = {
   data: [],
   redsysData: null,
+  discount: null,
 };
 
 const reserveSlice = createSlice({
@@ -86,9 +96,44 @@ const reserveSlice = createSlice({
     clearReservations(state) {
       state.data = [];
       state.redsysData = null;
+      state.discount = null;
     },
     setRedsysData(state, action: PayloadAction<RedsysData>) {
       state.redsysData = action.payload;
+    },
+    applyCoupon(
+      state,
+      action: PayloadAction<{ code: string; name: string; percent: number }>
+    ) {
+      const { code, name, percent } = action.payload;
+      state.discount = {
+        code,
+        type: 'coupon',
+        name,
+        discount_percent: percent,
+      };
+      state.data = state.data.map((r) => ({
+        ...r,
+        total_price: r.total_price * (1 - percent / 100),
+      }));
+    },
+    applyVoucher(
+      state,
+      action: PayloadAction<{ code: string; amount: number }>
+    ) {
+      const { code, amount } = action.payload;
+      state.discount = {
+        code,
+        type: 'voucher',
+        remaining_amount: amount,
+      };
+      let remaining = amount;
+      state.data = state.data.map((r) => {
+        if (remaining <= 0) return r;
+        const deduction = Math.min(r.total_price, remaining);
+        remaining -= deduction;
+        return { ...r, total_price: r.total_price - deduction };
+      });
     },
   },
 });
@@ -100,6 +145,8 @@ export const {
   deleteReservation,
   clearReservations,
   setRedsysData,
+  applyCoupon,
+  applyVoucher,
 } = reserveSlice.actions;
 
 export default reserveSlice.reducer;

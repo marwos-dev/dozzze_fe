@@ -1,18 +1,45 @@
 'use client';
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { RootState } from '@/store';
+import { RootState, AppDispatch } from '@/store';
+import { validateVoucher } from '@/services/voucherApi';
+import { applyCoupon, applyVoucher } from '@/store/reserveSlice';
+import { showToast } from '@/store/toastSlice';
 
 export default function VoucherOrLoginPrompt() {
   const profile = useSelector((state: RootState) => state.customer.profile);
+  const discount = useSelector((state: RootState) => state.reserve.discount);
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const [voucher, setVoucher] = useState('');
 
-  const handleVoucherSubmit = (e: React.FormEvent) => {
+  const handleVoucherSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Código ingresado:', voucher);
+    try {
+      const data = await validateVoucher(voucher);
+      if (data.type === 'coupon' && data.applicable) {
+        dispatch(
+          applyCoupon({
+            code: voucher,
+            name: data.name,
+            percent: data.discount_percent,
+          })
+        );
+        dispatch(showToast({ message: 'Cupón aplicado', color: 'green' }));
+      } else if (data.type === 'voucher' && data.applicable) {
+        dispatch(applyVoucher({ code: voucher, amount: data.remaining_amount }));
+        dispatch(showToast({ message: 'Voucher aplicado', color: 'green' }));
+      } else {
+        dispatch(
+          showToast({ message: 'Código no aplicable', color: 'red' })
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      dispatch(showToast({ message: 'Código no válido', color: 'red' }));
+    }
   };
 
   if (!profile) {
@@ -55,6 +82,11 @@ export default function VoucherOrLoginPrompt() {
           Aplicar
         </button>
       </div>
+      {discount && (
+        <p className="mt-2 text-sm text-dozeblue">
+          Usando {discount.type === 'coupon' ? 'cupón' : 'voucher'}
+        </p>
+      )}
     </form>
   );
 }

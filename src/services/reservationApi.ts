@@ -3,7 +3,11 @@ import {
   ReservationData,
   ReservationDataWithRooms,
 } from '@/store/reserveSlice';
-import type { Reservation, ReservationRequest } from '@/types/reservation';
+import type {
+  Reservation,
+  ReservationRequest,
+  ReservationPostPayload,
+} from '@/types/reservation';
 
 const transformReservation = (reservation: ReservationData): Reservation => {
   const { roomType, ...rest } = reservation;
@@ -32,9 +36,14 @@ const transformReservation = (reservation: ReservationData): Reservation => {
 };
 
 export const postReservation = async (
-  reservations: ReservationData[]
+  reservations: ReservationData[],
+  code?: string
 ): Promise<ReservationRequest> => {
-  const payload: Reservation[] = reservations.map(transformReservation);
+  const resArray: Reservation[] = reservations.map(transformReservation);
+  const payload: ReservationPostPayload = { reservations: resArray };
+  if (code) {
+    payload.code = code;
+  }
   const response = await axios.post('/reservations/', payload, {
     withCredentials: true,
   });
