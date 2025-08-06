@@ -26,6 +26,11 @@ export interface Reservation {
   pay_on_arrival: number | null;
 }
 
+export interface ReservationPostPayload {
+  reservations: Reservation[];
+  code?: string;
+}
+
 export interface RedsysArgs {
   endpoint: string;
   Ds_SignatureVersion: string;

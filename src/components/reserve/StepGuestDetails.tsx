@@ -94,6 +94,9 @@ export default function StepGuestDetails({
   };
 
   const allReservations = useSelector((state: RootState) => state.reserve.data);
+  const discountCode = useSelector(
+    (state: RootState) => state.reserve.discount?.code
+  );
 
   const handleContinue = async () => {
     const newErrors = {
@@ -124,7 +127,7 @@ export default function StepGuestDetails({
     setLoading(true);
 
     try {
-      const res = await postReservation(fullReservations);
+      const res = await postReservation(fullReservations, discountCode);
       dispatch(updateReservations(fullReservations));
       dispatch(showToast({ message: 'Reserva Confirmada', color: 'green' }));
       if (res.redsys_args) {
