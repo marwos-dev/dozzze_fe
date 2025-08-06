@@ -11,6 +11,7 @@ interface Props {
   zones: Zone[];
   onEditProperty: (propertyId: number) => void;
   onAddProperty: () => void;
+  onAddPropertyInZone?: (zoneId: number) => void; // nuevo prop
 }
 
 const containerVariants = {
@@ -36,6 +37,7 @@ export default function StepSelectPropertyGrouped({
   zones,
   onEditProperty,
   onAddProperty,
+  onAddPropertyInZone,
 }: Props) {
   const [expandedZones, setExpandedZones] = useState<Record<number, boolean>>(
     {}
@@ -82,7 +84,13 @@ export default function StepSelectPropertyGrouped({
                 animate="visible"
                 exit="exit"
               >
-                <AddPropertyCard onAdd={onAddProperty} />
+                <AddPropertyCard
+                  onAdd={() =>
+                    onAddPropertyInZone
+                      ? onAddPropertyInZone(zone.id)
+                      : onAddProperty()
+                  }
+                />
               </motion.div>
 
               <AnimatePresence initial={false}>
