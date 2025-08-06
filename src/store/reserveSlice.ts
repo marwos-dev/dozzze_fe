@@ -18,6 +18,7 @@ export interface ReservationData {
   currency: string;
   roomType: string;
   roomTypeID: number;
+  rate_id: number;
   rooms: number;
   total_price: number;
   check_in: string;

@@ -4,6 +4,7 @@ export interface Price {
 }
 
 export interface Rate {
+  rate_id: number;
   prices: Price[];
   restriction?: Record<string, unknown>;
 }
@@ -15,6 +16,7 @@ export interface AvailabilityItem {
   availability: number;
   rates: Rate[];
   property_id: number;
+  total_price?: number;
   images?: string[];
 }
 
@@ -35,7 +37,7 @@ export interface AvailabilityPayload {
 
 export interface TotalPricePerRoomType {
   [key: string]: {
-    rate_index: number;
+    rate_id: number;
     total_price: number;
   }[];
 }

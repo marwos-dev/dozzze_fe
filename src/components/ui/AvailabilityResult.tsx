@@ -101,6 +101,7 @@ export default function AvailabilityResult() {
   const handleReserve = (
     roomType: string,
     rateIndex: number,
+    rateId: number,
     pax: number,
     total: number,
     propertyId: number,
@@ -115,6 +116,7 @@ export default function AvailabilityResult() {
         check_in: range.check_in,
         check_out: range.check_out,
         rooms: rateIndex,
+        rate_id: rateId,
         pax_count: pax,
         total_price: total,
         channel: 'WEB',
@@ -326,6 +328,7 @@ export default function AvailabilityResult() {
                     handleReserve(
                       roomType,
                       selectedIndex,
+                      rates[selectedIndex].rate_id,
                       pax,
                       total,
                       propertyId,
