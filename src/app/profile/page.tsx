@@ -1,7 +1,7 @@
 'use client';
 
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/store';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 import Link from 'next/link';
 import { useEffect, useState, useMemo } from 'react';
@@ -11,8 +11,10 @@ import {
   cancelReservationRequest,
 } from '@/services/reservationApi';
 import type { ReservationDataWithRooms } from '@/store/reserveSlice';
+import { clearReserveStorage } from '@/utils/storage';
 
 export default function ProfilePage() {
+  const dispatch = useDispatch<AppDispatch>();
   const profile = useSelector((state: RootState) =>
     selectCustomerProfile(state)
   );
@@ -57,6 +59,7 @@ export default function ProfilePage() {
             : res
         )
       );
+      clearReserveStorage(dispatch);
     } catch (error: unknown) {
       if (error && typeof error === 'object' && 'message' in error) {
         alert((error as { message: string }).message);
