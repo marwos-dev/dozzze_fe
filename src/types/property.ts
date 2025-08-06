@@ -12,6 +12,7 @@ export interface Property {
   room_types: RoomType[];
   communication_methods: string[];
   location: string;
+  pms_id: number;
   terms_and_conditions: {
     condition_of_confirmation: string;
     check_in_time: string;
