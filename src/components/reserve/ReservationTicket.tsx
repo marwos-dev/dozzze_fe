@@ -6,6 +6,7 @@ import { CalendarDays, MapPin, Users, FileText } from 'lucide-react';
 
 export default function ReservationTicket() {
   const reservations = useSelector((state: RootState) => state.reserve.data);
+  const discount = useSelector((state: RootState) => state.reserve.discount);
 
   if (!reservations || reservations.length === 0) {
     return (
@@ -16,7 +17,14 @@ export default function ReservationTicket() {
   }
 
   const guest = reservations[0];
-  const totalGeneral = reservations.reduce((acc, r) => acc + r.total_price, 0);
+  let totalGeneral = reservations.reduce((acc, r) => acc + r.total_price, 0);
+  if (discount) {
+    if (discount.type === 'coupon' && discount.discount_percent) {
+      totalGeneral = totalGeneral * (1 - discount.discount_percent / 100);
+    } else if (discount.type === 'voucher' && discount.remaining_amount) {
+      totalGeneral = Math.max(totalGeneral - discount.remaining_amount, 0);
+    }
+  }
   return (
     <div className="bg-white dark:bg-dozegray/5 border border-dozeblue/10 dark:border-white/10 rounded-2xl shadow-md max-w-3xl mx-auto p-6 space-y-6">
       <h2 className="text-2xl font-bold text-dozeblue text-center">
@@ -78,7 +86,7 @@ export default function ReservationTicket() {
               {res.pax_count > 1 ? 'es' : ''}
             </p>
             <p className="font-semibold text-dozeblue text-sm">
-              Total: ${res.total_price}
+              Total: ${res.total_price.toFixed(2)}
             </p>
           </div>
         ))}
@@ -86,7 +94,7 @@ export default function ReservationTicket() {
 
       {/* Total general */}
       <div className="text-right text-dozeblue font-bold text-sm">
-        Total general pagado: ${totalGeneral}
+        Total general pagado: ${totalGeneral.toFixed(2)}
       </div>
 
       {/* Términos y condiciones */}

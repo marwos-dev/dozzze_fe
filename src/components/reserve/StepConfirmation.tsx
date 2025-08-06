@@ -12,6 +12,7 @@ export default function StepConfirmation({ onBack }: Props) {
   const redsysData = useSelector(
     (state: RootState) => state.reserve.redsysData
   );
+
   return (
     <div className="py-6 space-y-6">
       <ReservationTicket />

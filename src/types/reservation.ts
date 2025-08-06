@@ -5,6 +5,7 @@ export interface Reservation {
   currency: string;
   room_type: string;
   room_type_id: number;
+  rate_id: number;
   total_price: number;
   check_in: string;
   check_out: string;
@@ -23,6 +24,11 @@ export interface Reservation {
   modification_date: string | null;
   paid_online: number | null;
   pay_on_arrival: number | null;
+}
+
+export interface ReservationPostPayload {
+  reservations: Reservation[];
+  code?: string;
 }
 
 export interface RedsysArgs {

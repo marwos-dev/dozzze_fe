@@ -4,8 +4,8 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import slugify from '@/utils/slugify';
 import { CalendarDays, Users, X, FileText } from 'lucide-react';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
 import { ReservationData } from '@/store/reserveSlice';
 import { fetchAvailability } from '@/store/propertiesSlice';
 import Image from 'next/image';
@@ -28,6 +28,7 @@ export default function StepReservationSummary({
 }: Props) {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
+  const discount = useSelector((state: RootState) => state.reserve.discount);
 
   const [openGallery, setOpenGallery] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
@@ -42,10 +43,17 @@ export default function StepReservationSummary({
     return Array.from(map.entries());
   }, [reservations]);
 
-  const totalGeneral = useMemo(
-    () => reservations.reduce((sum, r) => sum + r.total_price, 0),
-    [reservations]
-  );
+  const totalGeneral = useMemo(() => {
+    let total = reservations.reduce((sum, r) => sum + r.total_price, 0);
+    if (discount) {
+      if (discount.type === 'coupon' && discount.discount_percent) {
+        total = total * (1 - discount.discount_percent / 100);
+      } else if (discount.type === 'voucher' && discount.remaining_amount) {
+        total = Math.max(total - discount.remaining_amount, 0);
+      }
+    }
+    return total;
+  }, [reservations, discount]);
 
   const handleAddReservation = async () => {
     if (reservations.length === 0) {
@@ -189,8 +197,8 @@ export default function StepReservationSummary({
                         </div>
                       </div>
                     </div>
-                    <div className="mt-3 sm:ml-119 text-dozeblue font-bold text-lg sm:text-xl">
-                      ${res.total_price}
+                    <div className="mt-3 self-end text-dozeblue font-bold text-lg sm:text-xl text-right">
+                      ${res.total_price.toFixed(2)}
                     </div>
                   </div>
                 </div>
@@ -207,7 +215,7 @@ export default function StepReservationSummary({
                 Buscar otra habitación en esta propiedad
               </button>
               <span className="text-sm font-bold pl-3 text-dozeblue">
-                Total propiedad {propertyId}: ${totalProperty}
+                Total propiedad {propertyId}: ${totalProperty.toFixed(2)}
               </span>
             </div>
 
@@ -272,7 +280,7 @@ export default function StepReservationSummary({
       })}
 
       <div className="flex justify-end text-dozeblue font-bold text-sm">
-        Total general: ${totalGeneral}
+        Total general: ${totalGeneral.toFixed(2)}
       </div>
 
       <div className="flex flex-wrap justify-between gap-2 mt-4">

@@ -1,17 +1,23 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { initAxiosAuthHeader } from '@/utils/axiosAuth';
 import { getCustomerProfile, setCustomer } from '@/store/customerSlice';
 import { AppDispatch } from '@/store';
 import Cookies from 'js-cookie';
+import { clearReserveStorage } from '@/utils/storage';
 
 export default function AuthInitializer() {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     initAxiosAuthHeader(); // si hay cookie, pone el header
+
+    if (!Cookies.get('accessToken')) {
+      clearReserveStorage(dispatch);
+    }
+
     const profileCookie = Cookies.get('customerProfile');
     if (profileCookie) {
       try {
@@ -23,6 +29,19 @@ export default function AuthInitializer() {
       }
     }
     dispatch(getCustomerProfile()); // pide perfil del backend si no hay cookie
+  }, [dispatch]);
+
+  const lastToken = useRef<string | undefined>(Cookies.get('accessToken'));
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentToken = Cookies.get('accessToken');
+      if (lastToken.current && !currentToken) {
+        clearReserveStorage(dispatch);
+      }
+      lastToken.current = currentToken;
+    }, 60_000);
+    return () => clearInterval(interval);
   }, [dispatch]);
 
   return null;

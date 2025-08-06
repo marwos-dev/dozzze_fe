@@ -101,6 +101,7 @@ export default function AvailabilityResult() {
   const handleReserve = (
     roomType: string,
     rateIndex: number,
+    rateId: number,
     pax: number,
     total: number,
     propertyId: number,
@@ -109,14 +110,17 @@ export default function AvailabilityResult() {
   ) => {
     if (!range?.check_in || !range?.check_out) return;
 
+    const roundedTotal = Number(total.toFixed(2));
+
     dispatch(
       addReservation({
         property_id: propertyId,
         check_in: range.check_in,
         check_out: range.check_out,
         rooms: rateIndex,
+        rate_id: rateId,
         pax_count: pax,
-        total_price: total,
+        total_price: roundedTotal,
         channel: 'WEB',
         currency: 'EUR',
         roomType,
@@ -267,7 +271,7 @@ export default function AvailabilityResult() {
                       const disabled = reservedKeys.has(key) || noMoreAvailable;
                       return (
                         <option key={idx} value={idx} disabled={disabled}>
-                          Habitación {idx + 1} – Total ${sumPrice}
+                          Habitación {idx + 1} – Total ${sumPrice.toFixed(2)}
                         </option>
                       );
                     })}
@@ -304,7 +308,7 @@ export default function AvailabilityResult() {
                         key={occ}
                         className="px-2 py-1 rounded-full bg-dozeblue/30 border border-dozeblue text-xs font-medium"
                       >
-                        {occ} pax Total ${totalByOcc}
+                        {occ} pax Total ${totalByOcc.toFixed(2)}
                       </span>
                     );
                   })}
@@ -318,7 +322,7 @@ export default function AvailabilityResult() {
                     {selectedIndex + 1} seleccionada
                   </div>
                   <div className="text-base font-semibold text-dozeblue">
-                    Total a pagar: ${total}
+                    Total a pagar: ${total.toFixed(2)}
                   </div>
                 </div>
                 <button
@@ -326,6 +330,7 @@ export default function AvailabilityResult() {
                     handleReserve(
                       roomType,
                       selectedIndex,
+                      rates[selectedIndex].rate_id,
                       pax,
                       total,
                       propertyId,
