@@ -55,11 +55,13 @@ export interface RedsysData {
 interface ReserveState {
   data: ReservationData[];
   redsysData: RedsysData | null;
+  voucherDiscount: number;
 }
 
 const initialState: ReserveState = {
   data: [],
   redsysData: null,
+  voucherDiscount: 0,
 };
 
 const reserveSlice = createSlice({
@@ -91,6 +93,9 @@ const reserveSlice = createSlice({
     setRedsysData(state, action: PayloadAction<RedsysData>) {
       state.redsysData = action.payload;
     },
+    setVoucherDiscount(state, action: PayloadAction<number>) {
+      state.voucherDiscount = action.payload;
+    },
   },
 });
 
@@ -101,6 +106,7 @@ export const {
   deleteReservation,
   clearReservations,
   setRedsysData,
+  setVoucherDiscount,
 } = reserveSlice.actions;
 
 export default reserveSlice.reducer;

@@ -1,18 +1,23 @@
 'use client';
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { RootState } from '@/store';
+import { setVoucherDiscount } from '@/store/reserveSlice';
 
 export default function VoucherOrLoginPrompt() {
   const profile = useSelector((state: RootState) => state.customer.profile);
   const router = useRouter();
   const [voucher, setVoucher] = useState('');
+  const dispatch = useDispatch();
 
   const handleVoucherSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Código ingresado:', voucher);
+    const amount = parseFloat(voucher.replace(/[^0-9.]/g, ''));
+    if (!isNaN(amount)) {
+      dispatch(setVoucherDiscount(amount));
+    }
   };
 
   if (!profile) {
