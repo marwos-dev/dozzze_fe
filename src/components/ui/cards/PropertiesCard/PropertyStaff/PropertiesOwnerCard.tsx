@@ -40,6 +40,15 @@ export default function PropertiesOwnerCard({ property, onEdit }: Props) {
         {/* Overlay oscuro */}
         <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition" />
 
+        {/* Botón flotante con color dozeblue */}
+        <button
+          onClick={handleEditClick}
+          className="absolute top-3 right-3 z-20 bg-dozeblue text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-md hover:bg-dozeblue/90 transition"
+        >
+          <Pencil size={14} className="text-white" />
+          Editar propiedad
+        </button>
+
         {/* Contenido sobre la imagen */}
         <div className="relative z-10 p-4 h-full flex flex-col justify-between text-white">
           <div className="space-y-1">
@@ -54,17 +63,13 @@ export default function PropertiesOwnerCard({ property, onEdit }: Props) {
             </p>
           </div>
 
-          <div className="flex items-center justify-between mt-4 text-sm">
+          <div className="flex flex-col mt-4 text-sm gap-1">
             <span>
               <strong>{property.room_types?.length ?? 0}</strong> habitaciones
             </span>
-            <div
-              className="flex items-center gap-1 text-white text-sm opacity-70 hover:opacity-100 transition"
-              onClick={handleEditClick}
-            >
-              <Pencil size={16} />
-              Editar
-            </div>
+            <span className="text-white/80 italic text-xs">
+              Click para ver habitaciones
+            </span>
           </div>
         </div>
       </div>
