@@ -116,46 +116,38 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
             >
               <input
                 value={svc.code}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const updated = { ...svc, code: e.target.value };
                   setServices((prev) =>
-                    prev.map((s) =>
-                      s.id === svc.id ? { ...s, code: e.target.value } : s
-                    )
-                  )
-                }
+                    prev.map((s) => (s.id === svc.id ? updated : s))
+                  );
+                  handleUpdate(updated);
+                }}
                 className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
               />
               <input
                 value={svc.name}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const updated = { ...svc, name: e.target.value };
                   setServices((prev) =>
-                    prev.map((s) =>
-                      s.id === svc.id ? { ...s, name: e.target.value } : s
-                    )
-                  )
-                }
+                    prev.map((s) => (s.id === svc.id ? updated : s))
+                  );
+                  handleUpdate(updated);
+                }}
                 className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
               />
               <input
                 value={svc.description || ''}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const updated = { ...svc, description: e.target.value };
                   setServices((prev) =>
-                    prev.map((s) =>
-                      s.id === svc.id
-                        ? { ...s, description: e.target.value }
-                        : s
-                    )
-                  )
-                }
+                    prev.map((s) => (s.id === svc.id ? updated : s))
+                  );
+                  handleUpdate(updated);
+                }}
                 className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
               />
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleUpdate(svc)}
-                  className="bg-dozeblue text-white px-3 py-2 rounded-md text-sm hover:bg-dozeblue/90"
-                >
-                  Guardar
-                </button>
+              <div className="flex justify-end">
                 <button
                   onClick={() => handleDelete(svc.id)}
                   className="bg-red-500 text-white px-3 py-2 rounded-md text-sm hover:bg-red-600"
