@@ -27,11 +27,11 @@ export default function PropertyEditModal({ open, onClose, property }: Props) {
     description: property.description || '',
     zone_id: property.zone_id ?? null,
     zone: property.zone || '',
-    pms_id: (property as any).pms_id ?? null,
+    pms_id: property.pms_id ?? null,
     coverImage: property.cover_image || '',
     images: property.images || [],
-    latitude: (property as any).latitude ?? null,
-    longitude: (property as any).longitude ?? null,
+    latitude: property.latitude ?? null,
+    longitude: property.longitude ?? null,
   });
 
   if (!open) return null;
@@ -45,7 +45,7 @@ export default function PropertyEditModal({ open, onClose, property }: Props) {
         className="relative bg-greenlight rounded-xl p-6 w-full max-w-2xl min-h-[600px] max-h-[90vh] flex flex-col shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Cerrar */}
+        {/* Botón cerrar */}
         <button
           className="absolute top-4 right-4 text-dozeblue hover:text-dozeblue/80 transition"
           onClick={onClose}
@@ -54,7 +54,6 @@ export default function PropertyEditModal({ open, onClose, property }: Props) {
         </button>
 
         {/* Tabs */}
-        {/* Tabs mejorados */}
         <div className="flex justify-center mb-6 border-b border-gray-200 dark:border-white/10">
           {[
             { key: 'info', label: 'Información' },
@@ -64,19 +63,19 @@ export default function PropertyEditModal({ open, onClose, property }: Props) {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as typeof activeTab)}
-              className={`relative px-5 py-2  font-medium transition-all 
-        ${
-          activeTab === tab.key
-            ? 'text-dozeblue after:absolute after:-bottom-[1px] after:left-1/2 after:-translate-x-1/2 after:w-10 after:h-[2px] after:bg-dozeblue after:rounded-full'
-            : 'text-gray-500 hover:text-dozeblue'
-        }`}
+              className={`relative px-5 py-2 font-medium transition-all 
+                ${
+                  activeTab === tab.key
+                    ? 'text-dozeblue after:absolute after:-bottom-[1px] after:left-1/2 after:-translate-x-1/2 after:w-10 after:h-[2px] after:bg-dozeblue after:rounded-full'
+                    : 'text-gray-500 hover:text-dozeblue'
+                }`}
             >
               {tab.label}
             </button>
           ))}
         </div>
 
-        {/* Contenido con animación y scroll interno */}
+        {/* Contenido con animación */}
         <div className="flex-1 overflow-y-auto relative">
           <AnimatePresence mode="wait">
             {activeTab === 'info' && (
@@ -108,7 +107,7 @@ export default function PropertyEditModal({ open, onClose, property }: Props) {
                   form={form}
                   setForm={setForm}
                   propertyId={propertyId}
-                />{' '}
+                />
               </motion.div>
             )}
             {activeTab === 'sync' && (

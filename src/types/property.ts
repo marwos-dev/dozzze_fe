@@ -13,6 +13,8 @@ export interface Property {
   communication_methods: string[];
   location: string;
   pms_id: number;
+  latitude: number | null;
+  longitude: number | null;
   terms_and_conditions: {
     condition_of_confirmation: string;
     check_in_time: string;

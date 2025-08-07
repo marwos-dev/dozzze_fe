@@ -18,7 +18,10 @@ export default function StepBasicInfo({ form, setForm, propertyId }: Props) {
   const zones = useSelector((state: RootState) => state.zones.data);
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (field: keyof PropertyFormData, value: any) => {
+  const handleChange = (
+    field: keyof PropertyFormData,
+    value: string | number | null
+  ) => {
     setForm((prev) => ({
       ...prev,
       [field]: value,
@@ -54,7 +57,8 @@ export default function StepBasicInfo({ form, setForm, propertyId }: Props) {
           color: 'green',
         })
       );
-    } catch (error) {
+    } catch (_) {
+      console.error(_);
       dispatch(
         showToast({
           message: 'Error al actualizar la propiedad.',

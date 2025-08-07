@@ -214,10 +214,11 @@ export const getSyncData = createAsyncThunk<
     try {
       const data = await getPmsData(propertyId);
       return data;
-    } catch (err: any) {
+    } catch (err: unknown) {
       const message =
-        err?.response?.data?.detail ||
-        'No se pudo obtener los datos de sincronización';
+        err instanceof Error
+          ? err.message
+          : 'No se pudo obtener los datos de sincronización';
       dispatch(showToast({ message, color: 'yellow' }));
       return rejectWithValue(message);
     }

@@ -37,17 +37,12 @@ export default function StepImages({ form, setForm, propertyId }: Props) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    const newPreviewIndexes: number[] = [];
-
-    for (const [i, file] of files.entries()) {
-      const index = form.images.length + i;
-      newPreviewIndexes.push(index);
-    }
-
+    const newPreviewIndexes = files.map((_, i) => form.images.length + i);
     setUploadingIndexes((prev) => [...prev, ...newPreviewIndexes]);
 
     for (const [i, file] of files.entries()) {
       const index = form.images.length + i;
+
       try {
         await uploadPropertyImage(propertyId, file);
 
