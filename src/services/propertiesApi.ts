@@ -115,3 +115,23 @@ export const fetchAllProperties = async (): Promise<Property[]> => {
   const response = await axios.get(`/properties/`);
   return response.data;
 };
+
+export async function updateProperty(
+  propertyId: number,
+  data: Partial<PropertyFormData>
+): Promise<void> {
+  const { name, description, address, latitude, longitude, zone_id } = data;
+
+  const payload = {
+    name,
+    description,
+    address,
+    latitude,
+    longitude,
+    zone_id,
+  };
+
+  await axios.put(`/properties/my/${propertyId}`, payload, {
+    withCredentials: true,
+  });
+}
