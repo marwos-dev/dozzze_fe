@@ -25,6 +25,8 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
   const [form, setForm] = useState({ code: '', name: '', description: '' });
   const [selectedExisting, setSelectedExisting] = useState<number | ''>('');
 
+  const normalize = (str: string) => str.trim().toLowerCase();
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -43,11 +45,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
 
   const handleAdd = async () => {
     if (!form.code.trim() || !form.name.trim()) return;
-    if (
-      services.some(
-        (s) => s.code.trim().toLowerCase() === form.code.trim().toLowerCase()
-      )
-    ) {
+    if (services.some((s) => normalize(s.code) === normalize(form.code))) {
       dispatch(
         showToast({ message: 'El servicio ya fue agregado', color: 'red' })
       );
@@ -68,7 +66,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
   const handleAddExisting = async () => {
     const svc = availableServices.find((s) => s.id === selectedExisting);
     if (!svc) return;
-    if (services.some((s) => s.code === svc.code)) {
+    if (services.some((s) => normalize(s.code) === normalize(svc.code))) {
       dispatch(
         showToast({ message: 'El servicio ya fue agregado', color: 'red' })
       );
@@ -80,6 +78,16 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
         name: svc.name,
         description: svc.description,
       });
+      if (
+        services.some(
+          (s) => s.id === created.id || normalize(s.code) === normalize(created.code)
+        )
+      ) {
+        dispatch(
+          showToast({ message: 'El servicio ya fue agregado', color: 'red' })
+        );
+        return;
+      }
       setServices((prev) => [...prev, created]);
       setSelectedExisting('');
     } catch (e) {
@@ -194,7 +202,10 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
                 <option value="">Seleccionar servicio</option>
                 {availableServices
                   .filter(
-                    (svc) => !services.some((s) => s.code === svc.code)
+                    (svc) =>
+                      !services.some(
+                        (s) => normalize(s.code) === normalize(svc.code)
+                      )
                   )
                   .map((svc) => (
                     <option key={svc.id} value={svc.id}>
