@@ -101,17 +101,17 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
   };
 
   return (
-    <div className="bg-white dark:bg-dozegray/10 border border-gray-200 dark:border-white/10 rounded-xl p-6 shadow-sm space-y-6">
-      <h3 className="text-lg font-semibold text-dozeblue">Servicios de la propiedad</h3>
+    <div className="max-w-2xl mx-auto bg-white dark:bg-dozegray/10 border border-gray-200 dark:border-white/10 rounded-xl p-6 shadow-sm space-y-6">
+      <h3 className="text-lg font-semibold text-dozeblue text-center">Servicios de la propiedad</h3>
 
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-end">
+        <div className="flex flex-col sm:flex-row gap-2 items-center justify-center">
           <select
             value={selectedExisting}
             onChange={(e) =>
               setSelectedExisting(e.target.value ? Number(e.target.value) : '')
             }
-            className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+            className="w-full sm:flex-1 border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
           >
             <option value="">Seleccionar servicio existente</option>
             {availableServices.map((svc) => (
@@ -122,24 +122,24 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
           </select>
           <button
             onClick={handleAddExisting}
-            className="bg-dozeblue text-white px-4 py-2 rounded-md hover:bg-dozeblue/90"
+            className="w-full sm:w-auto bg-dozeblue text-white px-4 py-2 rounded-md hover:bg-dozeblue/90"
           >
             Agregar existente
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 justify-items-center">
           <input
             placeholder="Código"
             value={form.code}
             onChange={(e) => setForm({ ...form, code: e.target.value })}
-            className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+            className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
           />
           <input
             placeholder="Nombre"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+            className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
           />
           <input
             placeholder="Descripción"
@@ -147,12 +147,12 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
             onChange={(e) =>
               setForm({ ...form, description: e.target.value })
             }
-            className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm col-span-1 sm:col-span-3"
+            className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm col-span-1 sm:col-span-3"
           />
-          <div className="col-span-1 sm:col-span-3">
+          <div className="col-span-1 sm:col-span-3 flex justify-center">
             <button
               onClick={handleAdd}
-              className="mt-2 bg-dozeblue text-white px-4 py-2 rounded-md hover:bg-dozeblue/90"
+              className="mt-2 w-full sm:w-auto bg-dozeblue text-white px-4 py-2 rounded-md hover:bg-dozeblue/90"
             >
               Agregar nuevo
             </button>
@@ -160,7 +160,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 max-h-48 overflow-y-auto">
         {services.map((svc) => (
           <div
             key={svc.id}
@@ -175,7 +175,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
                   )
                 )
               }
-              className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+              className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
             />
             <input
               value={svc.name}
@@ -186,7 +186,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
                   )
                 )
               }
-              className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+              className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
             />
             <input
               value={svc.description || ''}
@@ -199,7 +199,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
                   )
                 )
               }
-              className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+              className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
             />
             <div className="flex gap-2">
               <button
