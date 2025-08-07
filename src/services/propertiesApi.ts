@@ -1,6 +1,6 @@
 import { ApiResponse } from '@/constants/responseCodes';
 import axios from './axios';
-import { Property, PropertyFormData } from '@/types/property';
+import { Property, PropertyFormData, SyncData } from '@/types/property';
 import { Room } from '@/types/room';
 import { AvailabilityPayload, AvailabilityResponse } from '@/types/roomType';
 
@@ -48,6 +48,13 @@ export const syncFinalPropertyWithPMS = async (
   const response = await axios.post<
     ApiResponse<{ success: boolean; message: string }>
   >(`/properties/my/${propertyId}/sync`, {}, { withCredentials: true });
+  return response.data;
+};
+// Obtener datos PMS existentes (GET)
+export const getPmsData = async (propertyId: number): Promise<SyncData> => {
+  const response = await axios.get(`/properties/my/${propertyId}/pms-data`, {
+    withCredentials: true,
+  });
   return response.data;
 };
 

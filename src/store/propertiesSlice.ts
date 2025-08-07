@@ -5,6 +5,7 @@ import {
   checkPropertyAvailability,
   syncPropertyPMSData,
   syncFinalPropertyWithPMS,
+  getPmsData,
 } from '@/services/propertiesApi';
 import slugify from '@/utils/slugify';
 import { Property, SyncData } from '@/types/property';
@@ -27,6 +28,7 @@ interface PropertiesState {
   availability: AvailabilityItem[];
   totalPriceMap: TotalPricePerRoomType;
   lastAvailabilityParams: AvailabilityPayload | null;
+  syncData: SyncData | null;
 }
 
 const initialState: PropertiesState = {
@@ -37,6 +39,7 @@ const initialState: PropertiesState = {
   availability: [],
   totalPriceMap: {},
   lastAvailabilityParams: null,
+  syncData: null,
 };
 
 export const finalizePropertySync = createAsyncThunk<
@@ -201,6 +204,25 @@ export const fetchAvailability = createAsyncThunk<
     }
   }
 );
+export const getSyncData = createAsyncThunk<
+  SyncData,
+  number,
+  { dispatch: AppDispatch; rejectValue: string }
+>(
+  'properties/getSyncData',
+  async (propertyId, { dispatch, rejectWithValue }) => {
+    try {
+      const data = await getPmsData(propertyId);
+      return data;
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.detail ||
+        'No se pudo obtener los datos de sincronización';
+      dispatch(showToast({ message, color: 'yellow' }));
+      return rejectWithValue(message);
+    }
+  }
+);
 
 const propertiesSlice = createSlice({
   name: 'properties',
@@ -308,6 +330,16 @@ const propertiesSlice = createSlice({
       .addCase(syncPropertyPMS.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? 'Error al sincronizar';
+      })
+      .addCase(getSyncData.fulfilled, (state, action) => {
+        state.syncData = action.payload;
+        state.loading = false;
+      })
+      .addCase(getSyncData.rejected, (state, action) => {
+        state.syncData = null;
+        state.error =
+          action.payload ?? 'Error al cargar datos de sincronización';
+        state.loading = false;
       });
   },
 });
