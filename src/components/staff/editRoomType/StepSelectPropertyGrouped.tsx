@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Zone } from '@/types/zone';
-import PropertiesOwnerCard from '@/components/ui/cards/PropertiesCard/PropertiesOwnerCard';
+import PropertiesOwnerCard from '@/components/ui/cards/PropertiesCard/PropertyStaff/PropertiesOwnerCard';
 import AddPropertyCard from '@/components/ui/cards/PropertiesCard/AddPropertyCard';
 
 interface Props {

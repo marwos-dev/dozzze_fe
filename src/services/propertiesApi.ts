@@ -4,7 +4,9 @@ import {
   Property,
   PropertyFormData,
   PropertyService,
+  SyncData,
 } from '@/types/property';
+
 import { Room } from '@/types/room';
 import { AvailabilityPayload, AvailabilityResponse } from '@/types/roomType';
 
@@ -52,6 +54,13 @@ export const syncFinalPropertyWithPMS = async (
   const response = await axios.post<
     ApiResponse<{ success: boolean; message: string }>
   >(`/properties/my/${propertyId}/sync`, {}, { withCredentials: true });
+  return response.data;
+};
+// Obtener datos PMS existentes (GET)
+export const getPmsData = async (propertyId: number): Promise<SyncData> => {
+  const response = await axios.get(`/properties/my/${propertyId}/pms-data`, {
+    withCredentials: true,
+  });
   return response.data;
 };
 
@@ -113,6 +122,27 @@ export const fetchAllProperties = async (): Promise<Property[]> => {
   return response.data;
 };
 
+
+export async function updateProperty(
+  propertyId: number,
+  data: Partial<PropertyFormData>
+): Promise<void> {
+  const { name, description, address, latitude, longitude, zone_id } = data;
+
+  const payload = {
+    name,
+    description,
+    address,
+    latitude,
+    longitude,
+    zone_id,
+  };
+
+  await axios.put(`/properties/my/${propertyId}`, payload, {
+    withCredentials: true,
+  });
+}
+
 export const getPropertyServices = async (
   propertyId: number
 ): Promise<PropertyService[]> => {
@@ -163,3 +193,4 @@ export const fetchAllServices = async (): Promise<PropertyService[]> => {
   });
   return response.data;
 };
+
