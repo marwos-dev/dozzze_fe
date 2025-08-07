@@ -123,7 +123,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
                     )
                   )
                 }
-                className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+                className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
               />
               <input
                 value={svc.name}
@@ -134,7 +134,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
                     )
                   )
                 }
-                className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+                className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
               />
               <input
                 value={svc.description || ''}
@@ -147,7 +147,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
                     )
                   )
                 }
-                className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+                className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
               />
               <div className="flex gap-2">
                 <button
@@ -170,7 +170,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
         <div className="space-y-4">
           <div className="border border-gray-200 dark:border-white/10 rounded-md p-4 space-y-3">
             <h4 className="font-medium text-dozeblue/80">Agregar servicio existente</h4>
-            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-end">
+            <div className="space-y-2">
               <select
                 value={selectedExisting}
                 onChange={(e) =>
@@ -178,7 +178,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
                     e.target.value ? Number(e.target.value) : ''
                   )
                 }
-                className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+                className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
               >
                 <option value="">Seleccionar servicio</option>
                 {availableServices.map((svc) => (
@@ -189,7 +189,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
               </select>
               <button
                 onClick={handleAddExisting}
-                className="bg-dozeblue text-white px-4 py-2 rounded-md hover:bg-dozeblue/90"
+                className="w-full bg-dozeblue text-white px-4 py-2 rounded-md hover:bg-dozeblue/90"
               >
                 Agregar
               </button>
@@ -202,13 +202,13 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
               placeholder="Código"
               value={form.code}
               onChange={(e) => setForm({ ...form, code: e.target.value })}
-              className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+              className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
             />
             <input
               placeholder="Nombre"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+              className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
             />
             <input
               placeholder="Descripción"
@@ -216,11 +216,11 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
               }
-              className="border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
+              className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
             />
             <button
               onClick={handleAdd}
-              className="bg-dozeblue text-white px-4 py-2 rounded-md hover:bg-dozeblue/90"
+              className="w-full bg-dozeblue text-white px-4 py-2 rounded-md hover:bg-dozeblue/90"
             >
               Agregar nuevo
             </button>
