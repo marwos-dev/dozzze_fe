@@ -92,6 +92,17 @@ export default function ReservePage() {
         })}
       </div>
 
+      {currentStep > 0 && (
+        <div className="pl-6">
+          <button
+            onClick={goBack}
+            className="text-dozeblue border border-dozeblue px-4 py-2 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
+          >
+            Atrás
+          </button>
+        </div>
+      )}
+
       {/* Step content */}
       {currentStep === 0 && (
         <>

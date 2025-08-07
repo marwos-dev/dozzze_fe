@@ -1,5 +1,12 @@
 import { RoomType } from './roomType';
 
+export interface PropertyService {
+  id: number;
+  code: string;
+  name: string;
+  description?: string;
+}
+
 export interface Property {
   id: number;
   name: string;
@@ -10,6 +17,7 @@ export interface Property {
   cover_image: string;
   images: string[];
   room_types: RoomType[];
+  services?: PropertyService[];
   communication_methods: string[];
   location: string;
   pms_id: number;

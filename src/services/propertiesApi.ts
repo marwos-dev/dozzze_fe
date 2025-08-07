@@ -1,6 +1,12 @@
 import { ApiResponse } from '@/constants/responseCodes';
 import axios from './axios';
-import { Property, PropertyFormData, SyncData } from '@/types/property';
+import {
+  Property,
+  PropertyFormData,
+  PropertyService,
+  SyncData,
+} from '@/types/property';
+
 import { Room } from '@/types/room';
 import { AvailabilityPayload, AvailabilityResponse } from '@/types/roomType';
 
@@ -116,6 +122,7 @@ export const fetchAllProperties = async (): Promise<Property[]> => {
   return response.data;
 };
 
+
 export async function updateProperty(
   propertyId: number,
   data: Partial<PropertyFormData>
@@ -135,3 +142,55 @@ export async function updateProperty(
     withCredentials: true,
   });
 }
+
+export const getPropertyServices = async (
+  propertyId: number
+): Promise<PropertyService[]> => {
+  const response = await axios.get(
+    `/properties/my/${propertyId}/services`,
+    { withCredentials: true }
+  );
+  return response.data;
+};
+
+export const createPropertyService = async (
+  propertyId: number,
+  data: { code: string; name: string; description?: string }
+): Promise<PropertyService> => {
+  const response = await axios.post(
+    `/properties/my/${propertyId}/services`,
+    data,
+    { withCredentials: true }
+  );
+  return response.data;
+};
+
+export const updatePropertyService = async (
+  propertyId: number,
+  serviceId: number,
+  data: { code: string; name: string; description?: string }
+): Promise<PropertyService> => {
+  const response = await axios.put(
+    `/properties/my/${propertyId}/services/${serviceId}`,
+    data,
+    { withCredentials: true }
+  );
+  return response.data;
+};
+
+export const deletePropertyService = async (
+  propertyId: number,
+  serviceId: number
+): Promise<void> => {
+  await axios.delete(`/properties/my/${propertyId}/services/${serviceId}`, {
+    withCredentials: true,
+  });
+};
+
+export const fetchAllServices = async (): Promise<PropertyService[]> => {
+  const response = await axios.get('/properties/services', {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
