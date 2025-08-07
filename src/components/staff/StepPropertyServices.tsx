@@ -104,8 +104,8 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
     <div className="bg-white dark:bg-dozegray/10 border border-gray-200 dark:border-white/10 rounded-xl p-6 shadow-sm space-y-6">
       <h3 className="text-lg font-semibold text-dozeblue">Servicios de la propiedad</h3>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="space-y-2 lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4">
+        <div className="space-y-2 w-full">
           {services.length === 0 && (
             <p className="text-sm text-gray-500">No hay servicios registrados.</p>
           )}
@@ -167,7 +167,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
           ))}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 w-full lg:max-w-sm lg:justify-self-start">
           <div className="border border-gray-200 dark:border-white/10 rounded-md p-4 space-y-3">
             <h4 className="font-medium text-dozeblue/80">Agregar servicio existente</h4>
             <div className="space-y-2">
