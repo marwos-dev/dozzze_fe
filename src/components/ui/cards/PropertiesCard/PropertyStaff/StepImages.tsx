@@ -1,94 +1,151 @@
 'use client';
 
-import { useRef } from 'react';
 import Image from 'next/image';
-import { Trash2, Plus } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import type { PropertyFormData } from '@/types/property';
+import { uploadPropertyImage } from '@/services/propertiesApi';
+import { useDispatch } from 'react-redux';
+import { showToast } from '@/store/toastSlice';
+import { Loader2 } from 'lucide-react';
 
 interface Props {
   form: PropertyFormData;
   setForm: React.Dispatch<React.SetStateAction<PropertyFormData>>;
+  propertyId: number;
 }
 
-export default function StepImages({ form, setForm }: Props) {
-  const inputRef = useRef<HTMLInputElement>(null);
+export default function StepImages({ form, setForm, propertyId }: Props) {
+  const dispatch = useDispatch();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [uploadingIndexes, setUploadingIndexes] = useState<number[]>([]);
 
-  const handleDeleteImage = (index: number) => {
-    setForm((prev) => {
-      const newImages = [...prev.images];
-      newImages.splice(index, 1);
+  useEffect(() => {
+    const urls = form.images.map((img) =>
+      typeof img === 'string' ? img : URL.createObjectURL(img)
+    );
+    setPreviewUrls(urls);
 
-      return {
-        ...prev,
-        images: newImages,
-        // Si se borra la portada, quitarla si coincidía
-        coverImage:
-          typeof prev.coverImage === 'string' &&
-          prev.coverImage === newImages[index]
-            ? ''
-            : prev.coverImage,
-      };
-    });
-  };
+    return () => {
+      urls.forEach((url) => {
+        if (url.startsWith('blob:')) URL.revokeObjectURL(url);
+      });
+    };
+  }, [form.images]);
 
-  const handleAddImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddImages = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length > 0) {
-      setForm((prev) => ({
-        ...prev,
-        images: [...prev.images, ...files],
-      }));
+    if (files.length === 0) return;
+
+    const newPreviewIndexes: number[] = [];
+
+    for (const [i, file] of files.entries()) {
+      const index = form.images.length + i;
+      newPreviewIndexes.push(index);
     }
+
+    setUploadingIndexes((prev) => [...prev, ...newPreviewIndexes]);
+
+    for (const [i, file] of files.entries()) {
+      const index = form.images.length + i;
+      try {
+        await uploadPropertyImage(propertyId, file);
+
+        const imageUrl = URL.createObjectURL(file);
+        setForm((prev) => ({
+          ...prev,
+          images: [...prev.images, imageUrl],
+        }));
+
+        dispatch(
+          showToast({ message: 'Imagen subida con éxito', color: 'green' })
+        );
+      } catch {
+        dispatch(showToast({ message: 'Error al subir imagen', color: 'red' }));
+      } finally {
+        setUploadingIndexes((prev) => prev.filter((idx) => idx !== index));
+      }
+    }
+
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const getImageUrl = (img: string | File): string =>
-    typeof img === 'string' ? img : URL.createObjectURL(img);
+  const handleRemoveImage = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
 
   return (
-    <div className="space-y-4">
-      {/* Botón de agregar imágenes */}
+    <div className="bg-white dark:bg-dozegray/10 border border-gray-200 dark:border-white/10 rounded-xl p-6 shadow-sm space-y-4">
+      <h2 className="text-xl font-semibold text-dozeblue">
+        Paso 3: Imágenes de la propiedad
+      </h2>
+
+      {/* Galería de imágenes */}
+      {previewUrls.length > 0 && (
+        <div className="overflow-x-auto -mx-1">
+          <div className="flex gap-3 min-w-full max-w-full px-1">
+            {previewUrls.map((url, index) => {
+              const isLoading = uploadingIndexes.includes(index);
+              return (
+                <div
+                  key={index}
+                  className="relative h-28 w-36 rounded-lg overflow-hidden border border-gray-300 dark:border-white/20 shrink-0 group bg-gray-100 dark:bg-dozegray/20"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center h-full w-full">
+                      <Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
+                    </div>
+                  ) : (
+                    <>
+                      <Image
+                        src={url}
+                        alt={`Imagen ${index + 1}`}
+                        fill
+                        sizes="(max-width: 768px) 50vw, 20vw"
+                        className="object-cover"
+                      />
+                      <button
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 text-xs group-hover:opacity-100 opacity-0 transition"
+                        title="Eliminar"
+                      >
+                        ✕
+                      </button>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Botón de añadir imágenes */}
       <div>
+        <label className="block text-sm font-medium text-dozegray dark:text-white/80 mb-1">
+          Añadir más imágenes
+        </label>
         <button
           type="button"
-          onClick={() => inputRef.current?.click()}
-          className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-400 rounded-md bg-white hover:bg-gray-100 text-dozegray transition"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploadingIndexes.length > 0}
+          className="w-full px-4 py-3 text-center border border-dashed border-gray-400 dark:border-white/20 rounded-lg bg-gray-50 dark:bg-dozegray/20 text-dozegray dark:text-white/80 hover:bg-gray-100 transition disabled:opacity-50"
         >
-          <Plus size={16} />
-          Agregar imagen
+          {uploadingIndexes.length > 0
+            ? 'Subiendo imágenes...'
+            : 'Elegir imágenes desde tu dispositivo'}
         </button>
         <input
           type="file"
           accept="image/*"
           multiple
-          onChange={handleAddImages}
-          ref={inputRef}
           hidden
+          ref={fileInputRef}
+          onChange={handleAddImages}
         />
-      </div>
-
-      {/* Galería de imágenes */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        {form.images.map((img, index) => (
-          <div
-            key={index}
-            className="relative rounded-md overflow-hidden border group"
-          >
-            <Image
-              src={getImageUrl(img)}
-              alt={`img-${index}`}
-              width={300}
-              height={200}
-              className="object-cover w-full h-40"
-            />
-            <button
-              type="button"
-              onClick={() => handleDeleteImage(index)}
-              className="absolute top-2 right-2 bg-white rounded-full p-1 shadow hover:bg-red-100 transition"
-            >
-              <Trash2 size={16} className="text-red-600" />
-            </button>
-          </div>
-        ))}
       </div>
     </div>
   );

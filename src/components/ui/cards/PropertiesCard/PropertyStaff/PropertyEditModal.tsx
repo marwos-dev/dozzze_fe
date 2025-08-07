@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import type { Property, PropertyFormData } from '@/types/property';
 import StepBasicInfo from './StepBasicInfo';
 import StepImages from './StepImages';
@@ -26,7 +27,7 @@ export default function PropertyEditModal({ open, onClose, property }: Props) {
     description: property.description || '',
     zone_id: property.zone_id ?? null,
     zone: property.zone || '',
-    pms_id: (property as any).pms_id ?? null, // ⚠️ cast si aún no está en el tipo
+    pms_id: (property as any).pms_id ?? null,
     coverImage: property.cover_image || '',
     images: property.images || [],
     latitude: (property as any).latitude ?? null,
@@ -41,7 +42,7 @@ export default function PropertyEditModal({ open, onClose, property }: Props) {
       onClick={onClose}
     >
       <div
-        className="relative bg-greenlight rounded-xl p-6 w-full max-w-2xl shadow-xl"
+        className="relative bg-greenlight rounded-xl p-6 w-full max-w-2xl min-h-[600px] max-h-[90vh] flex flex-col shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cerrar */}
@@ -53,55 +54,77 @@ export default function PropertyEditModal({ open, onClose, property }: Props) {
         </button>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-4 mb-6">
-          <button
-            className={`px-4 py-2 rounded-md font-medium ${
-              activeTab === 'info'
-                ? 'bg-dozeblue text-white'
-                : 'bg-white text-dozeblue'
-            }`}
-            onClick={() => setActiveTab('info')}
-          >
-            Información
-          </button>
-          <button
-            className={`px-4 py-2 rounded-md font-medium ${
-              activeTab === 'images'
-                ? 'bg-dozeblue text-white'
-                : 'bg-white text-dozeblue'
-            }`}
-            onClick={() => setActiveTab('images')}
-          >
-            Imágenes
-          </button>
-          <button
-            className={`px-4 py-2 rounded-md font-medium ${
-              activeTab === 'sync'
-                ? 'bg-dozeblue text-white'
-                : 'bg-white text-dozeblue'
-            }`}
-            onClick={() => setActiveTab('sync')}
-          >
-            Sincronizar PMS
-          </button>
+        {/* Tabs mejorados */}
+        <div className="flex justify-center mb-6 border-b border-gray-200 dark:border-white/10">
+          {[
+            { key: 'info', label: 'Información' },
+            { key: 'images', label: 'Imágenes' },
+            { key: 'sync', label: 'Sincronizar PMS' },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key as typeof activeTab)}
+              className={`relative px-5 py-2  font-medium transition-all 
+        ${
+          activeTab === tab.key
+            ? 'text-dozeblue after:absolute after:-bottom-[1px] after:left-1/2 after:-translate-x-1/2 after:w-10 after:h-[2px] after:bg-dozeblue after:rounded-full'
+            : 'text-gray-500 hover:text-dozeblue'
+        }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* Contenido */}
-        <div className="space-y-6">
-          {activeTab === 'info' && (
-            <StepBasicInfo form={form} setForm={setForm} />
-          )}
-          {activeTab === 'images' && (
-            <StepImages form={form} setForm={setForm} />
-          )}
-          {activeTab === 'sync' && (
-            <StepSync
-              form={form}
-              setForm={setForm}
-              onClose={onClose}
-              propertyId={propertyId} // ✅ para sincronizar
-            />
-          )}
+        {/* Contenido con animación y scroll interno */}
+        <div className="flex-1 overflow-y-auto relative">
+          <AnimatePresence mode="wait">
+            {activeTab === 'info' && (
+              <motion.div
+                key="info"
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0"
+              >
+                <StepBasicInfo form={form} setForm={setForm} />
+              </motion.div>
+            )}
+            {activeTab === 'images' && (
+              <motion.div
+                key="images"
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0"
+              >
+                <StepImages
+                  form={form}
+                  setForm={setForm}
+                  propertyId={propertyId}
+                />{' '}
+              </motion.div>
+            )}
+            {activeTab === 'sync' && (
+              <motion.div
+                key="sync"
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0"
+              >
+                <StepSync
+                  form={form}
+                  setForm={setForm}
+                  onClose={onClose}
+                  propertyId={propertyId}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
