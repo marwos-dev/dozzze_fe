@@ -43,6 +43,16 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
 
   const handleAdd = async () => {
     if (!form.code.trim() || !form.name.trim()) return;
+    if (
+      services.some(
+        (s) => s.code.trim().toLowerCase() === form.code.trim().toLowerCase()
+      )
+    ) {
+      dispatch(
+        showToast({ message: 'El servicio ya fue agregado', color: 'red' })
+      );
+      return;
+    }
     try {
       const created = await createPropertyService(propertyId, form);
       setServices((prev) => [...prev, created]);
@@ -58,6 +68,12 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
   const handleAddExisting = async () => {
     const svc = availableServices.find((s) => s.id === selectedExisting);
     if (!svc) return;
+    if (services.some((s) => s.code === svc.code)) {
+      dispatch(
+        showToast({ message: 'El servicio ya fue agregado', color: 'red' })
+      );
+      return;
+    }
     try {
       const created = await createPropertyService(propertyId, {
         code: svc.code,
@@ -105,14 +121,17 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
       <h3 className="text-lg font-semibold text-dozeblue">Servicios de la propiedad</h3>
 
       <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4">
-        <div className="space-y-2 w-full">
+        <div className="space-y-3 w-full">
           {services.length === 0 && (
             <p className="text-sm text-gray-500">No hay servicios registrados.</p>
           )}
           {services.map((svc) => (
             <div
               key={svc.id}
-              className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-center"
+              className={
+                'grid grid-cols-1 sm:grid-cols-4 gap-2 items-center bg-gray-50 dark:bg-dozegray/20 ' +
+                'border border-gray-200 dark:border-white/10 rounded-md p-3'
+              }
             >
               <input
                 value={svc.code}
@@ -173,15 +192,20 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
                 className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
               >
                 <option value="">Seleccionar servicio</option>
-                {availableServices.map((svc) => (
-                  <option key={svc.id} value={svc.id}>
-                    {svc.name}
-                  </option>
-                ))}
+                {availableServices
+                  .filter(
+                    (svc) => !services.some((s) => s.code === svc.code)
+                  )
+                  .map((svc) => (
+                    <option key={svc.id} value={svc.id}>
+                      {svc.name}
+                    </option>
+                  ))}
               </select>
               <button
                 onClick={handleAddExisting}
-                className="w-full bg-dozeblue text-white px-4 py-2 rounded-md hover:bg-dozeblue/90"
+                disabled={!selectedExisting}
+                className="w-full bg-dozeblue text-white px-4 py-2 rounded-md hover:bg-dozeblue/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Agregar
               </button>
