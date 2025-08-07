@@ -7,6 +7,7 @@ import type { Property, PropertyFormData } from '@/types/property';
 import StepBasicInfo from './StepBasicInfo';
 import StepImages from './StepImages';
 import StepSync from './StepSync';
+import StepPropertyServices from '@/components/staff/StepPropertyServices';
 
 interface Props {
   open: boolean;
@@ -15,9 +16,8 @@ interface Props {
 }
 
 export default function PropertyEditModal({ open, onClose, property }: Props) {
-  const [activeTab, setActiveTab] = useState<'info' | 'images' | 'sync'>(
-    'info'
-  );
+  const [activeTab, setActiveTab] =
+    useState<'info' | 'images' | 'services' | 'sync'>('info');
 
   const propertyId = property.id;
 
@@ -58,6 +58,7 @@ export default function PropertyEditModal({ open, onClose, property }: Props) {
           {[
             { key: 'info', label: 'Información' },
             { key: 'images', label: 'Imágenes' },
+            { key: 'services', label: 'Servicios' },
             { key: 'sync', label: 'Sincronizar PMS' },
           ].map((tab) => (
             <button
@@ -108,6 +109,18 @@ export default function PropertyEditModal({ open, onClose, property }: Props) {
                   setForm={setForm}
                   propertyId={propertyId}
                 />
+              </motion.div>
+            )}
+            {activeTab === 'services' && (
+              <motion.div
+                key="services"
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0"
+              >
+                <StepPropertyServices propertyId={propertyId} />
               </motion.div>
             )}
             {activeTab === 'sync' && (
