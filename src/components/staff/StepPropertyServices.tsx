@@ -15,7 +15,12 @@ import {
 
 interface Props {
   propertyId: number;
-  onNext: () => void;
+  /**
+   * Optional callback used when this component is rendered as a step within the
+   * property creation wizard. When omitted (e.g. inside the edit modal) the
+   * "Continuar" button is hidden and actions happen immediately.
+   */
+  onNext?: () => void;
 }
 
 export default function StepPropertyServices({ propertyId, onNext }: Props) {
@@ -255,14 +260,16 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
         </div>
       </div>
 
-      <div className="flex justify-end pt-4">
-        <button
-          onClick={onNext}
-          className="bg-dozeblue text-white px-6 py-2 rounded-md hover:bg-dozeblue/90 transition"
-        >
-          Continuar
-        </button>
-      </div>
+      {onNext && (
+        <div className="flex justify-end pt-4">
+          <button
+            onClick={onNext}
+            className="bg-dozeblue text-white px-6 py-2 rounded-md hover:bg-dozeblue/90 transition"
+          >
+            Continuar
+          </button>
+        </div>
+      )}
     </div>
   );
 }
