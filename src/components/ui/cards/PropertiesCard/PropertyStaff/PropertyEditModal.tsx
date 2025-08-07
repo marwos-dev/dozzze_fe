@@ -88,7 +88,11 @@ export default function PropertyEditModal({ open, onClose, property }: Props) {
                 transition={{ duration: 0.2 }}
                 className="absolute inset-0"
               >
-                <StepBasicInfo form={form} setForm={setForm} />
+                <StepBasicInfo
+                  propertyId={propertyId}
+                  form={form}
+                  setForm={setForm}
+                />
               </motion.div>
             )}
             {activeTab === 'images' && (

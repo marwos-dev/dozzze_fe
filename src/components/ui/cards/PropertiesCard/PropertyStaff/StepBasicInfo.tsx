@@ -3,36 +3,20 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { showToast } from '@/store/toastSlice';
-import { getPms } from '@/services/pmsApi';
-import { useEffect, useState } from 'react';
-import type { PmsData } from '@/types/pms';
+import { useState } from 'react';
+import { updateProperty } from '@/services/propertiesApi';
 import type { PropertyFormData } from '@/types/property';
 
 interface Props {
   form: PropertyFormData;
   setForm: React.Dispatch<React.SetStateAction<PropertyFormData>>;
+  propertyId: number;
 }
 
-export default function StepBasicInfo({ form, setForm }: Props) {
+export default function StepBasicInfo({ form, setForm, propertyId }: Props) {
   const dispatch = useDispatch();
   const zones = useSelector((state: RootState) => state.zones.data);
-
-  const [pmsOptions, setPmsOptions] = useState<PmsData[]>([]);
-  const [loadingPms, setLoadingPms] = useState(true);
-
-  useEffect(() => {
-    const fetchPms = async () => {
-      try {
-        const result = await getPms();
-        setPmsOptions(result);
-      } catch {
-        dispatch(showToast({ message: 'Error al cargar PMS', color: 'red' }));
-      } finally {
-        setLoadingPms(false);
-      }
-    };
-    fetchPms();
-  }, [dispatch]);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (field: keyof PropertyFormData, value: any) => {
     setForm((prev) => ({
@@ -41,13 +25,45 @@ export default function StepBasicInfo({ form, setForm }: Props) {
     }));
   };
 
-  const handleSave = () => {
-    dispatch(
-      showToast({
-        message: 'Información actualizada (simulado)',
-        color: 'green',
-      })
-    );
+  const handleSave = async () => {
+    const { name, address, description, latitude, longitude, zone_id } = form;
+
+    if (!name || !address || !description || !zone_id) {
+      dispatch(
+        showToast({
+          message: 'Completá todos los campos obligatorios.',
+          color: 'red',
+        })
+      );
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await updateProperty(propertyId, {
+        name,
+        address,
+        description,
+        latitude,
+        longitude,
+        zone_id,
+      });
+      dispatch(
+        showToast({
+          message: 'Información actualizada correctamente.',
+          color: 'green',
+        })
+      );
+    } catch (error) {
+      dispatch(
+        showToast({
+          message: 'Error al actualizar la propiedad.',
+          color: 'red',
+        })
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,40 +73,15 @@ export default function StepBasicInfo({ form, setForm }: Props) {
         <label className="block text-sm font-medium text-dozegray">Zona</label>
         <select
           value={form.zone_id ?? ''}
-          onChange={(e) => {
-            const selected = zones.find((z) => z.id === Number(e.target.value));
-            setForm({
-              ...form,
-              zone_id: Number(e.target.value),
-              zone: selected?.name || '',
-            });
-          }}
+          onChange={(e) =>
+            handleChange('zone_id', Number(e.target.value) || null)
+          }
           className="w-full mt-1 px-4 py-2 border rounded-md border-gray-300 bg-white"
         >
           <option value="">Seleccionar zona</option>
           {zones.map((zone) => (
             <option key={zone.id} value={zone.id}>
               {zone.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* PMS */}
-      <div>
-        <label className="block text-sm font-medium text-dozegray">
-          Sistema de PMS
-        </label>
-        <select
-          value={form.pms_id ?? ''}
-          onChange={(e) => handleChange('pms_id', Number(e.target.value))}
-          disabled={loadingPms}
-          className="w-full mt-1 px-4 py-2 border rounded-md border-gray-300 bg-white"
-        >
-          <option value="">Seleccionar PMS</option>
-          {pmsOptions.map((pms) => (
-            <option key={pms.id} value={pms.id}>
-              {pms.name}
             </option>
           ))}
         </select>
@@ -124,9 +115,10 @@ export default function StepBasicInfo({ form, setForm }: Props) {
       <div className="flex justify-end pt-2">
         <button
           onClick={handleSave}
-          className="bg-dozeblue text-white px-6 py-2 rounded-md hover:bg-dozeblue/90 transition"
+          disabled={loading}
+          className="bg-dozeblue text-white px-6 py-2 rounded-md hover:bg-dozeblue/90 transition disabled:opacity-50"
         >
-          Actualizar información
+          {loading ? 'Guardando...' : 'Actualizar información'}
         </button>
       </div>
     </div>
