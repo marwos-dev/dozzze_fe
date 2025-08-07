@@ -36,9 +36,7 @@ export default function StaffPage() {
   }, [profile, router]);
 
   useEffect(() => {
-    if (!zones || zones.length === 0) {
-      dispatch(getZones());
-    }
+    dispatch(getZones()); //hay que cambiar esto por el get: properties/my
   }, [dispatch, zones]);
 
   const handleEditProperty = (propertyId: number) => {
