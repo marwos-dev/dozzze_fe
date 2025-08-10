@@ -3,17 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Image from 'next/image';
-import { AppDispatch } from '@/store';
-import { getPropertyById } from '@/store/propertiesSlice';
-import {
-  selectSelectedProperty,
-  selectPropertiesLoading,
-} from '@/store/selectors/propertiesSelectors';
+import { AppDispatch, RootState } from '@/store';
+import { fetchRooms } from '@/store/roomsSlice';
+import { getRoomTypeImages } from '@/services/roomApi';
+import { Room } from '@/types/room';
 import StepRoomImage from './StepRoomImage';
-import { RoomType } from '@/types/roomType';
 import { Camera } from 'lucide-react';
 import { Tooltip } from '@/components/ui/ToolTip';
-import { getRoomTypeImages } from '@/services/roomApi';
 
 interface Props {
   propertyId: number;
@@ -22,10 +18,13 @@ interface Props {
 
 export default function StepRoomEdit({ propertyId }: Props) {
   const dispatch = useDispatch<AppDispatch>();
-  const property = useSelector(selectSelectedProperty);
-  const loading = useSelector(selectPropertiesLoading);
 
-  const [selectedRoom, setSelectedRoom] = useState<RoomType | null>(null);
+  const roomTypes = useSelector(
+    (state: RootState) => state.rooms.roomsByProperty[propertyId]
+  );
+  const loading = useSelector((state: RootState) => state.rooms.loading);
+
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [roomImagesMap, setRoomImagesMap] = useState<Record<number, string[]>>(
     {}
@@ -33,7 +32,7 @@ export default function StepRoomEdit({ propertyId }: Props) {
 
   useEffect(() => {
     if (propertyId) {
-      dispatch(getPropertyById(propertyId));
+      dispatch(fetchRooms({ propertyId }));
     }
   }, [propertyId, dispatch]);
 
@@ -50,18 +49,18 @@ export default function StepRoomEdit({ propertyId }: Props) {
   };
 
   useEffect(() => {
-    if (property?.room_types) {
-      property.room_types.forEach((room) => {
+    if (roomTypes) {
+      roomTypes.forEach((room) => {
         loadImagesForRoom(room.id);
       });
     }
-  }, [property]);
+  }, [roomTypes]);
 
   const handleImageUploaded = async (roomId: number) => {
     await loadImagesForRoom(roomId);
   };
 
-  if (loading || !property || !property.room_types) {
+  if (loading || !roomTypes) {
     return (
       <div className="p-6 text-gray-500 text-center animate-pulse">
         Cargando habitaciones sincronizadas...
@@ -76,7 +75,7 @@ export default function StepRoomEdit({ propertyId }: Props) {
       </h2>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 items-stretch">
-        {property.room_types.map((room) => (
+        {roomTypes.map((room) => (
           <div
             key={room.id}
             className="relative w-full bg-greenlight text-center shadow-xl px-2 sm:px-3 transition-all rounded-2xl overflow-hidden flex flex-col border border-gray-200 dark:border-white/10 hover:shadow-2xl cursor-pointer min-h-[260px]"
