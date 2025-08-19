@@ -52,8 +52,22 @@ const en = {
     companyName: 'Explotaciones Hosteleras Infantas S.L',
     slogan: 'Accommodation, reservations and professional management solutions',
     billingData: 'Billing Data',
+    taxId: 'CIF',
+    address: 'Address',
+    billingConditionsTitle: 'Billing Conditions',
+    billingConditions: [
+      'Invoices will only be issued in the name of Explotaciones Hosteleras Infantas S.L, with CIF B88590989.',
+      'Please ensure you provide all necessary information for correct invoice issuance during the purchase or service contracting process.',
+      'If you detect any error in the invoice data, you have 7 business days from receipt to request its correction.',
+      'In case of returns or cancellations, refunds will be made using the same original payment method within 14 business days.'
+    ],
+    invoiceDeliveryTitle: 'Invoice Delivery',
     billingInfo: 'Electronic invoices will be sent to the email provided at the time of purchase.',
-    consultContact: 'consulting contact'
+    physicalInvoiceRequest: 'If you need to receive a physical invoice, you can request it',
+    consultContact: 'consulting contact',
+    legalRequirementsTitle: 'Legal Requirements',
+    legalRequirements:
+      'All our invoices comply with the current tax regulations in Spain, according to the standards established by the Tax Agency.'
   }
 };
 export default en;

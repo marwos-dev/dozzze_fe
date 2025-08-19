@@ -91,10 +91,10 @@ export default function AboutUsPage() {
               {t('about.companyName')}
             </h2>
             <p>
-              <strong>CIF:</strong> B88590989
+              <strong>{t('about.taxId')}:</strong> B88590989
               <br />
-              <strong>Dirección:</strong> Calle las Palmas 44 1B, Móstoles,
-              Madrid (CP 28938)
+              <strong>{t('about.address')}:</strong> Calle las Palmas 44 1B,
+              Móstoles, Madrid (CP 28938)
             </p>
           </div>
         )}
@@ -112,44 +112,29 @@ export default function AboutUsPage() {
               {t('about.billingData')}
             </h3>
             <p>
-              <strong>Explotaciones Hosteleras Infantas S.L</strong>
+              <strong>{t('about.companyName')}</strong>
               <br />
-              <strong>CIF:</strong> B88590989
+              <strong>{t('about.taxId')}:</strong> B88590989
               <br />
-              <strong>Dirección:</strong> Calle las Palmas 44 1B, Móstoles,
-              Madrid (CP 28938)
+              <strong>{t('about.address')}:</strong> Calle las Palmas 44 1B,
+              Móstoles, Madrid (CP 28938)
             </p>
 
             <h4 className="text-lg font-semibold mt-4">
-              Condiciones de Facturación
+              {t('about.billingConditionsTitle')}
             </h4>
             <ul className="list-disc list-inside space-y-2">
-              <li>
-                Las facturas se emitirán únicamente a nombre de Explotaciones
-                Hosteleras Infantas S.L, con CIF B88590989.
-              </li>
-              <li>
-                Por favor, asegúrate de proporcionar todos los datos necesarios
-                para la correcta emisión de tu factura durante el proceso de
-                compra o contratación de servicios.
-              </li>
-              <li>
-                Si detectas algún error en los datos de la factura, tienes un
-                plazo de 7 días hábiles desde la recepción de la misma para
-                solicitar su rectificación.
-              </li>
-              <li>
-                En caso de devoluciones o cancelaciones, los reembolsos se
-                realizarán utilizando el mismo método de pago original dentro de
-                un plazo de 14 días hábiles.
-              </li>
+              {(t('about.billingConditions') as string[]).map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
             </ul>
 
-            <h4 className="text-lg font-semibold mt-4">Envío de Facturas</h4>
+            <h4 className="text-lg font-semibold mt-4">
+              {t('about.invoiceDeliveryTitle')}
+            </h4>
             <p>{t('about.billingInfo')}</p>
             <p>
-              Si necesitas recibir una factura en formato físico, puedes
-              solicitarlo{' '}
+              {t('about.physicalInvoiceRequest')}{' '}
               <button
                 onClick={() => setActiveTab('contact')}
                 className="text-dozeblue underline hover:text-dozeblue/80 transition font-medium"
@@ -159,12 +144,10 @@ export default function AboutUsPage() {
               .
             </p>
 
-            <h4 className="text-lg font-semibold mt-4">Requisitos Legales</h4>
-            <p>
-              Todas nuestras facturas cumplen con la normativa fiscal vigente en
-              España, según los estándares establecidos por la Agencia
-              Tributaria.
-            </p>
+            <h4 className="text-lg font-semibold mt-4">
+              {t('about.legalRequirementsTitle')}
+            </h4>
+            <p>{t('about.legalRequirements')}</p>
           </div>
         )}
 
@@ -172,7 +155,7 @@ export default function AboutUsPage() {
         {activeTab === 'contact' && (
           <div className="space-y-6">
             <h3 className="text-2xl font-semibold text-dozeblue text-center">
-              Contacto
+              {t('about.contact')}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex flex-col items-center justify-center p-6 rounded-xl bg-white dark:bg-dozebg1 shadow-md border border-gray-200 dark:border-white/10">

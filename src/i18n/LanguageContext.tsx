@@ -8,7 +8,7 @@ const resources = { en, es } as const;
 
 type Context = {
   lang: Lang;
-  t: (key: string) => string;
+  t: (key: string) => string | string[];
   setLang: (lang: Lang) => void;
 };
 
@@ -18,7 +18,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>(() =>
     (typeof window !== 'undefined' && (localStorage.getItem('lang') as Lang)) || 'es'
   );
-  const t = (key: string): string => {
+  const t = (key: string): string | string[] => {
     const result = key
       .split('.')
       .reduce<unknown>((obj, k) => {
@@ -27,7 +27,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         }
         return undefined;
       }, resources[lang] as Record<string, unknown>);
-    return typeof result === 'string' ? result : key;
+    return typeof result === 'string' || Array.isArray(result) ? result : key;
   };
   const changeLang = (l: Lang) => {
     setLang(l);
