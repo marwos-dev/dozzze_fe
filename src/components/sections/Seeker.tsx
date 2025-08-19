@@ -69,7 +69,8 @@ export default function Seeker() {
 
     const selected = range[0];
     if (!selected.startDate || !selected.endDate) {
-      setError(t('seeker.invalidDate'));
+      const msg = t('seeker.invalidDate');
+      setError(Array.isArray(msg) ? msg.join(' ') : msg);
       return;
     }
 
@@ -82,6 +83,9 @@ export default function Seeker() {
     setError(null);
     dispatch(fetchAvailability(formatted));
   };
+
+  const noRooms = t('seeker.noRooms');
+  const noRoomsMsg = Array.isArray(noRooms) ? noRooms.join(' ') : noRooms;
 
   return (
     <div className="p-6 space-y-6 bg-white dark:bg-dozebg1 rounded-xl shadow-lg">
@@ -152,12 +156,8 @@ export default function Seeker() {
         </div>
       </form>
 
-      {error && (
-        <RoomError message={t('seeker.noRooms')} />
-      )}
-      {reduxError && (
-        <RoomError message={t('seeker.noRooms')} />
-      )}
+      {error && <RoomError message={noRoomsMsg} />}
+      {reduxError && <RoomError message={noRoomsMsg} />}
       {loading && (
         <div className="text-center text-dozegray">
           <SkeletonAvailabilityResult />
