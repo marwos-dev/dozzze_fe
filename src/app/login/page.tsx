@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginCustomer, signupCustomer } from '@/store/customerSlice';
 import { AppDispatch, RootState } from '@/store';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
   const { loading } = useSelector((state: RootState) => state.customer);
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -56,7 +58,7 @@ export default function LoginPage() {
             className="text-3xl font-bold text-dozeblue text-center mb-8 flex items-center justify-center gap-2"
           >
             {isLogin ? <LogIn size={24} /> : <UserPlus size={24} />}
-            {isLogin ? 'Iniciar sesión' : 'Crear cuenta'}
+            {isLogin ? t('login.loginTitle') : t('login.signupTitle')}
           </motion.h1>
         </AnimatePresence>
 
@@ -70,7 +72,7 @@ export default function LoginPage() {
               transition={{ duration: 0.25 }}
             >
               <label className="block text-sm font-semibold text-dozegray mb-1">
-                Email
+                {t('login.email')}
               </label>
               <input
                 type="email"
@@ -89,7 +91,7 @@ export default function LoginPage() {
               transition={{ duration: 0.25, delay: 0.05 }}
             >
               <label className="block text-sm font-semibold text-dozegray mb-1">
-                Contraseña
+                {t('login.password')}
               </label>
               <input
                 type="password"
@@ -106,18 +108,18 @@ export default function LoginPage() {
             className="w-full bg-dozeblue text-white font-semibold py-3 rounded-md hover:bg-dozeblue/90 transition disabled:opacity-50"
             disabled={loading}
           >
-            {loading ? 'Procesando...' : isLogin ? 'Entrar' : 'Registrarme'}
+            {loading ? t('login.processing') : isLogin ? t('login.enter') : t('login.signup')}
           </button>
         </form>
 
         <div className="text-center text-sm mt-6 text-dozegray">
-          {isLogin ? '¿No tenés cuenta?' : '¿Ya tenés una cuenta?'}
+          {isLogin ? t('login.noAccount') : t('login.haveAccount')}
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
             className="ml-2 text-dozeblue font-medium hover:underline transition"
           >
-            {isLogin ? 'Registrate' : 'Iniciar sesión'}
+            {isLogin ? t('login.register') : t('login.login')}
           </button>
         </div>
       </motion.div>
