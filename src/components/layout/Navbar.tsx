@@ -13,11 +13,13 @@ import {
 import Seeker from '@/components/sections/Seeker';
 import FilterModal from '@/components/ui/modals/FilterModal';
 import UserMenu from '@/components/ui/menus/UserMenu';
+import { useLanguage } from '@/i18n/LanguageContext';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
 const navLinks = [
-  { label: 'Inicio', href: '/' },
-  { label: 'Nosotros', href: '/aboutUs' },
-  { label: 'Reservas', href: '/reserve', icon: ShoppingCart },
+  { labelKey: 'nav.home', href: '/' },
+  { labelKey: 'nav.about', href: '/aboutUs' },
+  { labelKey: 'nav.reservations', href: '/reserve', icon: ShoppingCart },
 ];
 
 export default function Navbar() {
@@ -32,6 +34,11 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isTop, setIsTop] = useState(true);
+  const { t } = useLanguage();
+  const changeMode = t('nav.changeMode');
+  const changeModeTitle = Array.isArray(changeMode)
+    ? changeMode.join(' ')
+    : changeMode;
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
@@ -76,7 +83,7 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <div className="hidden md:flex space-x-6 items-center">
-            {navLinks.map(({ label, href, icon: Icon }) =>
+            {navLinks.map(({ labelKey, href, icon: Icon }) =>
               href.startsWith('/') ? (
                 <Link
                   key={href}
@@ -86,10 +93,10 @@ export default function Navbar() {
                   {Icon ? (
                     <>
                       <Icon size={18} />
-                      <span className="sr-only">{label}</span>
+                      <span className="sr-only">{t(labelKey)}</span>
                     </>
                   ) : (
-                    label
+                    t(labelKey)
                   )}
                 </Link>
               ) : (
@@ -101,10 +108,10 @@ export default function Navbar() {
                   {Icon ? (
                     <>
                       <Icon size={18} />
-                      <span className="sr-only">{label}</span>
+                      <span className="sr-only">{t(labelKey)}</span>
                     </>
                   ) : (
-                    label
+                    t(labelKey)
                   )}
                 </a>
               )
@@ -121,7 +128,7 @@ export default function Navbar() {
               <span
                 className={`${isTop ? 'text-dozeblue' : 'text-dozegray'} font-semibold hover:text-dozeblue transition`}
               >
-                Buscar
+                {t('nav.searchAccommodation')}
               </span>
             </button>
 
@@ -133,17 +140,18 @@ export default function Navbar() {
                 className="flex items-center gap-2 bg-dozeblue hover:bg-dozeblue/90 text-white font-semibold px-4 py-1.5 rounded-full transition"
               >
                 <LogIn size={18} />
-                Iniciar sesión
+                {t('nav.login')}
               </Link>
             )}
 
             <div
               onClick={toggleDarkMode}
               className="cursor-pointer text-xl"
-              title="Cambiar modo"
+              title={changeModeTitle}
             >
               {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
             </div>
+            <LanguageSwitcher />
           </div>
 
           {/* Mobile toggle */}
@@ -151,10 +159,11 @@ export default function Navbar() {
             <div
               onClick={toggleDarkMode}
               className="cursor-pointer text-xl"
-              title="Cambiar modo"
+              title={changeModeTitle}
             >
               {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
             </div>
+            <LanguageSwitcher />
 
             <button
               onClick={() => setOpen(!open)}
@@ -173,7 +182,7 @@ export default function Navbar() {
         }`}
       >
         <div className="pt-20">
-          {navLinks.map(({ label, href, icon: Icon }) =>
+          {navLinks.map(({ labelKey, href, icon: Icon }) =>
             href.startsWith('/') ? (
               <Link
                 key={href}
@@ -184,10 +193,10 @@ export default function Navbar() {
                 {Icon ? (
                   <>
                     <Icon size={18} />
-                    <span className="sr-only">{label}</span>
+                    <span className="sr-only">{t(labelKey)}</span>
                   </>
                 ) : (
-                  label
+                  t(labelKey)
                 )}
               </Link>
             ) : (
@@ -200,10 +209,10 @@ export default function Navbar() {
                 {Icon ? (
                   <>
                     <Icon size={18} />
-                    <span className="sr-only">{label}</span>
+                    <span className="sr-only">{t(labelKey)}</span>
                   </>
                 ) : (
-                  label
+                  t(labelKey)
                 )}
               </a>
             )
@@ -216,7 +225,7 @@ export default function Navbar() {
             }}
             className="block w-full text-left px-6 py-4 text-lg font-semibold hover:text-dozeblue border-t border-dozegray/30"
           >
-            Buscar
+            {t('seeker.search')}
           </button>
 
           {isLoggedIn && profile ? (
@@ -227,7 +236,7 @@ export default function Navbar() {
               className="block mx-6 mt-4 mb-6 text-center bg-dozeblue text-white font-semibold px-4 py-2 rounded-full hover:bg-dozeblue/90 transition"
               onClick={() => setOpen(false)}
             >
-              Iniciar sesión
+              {t('nav.login')}
             </Link>
           )}
         </div>
@@ -245,7 +254,7 @@ export default function Navbar() {
         <div className="flex flex-col h-full">
           <div className="flex justify-between items-center p-4 border-b">
             <h2 className="text-xl font-semibold text-dozeblue">
-              Buscar alojamiento
+              {t('nav.searchAccommodation')}
             </h2>
           </div>
           <div className="flex-1 overflow-y-auto p-4">

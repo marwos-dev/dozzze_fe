@@ -13,6 +13,7 @@ import AvailabilityResult from '../ui/AvailabilityResult';
 import RoomError from '@/components/ui/errors/RoomError';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 export default function Seeker() {
   const [range, setRange] = useState<Range[]>([
@@ -26,6 +27,7 @@ export default function Seeker() {
   const [error, setError] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
+  const { t } = useLanguage();
 
   const calendarRef = useRef<HTMLDivElement | null>(null);
   const dispatch = useDispatch<AppDispatch>();
@@ -67,7 +69,8 @@ export default function Seeker() {
 
     const selected = range[0];
     if (!selected.startDate || !selected.endDate) {
-      setError('Por favor seleccioná una fecha válida');
+      const msg = t('seeker.invalidDate');
+      setError(Array.isArray(msg) ? msg.join(' ') : msg);
       return;
     }
 
@@ -80,6 +83,9 @@ export default function Seeker() {
     setError(null);
     dispatch(fetchAvailability(formatted));
   };
+
+  const noRooms = t('seeker.noRooms');
+  const noRoomsMsg = Array.isArray(noRooms) ? noRooms.join(' ') : noRooms;
 
   return (
     <div className="p-6 space-y-6 bg-white dark:bg-dozebg1 rounded-xl shadow-lg">
@@ -117,7 +123,7 @@ export default function Seeker() {
           <div className="flex items-center gap-3 border border-gray-300 dark:border-white/20 bg-white dark:bg-dozegray/10 px-4 h-12 rounded-md shadow-sm w-full md:w-[220px]">
             <User className="text-dozeblue" size={20} />
             <span className="text-sm text-[var(--foreground)] font-light">
-              Huésp.
+              {t('seeker.guests')}
             </span>
             <div className="flex items-center gap-2 ml-auto">
               <button
@@ -145,17 +151,13 @@ export default function Seeker() {
             className="flex items-center justify-center gap-2 h-12 px-6 rounded-md bg-greenlight text-dozeblue hover:bg-dozeblue/90 hover:text-white transition font-semibold w-full md:w-auto"
           >
             <Search className="w-5 h-5" />
-            Buscar
+            {t('seeker.search')}
           </button>
         </div>
       </form>
 
-      {error && (
-        <RoomError message="No hay habitaciones disponibles para el rango de fechas seleccionado." />
-      )}
-      {reduxError && (
-        <RoomError message="No hay habitaciones disponibles para el rango de fechas seleccionado." />
-      )}
+      {error && <RoomError message={noRoomsMsg} />}
+      {reduxError && <RoomError message={noRoomsMsg} />}
       {loading && (
         <div className="text-center text-dozegray">
           <SkeletonAvailabilityResult />
@@ -174,11 +176,11 @@ export default function Seeker() {
           }
           className="min-w-[220px] text-dozeblue border border-dozeblue px-4 py-2 rounded-full hover:bg-dozeblue hover:text-white transition font-medium text-center"
         >
-          Expandí tu búsqueda
+          {t('seeker.expandSearch')}
         </button>
 
         <AnimatedButton
-          text="Conocé Nuestras Zonas"
+          text={t('seeker.knowZones')}
           sectionId="#zones"
           className="min-w-[220px]"
         />

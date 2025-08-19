@@ -10,18 +10,20 @@ import {
   Contact2,
   FileText,
 } from 'lucide-react';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 export default function AboutUsPage() {
   const [activeTab, setActiveTab] = useState<'info' | 'billing' | 'contact'>(
     'info'
   );
   const textColor = 'text-[var(--foreground)]';
+  const { t } = useLanguage();
 
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <section className="max-w-5xl mx-auto px-4 py-20 space-y-12">
         <h1 className="text-3xl md:text-4xl font-bold text-center text-dozeblue">
-          Sobre Nosotros
+          {t('about.title')}
         </h1>
 
         <div className="flex flex-col md:flex-row items-center justify-between bg-white dark:bg-dozebg1 border border-gray-200 dark:border-white/10 rounded-2xl px-6 py-4 shadow-md">
@@ -38,7 +40,7 @@ export default function AboutUsPage() {
           <div className="mt-3 md:mt-0 text-center md:text-left">
             <p className="text-lg font-semibold text-dozeblue">Dozzze</p>
             <p className="text-sm text-[var(--foreground)] leading-tight">
-              Soluciones de alojamiento, reservas y gestión profesional
+              {t('about.slogan')}
             </p>
           </div>
         </div>
@@ -54,7 +56,7 @@ export default function AboutUsPage() {
             }`}
           >
             <Info size={16} />
-            Empresa
+            {t('about.company')}
           </button>
           <button
             onClick={() => setActiveTab('billing')}
@@ -65,7 +67,7 @@ export default function AboutUsPage() {
             }`}
           >
             <FileText size={16} />
-            Condiciones de facturación
+            {t('about.billing')}
           </button>
           <button
             onClick={() => setActiveTab('contact')}
@@ -76,7 +78,7 @@ export default function AboutUsPage() {
             }`}
           >
             <Contact2 size={16} />
-            Contacto
+            {t('about.contact')}
           </button>
         </div>
 
@@ -86,13 +88,13 @@ export default function AboutUsPage() {
             className={`bg-white dark:bg-dozebg1 rounded-2xl p-6 md:p-10 shadow-lg space-y-6 text-sm md:text-base ${textColor}`}
           >
             <h2 className="text-xl font-semibold text-dozeblue">
-              Explotaciones Hosteleras Infantas S.L
+              {t('about.companyName')}
             </h2>
             <p>
-              <strong>CIF:</strong> B88590989
+              <strong>{t('about.taxId')}:</strong> B88590989
               <br />
-              <strong>Dirección:</strong> Calle las Palmas 44 1B, Móstoles,
-              Madrid (CP 28938)
+              <strong>{t('about.address')}:</strong> Calle las Palmas 44 1B,
+              Móstoles, Madrid (CP 28938)
             </p>
           </div>
         )}
@@ -107,65 +109,45 @@ export default function AboutUsPage() {
               size={28}
             />
             <h3 className="text-xl font-semibold text-dozeblue">
-              Datos de Facturación
+              {t('about.billingData')}
             </h3>
             <p>
-              <strong>Explotaciones Hosteleras Infantas S.L</strong>
+              <strong>{t('about.companyName')}</strong>
               <br />
-              <strong>CIF:</strong> B88590989
+              <strong>{t('about.taxId')}:</strong> B88590989
               <br />
-              <strong>Dirección:</strong> Calle las Palmas 44 1B, Móstoles,
-              Madrid (CP 28938)
+              <strong>{t('about.address')}:</strong> Calle las Palmas 44 1B,
+              Móstoles, Madrid (CP 28938)
             </p>
 
             <h4 className="text-lg font-semibold mt-4">
-              Condiciones de Facturación
+              {t('about.billingConditionsTitle')}
             </h4>
             <ul className="list-disc list-inside space-y-2">
-              <li>
-                Las facturas se emitirán únicamente a nombre de Explotaciones
-                Hosteleras Infantas S.L, con CIF B88590989.
-              </li>
-              <li>
-                Por favor, asegúrate de proporcionar todos los datos necesarios
-                para la correcta emisión de tu factura durante el proceso de
-                compra o contratación de servicios.
-              </li>
-              <li>
-                Si detectas algún error en los datos de la factura, tienes un
-                plazo de 7 días hábiles desde la recepción de la misma para
-                solicitar su rectificación.
-              </li>
-              <li>
-                En caso de devoluciones o cancelaciones, los reembolsos se
-                realizarán utilizando el mismo método de pago original dentro de
-                un plazo de 14 días hábiles.
-              </li>
+              {(t('about.billingConditions') as string[]).map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
             </ul>
 
-            <h4 className="text-lg font-semibold mt-4">Envío de Facturas</h4>
+            <h4 className="text-lg font-semibold mt-4">
+              {t('about.invoiceDeliveryTitle')}
+            </h4>
+            <p>{t('about.billingInfo')}</p>
             <p>
-              Las facturas electrónicas serán enviadas al correo electrónico
-              proporcionado al momento de la compra.
-            </p>
-            <p>
-              Si necesitas recibir una factura en formato físico, puedes
-              solicitarlo{' '}
+              {t('about.physicalInvoiceRequest')}{' '}
               <button
                 onClick={() => setActiveTab('contact')}
                 className="text-dozeblue underline hover:text-dozeblue/80 transition font-medium"
               >
-                consultando contacto
+                {t('about.consultContact')}
               </button>
               .
             </p>
 
-            <h4 className="text-lg font-semibold mt-4">Requisitos Legales</h4>
-            <p>
-              Todas nuestras facturas cumplen con la normativa fiscal vigente en
-              España, según los estándares establecidos por la Agencia
-              Tributaria.
-            </p>
+            <h4 className="text-lg font-semibold mt-4">
+              {t('about.legalRequirementsTitle')}
+            </h4>
+            <p>{t('about.legalRequirements')}</p>
           </div>
         )}
 
@@ -173,7 +155,7 @@ export default function AboutUsPage() {
         {activeTab === 'contact' && (
           <div className="space-y-6">
             <h3 className="text-2xl font-semibold text-dozeblue text-center">
-              Contacto
+              {t('about.contact')}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex flex-col items-center justify-center p-6 rounded-xl bg-white dark:bg-dozebg1 shadow-md border border-gray-200 dark:border-white/10">

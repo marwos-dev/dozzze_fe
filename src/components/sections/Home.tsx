@@ -2,8 +2,10 @@
 import HomeSlider from '@/components/sliders/HomeSlider';
 import AnimatedButton from '../ui/buttons/AnimatedButton';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 export default function Home() {
+  const { t } = useLanguage();
   return (
     <div className="relative max-w-6xl mt-10 bg-dozebg1/90 backdrop-blur-lg mx-auto py-14 px-6 mb-10 lg:px-16 flex flex-col-reverse lg:flex-row items-center justify-between gap-10 rounded-2xl shadow-2xl overflow-hidden">
       <span className="pointer-events-none absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-br from-dozeblue/40 via-greenlight/40 to-transparent rounded-full blur-3xl" />
@@ -16,7 +18,7 @@ export default function Home() {
           transition={{ duration: 0.6 }}
           className="text-4xl md:text-5xl font-bold mb-6 text-dozeblue"
         >
-          Descubrí el hospedaje ideal para tu estadía
+          {t('home.discoverStay')}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -24,10 +26,9 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-lg text-[var(--foreground)] mb-12"
         >
-          Espacios cómodos, naturales y flexibles. Reservá por días y personas
-          fácilmente.
+          {t('home.description')}
         </motion.p>
-        <AnimatedButton text="Busca tu lugar" sectionId="#seeker" />
+        <AnimatedButton text={t('home.searchPlace')} sectionId="#seeker" />
       </div>
 
       {/* Slider a la derecha */}
