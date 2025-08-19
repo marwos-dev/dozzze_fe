@@ -28,6 +28,22 @@ const es = {
     knowZones: 'Conocé Nuestras Zonas',
     noRooms: 'No hay habitaciones disponibles para el rango de fechas seleccionado.'
   },
+  home: {
+    discoverStay: 'Descubrí el hospedaje ideal para tu estadía',
+    description:
+      'Espacios cómodos, naturales y flexibles. Reservá por días y personas fácilmente.',
+    searchPlace: 'Busca tu lugar'
+  },
+  sections: {
+    discoverSpaces: 'Descubrí espacios únicos para tu estadía',
+    uniquePlaces:
+      'Lugares únicos disponibles en distintas zonas para tu próxima estadía'
+  },
+  availability: {
+    reservedOrUnavailable: 'Ya reservada / Sin disponibilidad',
+    reserveNow: 'Reservar ahora',
+    noAvailability: 'Sin disponibilidad'
+  },
   about: {
     title: 'Sobre Nosotros',
     company: 'Empresa',

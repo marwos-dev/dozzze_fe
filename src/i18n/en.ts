@@ -28,6 +28,22 @@ const en = {
     knowZones: 'Know Our Zones',
     noRooms: 'No rooms available for the selected date range.'
   },
+  home: {
+    discoverStay: 'Discover the ideal lodging for your stay',
+    description:
+      'Comfortable, natural and flexible spaces. Book easily by days and guests.',
+    searchPlace: 'Find your place'
+  },
+  sections: {
+    discoverSpaces: 'Discover unique spaces for your stay',
+    uniquePlaces:
+      'Unique places available in different areas for your next stay'
+  },
+  availability: {
+    reservedOrUnavailable: 'Already reserved / No availability',
+    reserveNow: 'Reserve now',
+    noAvailability: 'No availability'
+  },
   about: {
     title: 'About Us',
     company: 'Company',

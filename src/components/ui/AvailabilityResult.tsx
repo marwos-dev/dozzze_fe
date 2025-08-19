@@ -19,6 +19,7 @@ import { includedServicesMock } from '@/../public/icons/service'; // <- Import c
 import { Tooltip } from 'react-tooltip';
 import type { Property } from '@/types/property';
 import type { Zone } from '@/types/zone';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 const fallbackThumbnail = '/logo.png';
 
@@ -51,6 +52,8 @@ export default function AvailabilityResult() {
   const range = useSelector(selectLastAvailabilityParams);
   const reservations = useSelector((state: RootState) => state.reserve.data);
   const guestsFromSearch = range?.guests;
+
+  const { t } = useLanguage();
 
   const [selectedRateIndex, setSelectedRateIndex] = useState<
     Record<string, number>
@@ -325,26 +328,26 @@ export default function AvailabilityResult() {
                     Total a pagar: ${total.toFixed(2)}
                   </div>
                 </div>
-                <button
-                  onClick={() =>
-                    handleReserve(
-                      roomType,
-                      selectedIndex,
-                      rates[selectedIndex].rate_id,
-                      pax,
-                      total,
-                      propertyId,
-                      roomTypeID,
-                      images
-                    )
-                  }
-                  disabled={isSelectedReserved}
-                  className="bg-dozeblue text-white font-semibold px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors text-sm"
-                >
-                  {isSelectedReserved
-                    ? 'Ya reservada / Sin disponibilidad'
-                    : 'Reservar ahora'}
-                </button>
+                  <button
+                    onClick={() =>
+                      handleReserve(
+                        roomType,
+                        selectedIndex,
+                        rates[selectedIndex].rate_id,
+                        pax,
+                        total,
+                        propertyId,
+                        roomTypeID,
+                        images
+                      )
+                    }
+                    disabled={isSelectedReserved}
+                    className="bg-dozeblue text-white font-semibold px-6 py-3 rounded-lg hover:bg-dozeblue/90 transition-colors text-sm"
+                  >
+                    {isSelectedReserved
+                      ? t('availability.reservedOrUnavailable')
+                      : t('availability.reserveNow')}
+                  </button>
               </div>
             </div>
           </div>
