@@ -35,6 +35,10 @@ export default function Navbar() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isTop, setIsTop] = useState(true);
   const { t } = useLanguage();
+  const changeMode = t('nav.changeMode');
+  const changeModeTitle = Array.isArray(changeMode)
+    ? changeMode.join(' ')
+    : changeMode;
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
@@ -143,7 +147,7 @@ export default function Navbar() {
             <div
               onClick={toggleDarkMode}
               className="cursor-pointer text-xl"
-              title={t('nav.changeMode')}
+              title={changeModeTitle}
             >
               {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
             </div>
@@ -155,7 +159,7 @@ export default function Navbar() {
             <div
               onClick={toggleDarkMode}
               className="cursor-pointer text-xl"
-              title={t('nav.changeMode')}
+              title={changeModeTitle}
             >
               {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
             </div>
