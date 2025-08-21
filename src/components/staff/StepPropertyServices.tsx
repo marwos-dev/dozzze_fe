@@ -29,6 +29,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
   const [availableServices, setAvailableServices] = useState<PropertyService[]>([]);
   const [form, setForm] = useState({ code: '', name: '', description: '' });
   const [selectedExisting, setSelectedExisting] = useState<number | ''>('');
+  const [lockedIds, setLockedIds] = useState<Set<number>>(new Set());
 
   const normalize = (str: string) => str.trim().toLowerCase();
 
@@ -41,6 +42,12 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
         ]);
         setServices(propertySvcs);
         setAvailableServices(allSvcs);
+        const locked = propertySvcs
+          .filter((svc) =>
+            allSvcs.some((s) => normalize(s.code) === normalize(svc.code))
+          )
+          .map((s) => s.id);
+        setLockedIds(new Set(locked));
       } catch (e) {
         console.error(e);
       }
@@ -94,6 +101,7 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
         return;
       }
       setServices((prev) => [...prev, created]);
+      setLockedIds((prev) => new Set(prev).add(created.id));
       setSelectedExisting('');
     } catch (e) {
       console.error(e);
@@ -121,6 +129,11 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
     try {
       await deletePropertyService(propertyId, id);
       setServices((prev) => prev.filter((s) => s.id !== id));
+      setLockedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     } catch (e) {
       console.error(e);
       dispatch(
@@ -138,57 +151,66 @@ export default function StepPropertyServices({ propertyId, onNext }: Props) {
           {services.length === 0 && (
             <p className="text-sm text-gray-500">No hay servicios registrados.</p>
           )}
-          {services.map((svc) => (
-            <div
-              key={svc.id}
-              className={
-                'grid grid-cols-1 sm:grid-cols-4 gap-2 items-center bg-gray-50 dark:bg-dozegray/20 ' +
-                'border border-gray-200 dark:border-white/10 rounded-md p-3'
-              }
-            >
-              <input
-                value={svc.code}
-                onChange={(e) => {
-                  const updated = { ...svc, code: e.target.value };
-                  setServices((prev) =>
-                    prev.map((s) => (s.id === svc.id ? updated : s))
-                  );
-                  handleUpdate(updated);
-                }}
-                className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
-              />
-              <input
-                value={svc.name}
-                onChange={(e) => {
-                  const updated = { ...svc, name: e.target.value };
-                  setServices((prev) =>
-                    prev.map((s) => (s.id === svc.id ? updated : s))
-                  );
-                  handleUpdate(updated);
-                }}
-                className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
-              />
-              <input
-                value={svc.description || ''}
-                onChange={(e) => {
-                  const updated = { ...svc, description: e.target.value };
-                  setServices((prev) =>
-                    prev.map((s) => (s.id === svc.id ? updated : s))
-                  );
-                  handleUpdate(updated);
-                }}
-                className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm"
-              />
-              <div className="flex justify-end">
-                <button
-                  onClick={() => handleDelete(svc.id)}
-                  className="bg-red-500 text-white px-3 py-2 rounded-md text-sm hover:bg-red-600"
-                >
-                  Eliminar
-                </button>
+          {services.map((svc) => {
+            const locked = lockedIds.has(svc.id);
+            return (
+              <div
+                key={svc.id}
+                className={
+                  'grid grid-cols-1 sm:grid-cols-4 gap-2 items-center bg-gray-50 dark:bg-dozegray/20 ' +
+                  'border border-gray-200 dark:border-white/10 rounded-md p-3'
+                }
+              >
+                <input
+                  value={svc.code}
+                  onChange={(e) => {
+                    if (locked) return;
+                    const updated = { ...svc, code: e.target.value };
+                    setServices((prev) =>
+                      prev.map((s) => (s.id === svc.id ? updated : s))
+                    );
+                    handleUpdate(updated);
+                  }}
+                  disabled={locked}
+                  className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm disabled:bg-gray-100 disabled:dark:bg-dozegray/30 disabled:text-gray-500"
+                />
+                <input
+                  value={svc.name}
+                  onChange={(e) => {
+                    if (locked) return;
+                    const updated = { ...svc, name: e.target.value };
+                    setServices((prev) =>
+                      prev.map((s) => (s.id === svc.id ? updated : s))
+                    );
+                    handleUpdate(updated);
+                  }}
+                  disabled={locked}
+                  className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm disabled:bg-gray-100 disabled:dark:bg-dozegray/30 disabled:text-gray-500"
+                />
+                <input
+                  value={svc.description || ''}
+                  onChange={(e) => {
+                    if (locked) return;
+                    const updated = { ...svc, description: e.target.value };
+                    setServices((prev) =>
+                      prev.map((s) => (s.id === svc.id ? updated : s))
+                    );
+                    handleUpdate(updated);
+                  }}
+                  disabled={locked}
+                  className="w-full border border-gray-300 dark:border-white/20 rounded-md px-3 py-2 bg-white dark:bg-dozegray/10 text-sm disabled:bg-gray-100 disabled:dark:bg-dozegray/30 disabled:text-gray-500"
+                />
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => handleDelete(svc.id)}
+                    className="bg-red-500 text-white px-3 py-2 rounded-md text-sm hover:bg-red-600"
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="space-y-4 w-full lg:max-w-sm lg:justify-self-start">

@@ -152,6 +152,7 @@ export default function StepRoomEdit({ propertyId }: Props) {
             setSelectedRoom(null);
           }}
           roomId={selectedRoom.id}
+          propertyId={propertyId}
           initialImages={roomImagesMap[selectedRoom.id] || []}
           onImageUploaded={() => handleImageUploaded(selectedRoom.id)}
         />

@@ -142,7 +142,17 @@ export default function StepSync({
   };
 
   return (
-    <div className="space-y-6">
+    <>
+      {status === 'syncing' && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex flex-col items-center justify-center text-white space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin" />
+          <p className="text-center px-6">
+            Estamos sincronizando tu propiedad. Este proceso puede tardar varios segundos o incluso minutos.
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-6">
       {/* Selección de PMS */}
       <div>
         <label className="block text-sm font-medium text-dozegray">
@@ -224,7 +234,8 @@ export default function StepSync({
             </button>
           </>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
