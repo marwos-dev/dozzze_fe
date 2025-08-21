@@ -1,16 +1,24 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Image from 'next/image';
 import { showToast } from '@/store/toastSlice';
-import { uploadRoomTypeImages } from '@/services/roomApi';
-import { Plus, X, Loader2 } from 'lucide-react';
+import {
+  uploadRoomTypeImages,
+  getRoomTypeServices,
+  addRoomTypeService,
+  deleteRoomTypeService,
+} from '@/services/roomApi';
+import { getPropertyServices } from '@/services/propertiesApi';
+import type { PropertyService } from '@/types/property';
+import { Plus, X, Loader2, Check } from 'lucide-react';
 
 interface Props {
   open: boolean;
   onClose: () => void;
   roomId: number;
+  propertyId: number;
   initialImages: string[];
   onImageUploaded?: () => void;
 }
@@ -19,6 +27,7 @@ export default function StepRoomImage({
   open,
   onClose,
   roomId,
+  propertyId,
   initialImages,
   onImageUploaded,
 }: Props) {
@@ -27,6 +36,50 @@ export default function StepRoomImage({
   const [previewImage, setPreviewImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [description, setDescription] = useState('');
+  const [propertyServices, setPropertyServices] = useState<PropertyService[]>([]);
+  const [roomServices, setRoomServices] = useState<PropertyService[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    const load = async () => {
+      try {
+        const [propSvcs, roomSvcs] = await Promise.all([
+          getPropertyServices(propertyId),
+          getRoomTypeServices(roomId),
+        ]);
+        setPropertyServices(propSvcs);
+        setRoomServices(roomSvcs);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    load();
+  }, [open, propertyId, roomId]);
+
+  const handleToggleService = async (svc: PropertyService) => {
+    const exists = roomServices.some((s) => s.id === svc.id);
+    try {
+      if (exists) {
+        const toDelete = roomServices.find((s) => s.id === svc.id);
+        if (toDelete) {
+          await deleteRoomTypeService(roomId, toDelete.id);
+          setRoomServices((prev) => prev.filter((s) => s.id !== toDelete.id));
+        }
+      } else {
+        const created = await addRoomTypeService(roomId, {
+          code: svc.code,
+          name: svc.name,
+          description: svc.description,
+        });
+        setRoomServices((prev) => [...prev, created]);
+      }
+    } catch (err) {
+      console.error(err);
+      dispatch(
+        showToast({ message: 'Error al actualizar servicio', color: 'red' })
+      );
+    }
+  };
 
   const handleSelectFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -89,6 +142,36 @@ export default function StepRoomImage({
             disabled
             className="w-full mt-1 px-4 py-2 border rounded-md border-gray-300 dark:border-white/20 bg-gray-100 dark:bg-dozzegray/20 text-gray-500"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-dozegray dark:text-white/80">
+            Servicios disponibles
+          </label>
+          <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+            {propertyServices.length === 0 && (
+              <p className="text-sm text-gray-500">No hay servicios registrados.</p>
+            )}
+            {propertyServices.map((svc) => (
+              <label
+                key={svc.id}
+                className="flex items-center gap-2 cursor-pointer select-none"
+              >
+                <input
+                  type="checkbox"
+                  checked={roomServices.some((s) => s.id === svc.id)}
+                  onChange={() => handleToggleService(svc)}
+                  className="sr-only peer"
+                />
+                <span
+                  className="h-5 w-5 flex items-center justify-center border border-gray-300 rounded peer-checked:bg-dozeblue peer-checked:border-dozeblue"
+                >
+                  <Check className="w-4 h-4 text-white hidden peer-checked:block" />
+                </span>
+                <span className="text-sm">{svc.name}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
