@@ -12,7 +12,7 @@ import {
 } from '@/services/roomApi';
 import { getPropertyServices } from '@/services/propertiesApi';
 import type { PropertyService } from '@/types/property';
-import { Plus, X, Loader2 } from 'lucide-react';
+import { Plus, X, Loader2, Check } from 'lucide-react';
 
 interface Props {
   open: boolean;
@@ -153,13 +153,21 @@ export default function StepRoomImage({
               <p className="text-sm text-gray-500">No hay servicios registrados.</p>
             )}
             {propertyServices.map((svc) => (
-              <label key={svc.id} className="flex items-center gap-2">
+              <label
+                key={svc.id}
+                className="flex items-center gap-2 cursor-pointer select-none"
+              >
                 <input
                   type="checkbox"
                   checked={roomServices.some((s) => s.id === svc.id)}
                   onChange={() => handleToggleService(svc)}
-                  className="h-4 w-4 text-dozeblue rounded"
+                  className="sr-only peer"
                 />
+                <span
+                  className="h-5 w-5 flex items-center justify-center border border-gray-300 rounded peer-checked:bg-dozeblue peer-checked:border-dozeblue"
+                >
+                  <Check className="w-4 h-4 text-white hidden peer-checked:block" />
+                </span>
                 <span className="text-sm">{svc.name}</span>
               </label>
             ))}

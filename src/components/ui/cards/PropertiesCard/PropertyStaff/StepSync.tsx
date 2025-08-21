@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
 import { AppDispatch } from '@/store';
 import { showToast } from '@/store/toastSlice';
 import { getPms } from '@/services/pmsApi';
@@ -48,6 +49,7 @@ export default function StepSync({
   propertyId,
 }: Props) {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   const [syncData, setSyncData] = useState<SyncData>({
     base_url: '',
@@ -134,7 +136,6 @@ export default function StepSync({
       dispatch(
         showToast({ message: 'Sincronización completa', color: 'green' })
       );
-      onClose();
     } else {
       setStatus('saved');
       dispatch(showToast({ message: 'Error al sincronizar', color: 'red' }));
@@ -195,12 +196,23 @@ export default function StepSync({
       </div>
 
       {/* Botones de acción */}
-      <div className="flex justify-between pt-4">
+      <div className="flex justify-between items-center pt-4">
         {status === 'done' ? (
-          <div className="flex items-center gap-2 text-green-600 font-medium">
-            <CheckCircle className="w-5 h-5" />
-            Sincronización completa
-          </div>
+          <>
+            <div className="flex items-center gap-2 text-green-600 font-medium">
+              <CheckCircle className="w-5 h-5" />
+              Sincronización completa
+            </div>
+            <button
+              onClick={() => {
+                onClose();
+                router.push('/staff');
+              }}
+              className="px-6 py-2 rounded-lg bg-dozeblue text-white hover:bg-dozeblue/90 transition"
+            >
+              Finalizar carga
+            </button>
+          </>
         ) : (
           <>
             <button
@@ -234,7 +246,7 @@ export default function StepSync({
             </button>
           </>
         )}
-        </div>
+      </div>
       </div>
     </>
   );
