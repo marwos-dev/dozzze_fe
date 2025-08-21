@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { AppDispatch, RootState } from '@/store';
 import { fetchRooms } from '@/store/roomsSlice';
 import { getRoomTypeImages } from '@/services/roomApi';
@@ -13,11 +14,11 @@ import { Tooltip } from '@/components/ui/ToolTip';
 
 interface Props {
   propertyId: number;
-  onSyncComplete?: () => void;
 }
 
 export default function StepRoomEdit({ propertyId }: Props) {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   const roomTypes = useSelector(
     (state: RootState) => state.rooms.roomsByProperty[propertyId]
@@ -157,6 +158,15 @@ export default function StepRoomEdit({ propertyId }: Props) {
           onImageUploaded={() => handleImageUploaded(selectedRoom.id)}
         />
       )}
+
+      <div className="flex justify-end pt-4">
+        <button
+          onClick={() => router.push('/staff')}
+          className="bg-dozeblue text-white px-6 py-2 rounded-md hover:bg-dozeblue/90 transition"
+        >
+          Finalizar configuración
+        </button>
+      </div>
     </div>
   );
 }
