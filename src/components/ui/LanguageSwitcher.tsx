@@ -16,7 +16,7 @@ export default function LanguageSwitcher() {
   return (
     <div className="relative">
       <button
-      type="button"
+        type="button"
         onClick={toggle}
         className="uppercase text-sm flex items-center gap-1 focus:outline-none"
       >
@@ -24,20 +24,20 @@ export default function LanguageSwitcher() {
         <ChevronDown size={14} />
       </button>
       {open && (
-        <div className="absolute right-0 mt-1 bg-white dark:bg-dozebg1 rounded-md shadow-md">
+        <div className="absolute text-dozeblue right-0 mt-1 bg-white dark:bg-dozebg1 rounded-md shadow-md">
           <button
             type="button"
             onClick={() => selectLang('es')}
             className="block px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-dozebg2 w-full text-left uppercase"
           >
-            ES
+            ESP
           </button>
           <button
             type="button"
             onClick={() => selectLang('en')}
             className="block px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-dozebg2 w-full text-left uppercase"
           >
-            EN
+            ENG
           </button>
         </div>
       )}

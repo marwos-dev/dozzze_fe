@@ -10,6 +10,7 @@ import ZoneSection from './Zones';
 import Seeker from './Seeker';
 import { Zone } from '@/types/zone';
 import { useLanguage } from '@/i18n/LanguageContext';
+import SeekerResults from '../ui/seeker/SeekerResults';
 
 const Sections = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -24,21 +25,14 @@ const Sections = () => {
 
   return (
     <main>
-      <Home />
+      <div id="results">
+        <SeekerResults showActions />
+      </div>
       <ZoneSection zones={zones as Zone[]} loading={loading} />
+      {/* Resultados de disponibilidad */}
       <>
         {' '}
-        <section className="max-w-6xl mx-auto pt-10" id="seeker">
-          <div className="text-center bg-greenlight rounded-t-xl  py-3 px-2">
-            <h2 className="text-3xl font-semibold text-dozeblue">
-              {t('sections.discoverSpaces')}
-            </h2>
-            <p className="mt-2 text-[var(--foreground)]">
-              {t('sections.uniquePlaces')}
-            </p>
-          </div>
-          <Seeker />
-        </section>
+        <section className="max-w-6xl mx-auto pt-10" id="seeker"></section>
         <section className="p-5" id="seeker"></section>
         {/* <section className="pb-5">
             <Properties zones={zones as Zone[]} />
