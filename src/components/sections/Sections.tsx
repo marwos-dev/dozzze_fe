@@ -5,9 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getZones } from '@/store/zoneSlice';
 import type { AppDispatch, RootState } from '@/store';
 
-import Home from './Home';
 import ZoneSection from './Zones';
-import Seeker from './Seeker';
 import { Zone } from '@/types/zone';
 import { useLanguage } from '@/i18n/LanguageContext';
 import SeekerResults from '../ui/seeker/SeekerResults';
@@ -17,7 +15,7 @@ const Sections = () => {
   const { data: zones, loading } = useSelector(
     (state: RootState) => state.zones
   );
-  const { t } = useLanguage();
+  useLanguage();
 
   useEffect(() => {
     dispatch(getZones());

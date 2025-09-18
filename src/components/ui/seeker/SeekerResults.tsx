@@ -7,7 +7,6 @@ import SkeletonAvailabilityResult from '@/components/ui/skeletons/AvailabilityRe
 import AvailabilityResult from '@/components/ui/AvailabilityResult';
 import RoomError from '@/components/ui/errors/RoomError';
 import { useLanguage } from '@/i18n/LanguageContext';
-import AnimatedButton from '@/components/ui/buttons/AnimatedButton';
 
 type Props = {
   className?: string;
@@ -58,12 +57,6 @@ export default function SeekerResults({
           >
             {t('seeker.expandSearch')}
           </button>
-
-          <AnimatedButton
-            text={t('seeker.knowZones')}
-            sectionId="#zones"
-            className="min-w-[200px]"
-          />
         </div>
       )}
     </section>
