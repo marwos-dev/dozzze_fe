@@ -13,6 +13,7 @@ import {
 import UserMenu from '@/components/ui/menus/UserMenu';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { usePathname } from 'next/navigation';
 
 // Solo el formulario
 import SeekerForm from '@/components/ui/seeker/SeekerForm';
@@ -30,6 +31,8 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { t } = useLanguage();
+  const pathname = usePathname();
+  const isHome = pathname === '/'; // <- solo mostramos el seeker en "/"
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
@@ -54,7 +57,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* TOP BAR (z alto para que el dropdown de idioma quede por encima del hero) */}
+      {/* TOP BAR */}
       <nav
         className={`${blue} text-white/90 backdrop-blur relative z-[60] overflow-visible`}
       >
@@ -138,7 +141,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile drawer (ajustado al nuevo alto) */}
+        {/* Mobile drawer */}
         <div
           className={`md:hidden fixed top-12 md:top-14 lg:top-16 right-0 w-72 h-[calc(100vh-3rem)] md:h-[calc(100vh-3.5rem)] lg:h-[calc(100vh-4rem)] ${blue} text-white/90 shadow-xl transform transition-transform duration-300 ${
             open ? 'translate-x-0' : 'translate-x-full'
@@ -188,27 +191,31 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* HERO AZUL CON BUSCADOR FLOTANTE (hero debajo del nav) */}
-      <div className={`${blue} text-white relative z-[40]`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 md:py-4 md:pb-14">
-          {/* En mobile no flotamos */}
-          <div className="mt-2 md:hidden">
-            <SeekerForm dense tight showActions />
-          </div>
-        </div>
+      {/* HERO AZUL CON BUSCADOR FLOTANTE: solo en home */}
+      {isHome && (
+        <>
+          <div className={`${blue} text-white relative z-[40]`}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 md:py-4 md:pb-14">
+              {/* En mobile no flotamos */}
+              <div className="mt-2 md:hidden">
+                <SeekerForm dense tight showActions />
+              </div>
+            </div>
 
-        {/* Flotante en desktop/tablet */}
-        <div className="hidden md:block pointer-events-none absolute inset-x-0 bottom-0 z-40">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="translate-y-1/2 pointer-events-auto">
-              <SeekerForm dense tight showActions />
+            {/* Flotante en desktop/tablet */}
+            <div className="hidden md:block pointer-events-none absolute inset-x-0 bottom-0 z-40">
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="translate-y-1/2 pointer-events-auto">
+                  <SeekerForm dense tight showActions />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Spacer para que el contenido no quede tapado por el pill flotante */}
-      <div className="hidden md:block h-6 md:h-8 lg:h-10" />
+          {/* Spacer para que el contenido no quede tapado por el pill flotante */}
+          <div className="hidden md:block h-6 md:h-8 lg:h-10" />
+        </>
+      )}
     </header>
   );
 }
