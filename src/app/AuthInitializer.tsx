@@ -2,40 +2,35 @@
 
 import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { initAxiosAuthHeader } from '@/utils/axiosAuth';
 import { getCustomerProfile, setCustomer } from '@/store/customerSlice';
 import { AppDispatch } from '@/store';
-import Cookies from 'js-cookie';
 import { clearReserveStorage } from '@/utils/storage';
+import {
+  getAccessToken,
+  getStoredCustomerProfile,
+} from '@/utils/authSession';
 
 export default function AuthInitializer() {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    initAxiosAuthHeader(); // si hay cookie, pone el header
-
-    if (!Cookies.get('accessToken')) {
+    if (!getAccessToken()) {
       clearReserveStorage(dispatch);
     }
 
-    const profileCookie = Cookies.get('customerProfile');
-    if (profileCookie) {
-      try {
-        const profile = JSON.parse(profileCookie);
-        dispatch(setCustomer(profile));
-        return;
-      } catch {
-        // fallthrough to backend fetch if parsing fails
-      }
+    const profile = getStoredCustomerProfile();
+    if (profile) {
+      dispatch(setCustomer(profile));
+      return;
     }
     dispatch(getCustomerProfile()); // pide perfil del backend si no hay cookie
   }, [dispatch]);
 
-  const lastToken = useRef<string | undefined>(Cookies.get('accessToken'));
+  const lastToken = useRef<string | undefined>(getAccessToken());
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const currentToken = Cookies.get('accessToken');
+      const currentToken = getAccessToken();
       if (lastToken.current && !currentToken) {
         clearReserveStorage(dispatch);
       }

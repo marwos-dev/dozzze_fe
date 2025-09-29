@@ -8,8 +8,12 @@ import {
 import { showToast } from './toastSlice';
 import { Customer } from '@/types/costumers';
 import { activateCustomerAccount as apiActivateCustomerAccount } from '@/services/customersApi';
-import Cookies from 'js-cookie';
-import axios from '@/services/axios';
+import {
+  clearPersistedSession,
+  getAccessToken,
+  persistAccessToken,
+  persistCustomerProfile,
+} from '@/utils/authSession';
 
 interface CustomerState {
   loading: boolean;
@@ -56,19 +60,8 @@ export const loginCustomer = createAsyncThunk(
     try {
       const res = await customerLogin(payload);
       const token = res.access;
-      Cookies.set('accessToken', token, {
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        expires: 30, // días
-      });
-
-      Cookies.set('customerProfile', JSON.stringify(res), {
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        expires: 30,
-      });
-
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      persistAccessToken(token);
+      persistCustomerProfile(res);
       dispatch(
         showToast({ message: 'Sesión iniciada correctamente', color: 'green' })
       );
@@ -87,13 +80,9 @@ export const getCustomerProfile = createAsyncThunk(
   'customer/profile',
   async (_, { rejectWithValue, dispatch }) => {
     try {
-      if (!Cookies.get('accessToken')) return;
+      if (!getAccessToken()) return;
       const profile = await fetchCustomerProfile();
-      Cookies.set('customerProfile', JSON.stringify(profile), {
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        expires: 30,
-      });
+      persistCustomerProfile(profile);
       return profile;
     } catch (error: unknown) {
       const axiosError = error as AxiosError<{ error: string }>;
@@ -177,9 +166,7 @@ const customerSlice = createSlice({
       .addCase(getCustomerProfile.rejected, (state) => {
         state.profile = null;
         state.checked = true;
-        Cookies.remove('accessToken');
-        Cookies.remove('customerProfile');
-        delete axios.defaults.headers.common['Authorization'];
+        clearPersistedSession();
       })
       .addCase(activateCustomerAccount.pending, (state) => {
         state.loading = true;
