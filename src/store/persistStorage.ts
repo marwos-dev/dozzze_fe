@@ -5,7 +5,7 @@ const createPersistStorage = (): WebStorage => {
   if (typeof window === 'undefined') {
     const noopStorage: WebStorage = {
       getItem: () => Promise.resolve(null),
-      setItem: (_key, value) => Promise.resolve(value),
+      setItem: () => Promise.resolve(),
       removeItem: () => Promise.resolve(),
     };
 
