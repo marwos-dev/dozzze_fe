@@ -5,12 +5,12 @@ import roomsReducer from './roomsSlice';
 import reserveReducer from './reserveSlice';
 import toastReducer from './toastSlice';
 import customerReducer from './customerSlice';
-import storageSession from 'redux-persist/lib/storage/session';
 import { persistReducer, persistStore } from 'redux-persist';
+import { persistStorage } from './persistStorage';
 
 const persistConfig = {
   key: 'root',
-  storage: storageSession,
+  storage: persistStorage,
   whitelist: ['reserve'],
 };
 
