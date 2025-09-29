@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
-import { logoutCustomer } from '@/utils/axiosAuth';
+import { logoutCustomer } from '@/utils/customerSession';
 import type { Customer } from '@/types/costumers'; // Asegurate de importar esto
 
 interface Props {
