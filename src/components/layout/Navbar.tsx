@@ -14,6 +14,7 @@ import UserMenu from '@/components/ui/menus/UserMenu';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { usePathname } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 // Solo el formulario
 import SeekerForm from '@/components/ui/seeker/SeekerForm';
@@ -24,6 +25,39 @@ const navLinks = [
   { labelKey: 'nav.reservations', href: '/reserve', icon: ShoppingCart },
 ];
 
+type CustomerProfile = ReturnType<typeof selectCustomerProfile> | null;
+
+function LegendBooking({
+  isLoggedIn,
+  profile,
+}: {
+  isLoggedIn: boolean;
+  profile: CustomerProfile;
+}) {
+  let title = 'Encuentra tu próxima estancia';
+  let subtitle = 'Busca ofertas en hoteles, casas y mucho más...';
+
+  if (isLoggedIn && profile) {
+    const nameOrEmail = profile.name || profile.email || 'viajero';
+    title = `Hola, ${nameOrEmail}`;
+    subtitle = '¿Listo para planear tu próxima reserva?';
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 22 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, ease: 'easeOut' }}
+      className="text-center text-white space-y-1"
+    >
+      <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight">
+        {title}
+      </h1>
+      <p className="text-sm md:text-base lg:text-lg/7 opacity-90">{subtitle}</p>
+    </motion.div>
+  );
+}
+
 export default function Navbar() {
   const profile = useSelector((s: RootState) => selectCustomerProfile(s));
   const isLoggedIn = useSelector((s: RootState) => selectIsCustomerLoggedIn(s));
@@ -32,7 +66,7 @@ export default function Navbar() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { t } = useLanguage();
   const pathname = usePathname();
-  const isHome = pathname === '/'; // <- solo mostramos el seeker en "/"
+  const isHome = pathname === '/';
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
@@ -51,7 +85,6 @@ export default function Navbar() {
     localStorage.setItem('theme', v ? 'dark' : 'light');
   };
 
-  // Colores estilo Booking
   const blue = 'bg-[#003580]';
   const blue2 = 'bg-[#0a5bd3]';
 
@@ -195,9 +228,11 @@ export default function Navbar() {
       {isHome && (
         <>
           <div className={`${blue} text-white relative z-[40]`}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 md:py-4 md:pb-14">
+            {/* MÁS ESPACIO ARRIBA: pt-8 en mobile, pt-12 en desktop */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-12 pb-16">
               {/* En mobile no flotamos */}
-              <div className="mt-2 md:hidden">
+              <div className="mt-2 md:hidden space-y-4">
+                <LegendBooking isLoggedIn={isLoggedIn} profile={profile} />
                 <SeekerForm dense tight showActions />
               </div>
             </div>
@@ -205,15 +240,16 @@ export default function Navbar() {
             {/* Flotante en desktop/tablet */}
             <div className="hidden md:block pointer-events-none absolute inset-x-0 bottom-0 z-40">
               <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="translate-y-1/2 pointer-events-auto">
+                <div className="translate-y-[22%] pointer-events-auto flex flex-col items-center gap-4">
+                  <LegendBooking isLoggedIn={isLoggedIn} profile={profile} />
                   <SeekerForm dense tight showActions />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Spacer para que el contenido no quede tapado por el pill flotante */}
-          <div className="hidden md:block h-6 md:h-8 lg:h-10" />
+          {/* Spacer para no tapar contenido */}
+          <div className="hidden md:block h-20" />
         </>
       )}
     </header>
