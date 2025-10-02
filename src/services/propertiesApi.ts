@@ -56,6 +56,12 @@ export const syncFinalPropertyWithPMS = async (
   >(`/properties/my/${propertyId}/sync`, {}, { withCredentials: true });
   return response.data;
 };
+export const fetchMyProperties = async (): Promise<Property[]> => {
+  const response = await axios.get('/properties/my/', {
+    withCredentials: true,
+  });
+  return response.data;
+};
 // Obtener datos PMS existentes (GET)
 export const getPmsData = async (propertyId: number): Promise<SyncData> => {
   const response = await axios.get(`/properties/my/${propertyId}/pms-data`, {
@@ -193,4 +199,3 @@ export const fetchAllServices = async (): Promise<PropertyService[]> => {
   });
   return response.data;
 };
-
