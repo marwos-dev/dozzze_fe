@@ -6,10 +6,11 @@ import {
   syncPropertyPMSData,
   syncFinalPropertyWithPMS,
   getPmsData,
+  fetchMyProperties,
 } from '@/services/propertiesApi';
 import slugify from '@/utils/slugify';
 import { Property, SyncData } from '@/types/property';
-import { RootState, AppDispatch } from '@/store';
+import type { RootState, AppDispatch } from '@/store';
 import { fetchRooms } from './roomsSlice';
 import { Zone } from '@/types/zone';
 import {
@@ -29,6 +30,9 @@ interface PropertiesState {
   totalPriceMap: TotalPricePerRoomType;
   lastAvailabilityParams: AvailabilityPayload | null;
   syncData: SyncData | null;
+  myProperties: Property[];
+  myPropertiesLoading: boolean;
+  myPropertiesError: string | null;
 }
 
 const initialState: PropertiesState = {
@@ -40,6 +44,9 @@ const initialState: PropertiesState = {
   totalPriceMap: {},
   lastAvailabilityParams: null,
   syncData: null,
+  myProperties: [],
+  myPropertiesLoading: false,
+  myPropertiesError: null,
 };
 
 export const finalizePropertySync = createAsyncThunk<
@@ -173,6 +180,22 @@ export const loadFullPropertyById = createAsyncThunk<
     dispatch(fetchRooms({ propertyId }));
   }
 });
+export const getMyProperties = createAsyncThunk<
+  Property[],
+  void,
+  { rejectValue: string }
+>('properties/getMyProperties', async (_, { rejectWithValue }) => {
+  try {
+    const properties = await fetchMyProperties();
+    return properties;
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : 'Error al cargar propiedades del usuario';
+    return rejectWithValue(message);
+  }
+});
 export const fetchAvailability = createAsyncThunk<
   AvailabilityResponse,
   AvailabilityPayload,
@@ -254,9 +277,58 @@ const propertiesSlice = createSlice({
       state.totalPriceMap = {};
       state.lastAvailabilityParams = null;
     },
+    addMyProperty(state, action: PayloadAction<Property>) {
+      const property = action.payload;
+
+      const existingIndex = state.myProperties.findIndex(
+        (p) => p.id === property.id
+      );
+
+      if (existingIndex >= 0) {
+        state.myProperties[existingIndex] = property;
+      } else {
+        state.myProperties.push(property);
+      }
+
+      const zoneId = property.zone_id;
+      const current = state.propertiesByZone[zoneId] || [];
+      const zoneIndex = current.findIndex((p) => p.id === property.id);
+
+      if (zoneIndex >= 0) {
+        state.propertiesByZone[zoneId][zoneIndex] = property;
+      } else {
+        state.propertiesByZone[zoneId] = [...current, property];
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getMyProperties.pending, (state) => {
+        state.myPropertiesLoading = true;
+        state.myPropertiesError = null;
+      })
+      .addCase(getMyProperties.fulfilled, (state, action) => {
+        state.myProperties = action.payload;
+        state.myPropertiesLoading = false;
+        state.myPropertiesError = null;
+
+        const groupedByZone: Record<number, Property[]> = {};
+
+        action.payload.forEach((property) => {
+          const zoneId = property.zone_id;
+          if (!groupedByZone[zoneId]) {
+            groupedByZone[zoneId] = [];
+          }
+          groupedByZone[zoneId].push(property);
+        });
+
+        state.propertiesByZone = groupedByZone;
+      })
+      .addCase(getMyProperties.rejected, (state, action) => {
+        state.myPropertiesLoading = false;
+        state.myPropertiesError =
+          action.payload ?? 'Error al cargar propiedades del usuario';
+      })
       .addCase(getPropertyByName.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -351,6 +423,7 @@ export const {
   setPropertiesForZone,
   clearPropertiesForZone,
   clearAvailability,
+  addMyProperty,
 } = propertiesSlice.actions;
 
 export default propertiesSlice.reducer;

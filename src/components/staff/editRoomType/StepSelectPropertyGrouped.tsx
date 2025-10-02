@@ -3,12 +3,18 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { Zone } from '@/types/zone';
+import { Property } from '@/types/property';
 import PropertiesOwnerCard from '@/components/ui/cards/PropertiesCard/PropertyStaff/PropertiesOwnerCard';
 import AddPropertyCard from '@/components/ui/cards/PropertiesCard/AddPropertyCard';
 
+interface ZoneGroup {
+  zoneId: number;
+  zoneName: string;
+  properties: Property[];
+}
+
 interface Props {
-  zones: Zone[];
+  groups: ZoneGroup[];
   onEditProperty: (propertyId: number) => void;
   onAddProperty: () => void;
   onAddPropertyInZone?: (zoneId: number) => void; // nuevo prop
@@ -34,7 +40,7 @@ const propertyCardVariants = {
 };
 
 export default function StepSelectPropertyGrouped({
-  zones,
+  groups,
   onEditProperty,
   onAddProperty,
   onAddPropertyInZone,
@@ -52,25 +58,25 @@ export default function StepSelectPropertyGrouped({
 
   return (
     <div className="px-4 sm:px-6 py-6 space-y-8">
-      {zones.map((zone, index) => {
-        const properties = zone.properties || [];
+      {groups.map((group, index) => {
+        const properties = group.properties || [];
         if (properties.length === 0) return null;
 
-        const isExpanded = expandedZones[zone.id] || false;
+        const isExpanded = expandedZones[group.zoneId] || false;
         const visibleProperties = isExpanded
           ? properties
           : properties.slice(0, 3);
 
         return (
           <motion.div
-            key={zone.id}
+            key={group.zoneId}
             custom={index}
             initial="hidden"
             animate="visible"
             variants={containerVariants}
           >
             <h2 className="text-2xl font-semibold text-dozeblue mb-4">
-              {zone.name}
+              {group.zoneName}
             </h2>
 
             <motion.div
@@ -87,7 +93,7 @@ export default function StepSelectPropertyGrouped({
                 <AddPropertyCard
                   onAdd={() =>
                     onAddPropertyInZone
-                      ? onAddPropertyInZone(zone.id)
+                      ? onAddPropertyInZone(group.zoneId)
                       : onAddProperty()
                   }
                 />
@@ -115,7 +121,7 @@ export default function StepSelectPropertyGrouped({
             {properties.length > 3 && (
               <div className="mt-4 text-center">
                 <button
-                  onClick={() => toggleExpand(zone.id)}
+                  onClick={() => toggleExpand(group.zoneId)}
                   className="inline-flex items-center gap-1 text-dozeblue hover:underline text-sm font-medium transition"
                 >
                   {isExpanded
@@ -133,7 +139,7 @@ export default function StepSelectPropertyGrouped({
         );
       })}
 
-      {zones.every((z) => !z.properties || z.properties.length === 0) && (
+      {groups.every((group) => group.properties.length === 0) && (
         <div className="text-center mt-10">
           <p className="text-dozegray">
             No hay propiedades disponibles en ninguna zona.

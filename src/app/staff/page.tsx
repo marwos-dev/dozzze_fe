@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import type { AppDispatch, RootState } from '@/store';
-import { getZones } from '@/store/zoneSlice';
-import { getPropertyById } from '@/store/propertiesSlice';
+import { getPropertyById, getMyProperties } from '@/store/propertiesSlice';
 import { selectCustomerProfile } from '@/store/selectors/customerSelectors';
 
 import AddPropertyWizard from '@/components/staff/AddPropertyWizard';
@@ -20,7 +19,15 @@ export default function StaffPage() {
     selectCustomerProfile(state)
   );
 
-  const zones = useSelector((state: RootState) => state.zones.data);
+  const myProperties = useSelector(
+    (state: RootState) => state.properties.myProperties
+  );
+  const myPropertiesLoading = useSelector(
+    (state: RootState) => state.properties.myPropertiesLoading
+  );
+  const myPropertiesError = useSelector(
+    (state: RootState) => state.properties.myPropertiesError
+  );
   const [activeTab, setActiveTab] = useState<'home' | 'add' | 'edit'>('home');
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(
     null
@@ -36,8 +43,35 @@ export default function StaffPage() {
   }, [profile, router]);
 
   useEffect(() => {
-    dispatch(getZones()); //hay que cambiar esto por el get: properties/my
-  }, [dispatch, zones]);
+    if (profile?.staff) {
+      dispatch(getMyProperties());
+    }
+  }, [dispatch, profile?.staff]);
+
+  type PropertyGroup = {
+    zoneId: number;
+    zoneName: string;
+    properties: typeof myProperties;
+  };
+
+  const propertyGroups = useMemo(() => {
+    const groups = new Map<number, PropertyGroup>();
+
+    myProperties.forEach((property) => {
+      const zoneId = property.zone_id;
+      const zoneName = property.zone || 'Zona sin nombre';
+
+      if (!groups.has(zoneId)) {
+        groups.set(zoneId, { zoneId, zoneName, properties: [] });
+      }
+
+      groups.get(zoneId)!.properties.push(property);
+    });
+
+    return Array.from(groups.values()).sort((a, b) =>
+      a.zoneName.localeCompare(b.zoneName)
+    );
+  }, [myProperties]);
 
   const handleEditProperty = (propertyId: number) => {
     setSelectedPropertyId(propertyId);
@@ -97,12 +131,26 @@ export default function StaffPage() {
       </div>
 
       {activeTab === 'home' && (
-        <StepSelectPropertyGrouped
-          zones={zones}
-          onEditProperty={handleEditProperty}
-          onAddProperty={handleAddProperty}
-          onAddPropertyInZone={handleAddPropertyInZone}
-        />
+        <>
+          {myPropertiesLoading && (
+            <div className="text-center text-dozegray">Cargando propiedades...</div>
+          )}
+
+          {myPropertiesError && !myPropertiesLoading && (
+            <div className="text-center text-red-500 text-sm">
+              {myPropertiesError}
+            </div>
+          )}
+
+          {!myPropertiesLoading && !myPropertiesError && (
+            <StepSelectPropertyGrouped
+              groups={propertyGroups}
+              onEditProperty={handleEditProperty}
+              onAddProperty={handleAddProperty}
+              onAddPropertyInZone={handleAddPropertyInZone}
+            />
+          )}
+        </>
       )}
 
       {activeTab === 'add' && (

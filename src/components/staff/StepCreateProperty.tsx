@@ -7,6 +7,7 @@ import type { PropertyFormData } from '@/types/property';
 import { showToast } from '@/store/toastSlice';
 import { useDispatch } from 'react-redux';
 import { addPropertyToZone } from '@/store/zoneSlice';
+import { addMyProperty } from '@/store/propertiesSlice';
 
 interface Props {
   data: PropertyFormData;
@@ -64,6 +65,7 @@ export default function StepCreateProperty({ data, onBack, onSubmit }: Props) {
 
       // ✅ 2. Agregar propiedad al Redux (zonesSlice)
       dispatch(addPropertyToZone(created));
+      dispatch(addMyProperty(created));
 
       // 3. Subir imágenes tipo File
       const newImages = data.images.filter(
