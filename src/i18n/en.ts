@@ -39,6 +39,24 @@ const en = {
     uniquePlaces:
       'Unique places available in different areas for your next stay'
   },
+  staff: {
+    stepRoomImage: {
+      modalTitle: 'Image gallery',
+      descriptionLabel: 'Description',
+      descriptionPlaceholder: 'Description',
+      servicesLabel: 'Available services',
+      noServices: 'No services registered.',
+      uploadButton: 'Upload new image',
+      noImages: 'No images yet.',
+      previewLabel: 'Preview:',
+      uploading: 'Uploading image...',
+      serviceAdded: 'Service added to the room',
+      serviceRemoved: 'Service removed from the room',
+      updateError: 'Error updating service',
+      uploadSuccess: 'Image uploaded successfully',
+      uploadError: 'Error uploading image'
+    }
+  },
   availability: {
     reservedOrUnavailable: 'Already reserved / No availability',
     reserveNow: 'Reserve now',

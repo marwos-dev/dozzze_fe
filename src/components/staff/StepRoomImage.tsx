@@ -13,6 +13,7 @@ import {
 import { getPropertyServices } from '@/services/propertiesApi';
 import type { PropertyService } from '@/types/property';
 import { Plus, X, Loader2, Check } from 'lucide-react';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface Props {
   open: boolean;
@@ -38,6 +39,17 @@ export default function StepRoomImage({
   const [description, setDescription] = useState('');
   const [propertyServices, setPropertyServices] = useState<PropertyService[]>([]);
   const [roomServices, setRoomServices] = useState<PropertyService[]>([]);
+  const [syncingServiceId, setSyncingServiceId] = useState<number | null>(null);
+  const { t } = useLanguage();
+
+  const loadRoomServices = async () => {
+    try {
+      const services = await getRoomTypeServices(roomId);
+      setRoomServices(services);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -59,25 +71,43 @@ export default function StepRoomImage({
   const handleToggleService = async (svc: PropertyService) => {
     const exists = roomServices.some((s) => s.id === svc.id);
     try {
+      setSyncingServiceId(svc.id);
       if (exists) {
         const toDelete = roomServices.find((s) => s.id === svc.id);
         if (toDelete) {
           await deleteRoomTypeService(roomId, toDelete.id);
-          setRoomServices((prev) => prev.filter((s) => s.id !== toDelete.id));
+          await loadRoomServices();
+          dispatch(
+            showToast({
+              message: t('staff.stepRoomImage.serviceRemoved') as string,
+              color: 'green',
+            })
+          );
         }
       } else {
-        const created = await addRoomTypeService(roomId, {
+        await addRoomTypeService(roomId, {
           code: svc.code,
           name: svc.name,
           description: svc.description,
         });
-        setRoomServices((prev) => [...prev, created]);
+        await loadRoomServices();
+        dispatch(
+          showToast({
+            message: t('staff.stepRoomImage.serviceAdded') as string,
+            color: 'green',
+          })
+        );
       }
     } catch (err) {
       console.error(err);
       dispatch(
-        showToast({ message: 'Error al actualizar servicio', color: 'red' })
+        showToast({
+          message: t('staff.stepRoomImage.updateError') as string,
+          color: 'red',
+        })
       );
+    } finally {
+      setSyncingServiceId(null);
     }
   };
 
@@ -93,7 +123,10 @@ export default function StepRoomImage({
     try {
       await uploadRoomTypeImages(roomId, file);
       dispatch(
-        showToast({ message: 'Imagen subida con éxito', color: 'green' })
+        showToast({
+          message: t('staff.stepRoomImage.uploadSuccess') as string,
+          color: 'green',
+        })
       );
       if (onImageUploaded) {
         await onImageUploaded();
@@ -101,7 +134,12 @@ export default function StepRoomImage({
       onClose();
     } catch (err) {
       console.error(err);
-      dispatch(showToast({ message: 'Error al subir imagen', color: 'red' }));
+      dispatch(
+        showToast({
+          message: t('staff.stepRoomImage.uploadError') as string,
+          color: 'red',
+        })
+      );
     } finally {
       setLoading(false);
       setPreviewImage(null);
@@ -127,18 +165,18 @@ export default function StepRoomImage({
         </button>
 
         <h2 className="text-xl font-semibold text-dozeblue text-center">
-          Galería de imágenes
+          {t('staff.stepRoomImage.modalTitle')}
         </h2>
 
         <div>
           <label className="block text-sm font-medium text-dozegray dark:text-white/80">
-            Descripción
+            {t('staff.stepRoomImage.descriptionLabel')}
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
-            placeholder="Descripción"
+            placeholder={t('staff.stepRoomImage.descriptionPlaceholder') as string}
             disabled
             className="w-full mt-1 px-4 py-2 border rounded-md border-gray-300 dark:border-white/20 bg-gray-100 dark:bg-dozzegray/20 text-gray-500"
           />
@@ -146,25 +184,32 @@ export default function StepRoomImage({
 
         <div>
           <label className="block text-sm font-medium text-dozegray dark:text-white/80">
-            Servicios disponibles
+            {t('staff.stepRoomImage.servicesLabel')}
           </label>
           <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto">
             {propertyServices.length === 0 && (
-              <p className="text-sm text-gray-500">No hay servicios registrados.</p>
+              <p className="text-sm text-gray-500">
+                {t('staff.stepRoomImage.noServices')}
+              </p>
             )}
             {propertyServices.map((svc) => (
               <label
                 key={svc.id}
-                className="flex items-center gap-2 cursor-pointer select-none"
+                className={`flex items-center gap-2 select-none ${
+                  syncingServiceId === svc.id
+                    ? 'cursor-not-allowed opacity-70'
+                    : 'cursor-pointer'
+                }`}
               >
                 <input
                   type="checkbox"
                   checked={roomServices.some((s) => s.id === svc.id)}
                   onChange={() => handleToggleService(svc)}
+                  disabled={syncingServiceId === svc.id}
                   className="sr-only peer"
                 />
                 <span
-                  className="h-5 w-5 flex items-center justify-center border border-gray-300 rounded peer-checked:bg-dozeblue peer-checked:border-dozeblue"
+                  className="h-5 w-5 flex items-center justify-center border border-gray-300 rounded peer-checked:bg-dozeblue peer-checked:border-dozeblue peer-disabled:opacity-50"
                 >
                   <Check className="w-4 h-4 text-white hidden peer-checked:block" />
                 </span>
@@ -191,7 +236,7 @@ export default function StepRoomImage({
             ))
           ) : (
             <div className="text-gray-500 col-span-full text-center">
-              No hay imágenes aún.
+              {t('staff.stepRoomImage.noImages')}
             </div>
           )}
         </div>
@@ -203,7 +248,7 @@ export default function StepRoomImage({
             disabled={loading}
             className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-dozeblue text-white rounded-md hover:bg-dozeblue/90 transition disabled:opacity-50"
           >
-            <Plus size={18} /> Subir nueva imagen
+            <Plus size={18} /> {t('staff.stepRoomImage.uploadButton')}
           </button>
 
           <input
@@ -218,7 +263,7 @@ export default function StepRoomImage({
         {previewImage && (
           <div className="text-center relative">
             <p className="text-sm text-gray-600 dark:text-white/70 mb-2">
-              Vista previa:
+              {t('staff.stepRoomImage.previewLabel')}
             </p>
             <div className="relative w-full h-40 sm:h-56 mx-auto border rounded-lg overflow-hidden">
               <Image
@@ -232,7 +277,9 @@ export default function StepRoomImage({
               {loading && (
                 <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white space-y-2">
                   <Loader2 className="animate-spin w-6 h-6" />
-                  <p className="text-sm">Subiendo imagen...</p>
+                  <p className="text-sm">
+                    {t('staff.stepRoomImage.uploading')}
+                  </p>
                 </div>
               )}
             </div>

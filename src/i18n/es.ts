@@ -39,6 +39,24 @@ const es = {
     uniquePlaces:
       'Lugares únicos disponibles en distintas zonas para tu próxima estadía'
   },
+  staff: {
+    stepRoomImage: {
+      modalTitle: 'Galería de imágenes',
+      descriptionLabel: 'Descripción',
+      descriptionPlaceholder: 'Descripción',
+      servicesLabel: 'Servicios disponibles',
+      noServices: 'No hay servicios registrados.',
+      uploadButton: 'Subir nueva imagen',
+      noImages: 'No hay imágenes aún.',
+      previewLabel: 'Vista previa:',
+      uploading: 'Subiendo imagen...',
+      serviceAdded: 'Servicio agregado a la habitación',
+      serviceRemoved: 'Servicio eliminado de la habitación',
+      updateError: 'Error al actualizar servicio',
+      uploadSuccess: 'Imagen subida con éxito',
+      uploadError: 'Error al subir imagen'
+    }
+  },
   availability: {
     reservedOrUnavailable: 'Ya reservada / Sin disponibilidad',
     reserveNow: 'Reservar ahora',
