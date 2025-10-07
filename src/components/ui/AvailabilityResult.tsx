@@ -23,6 +23,9 @@ import type { Zone } from '@/types/zone';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { addRoomTypeService } from '@/services/roomApi';
 
+const toMessage = (value: string | string[]) =>
+  Array.isArray(value) ? value.join(' ') : value;
+
 const fallbackThumbnail = '/logo.png';
 
 function findRoomTypeImages(
@@ -286,7 +289,7 @@ export default function AvailabilityResult() {
 
             dispatch(
               showToast({
-                message: t('availability.serviceAdded'),
+                message: toMessage(t('availability.serviceAdded')),
                 color: 'green',
               })
             );
@@ -299,7 +302,7 @@ export default function AvailabilityResult() {
 
             dispatch(
               showToast({
-                message: t('availability.serviceAddError'),
+                message: toMessage(t('availability.serviceAddError')),
                 color: 'red',
               })
             );
