@@ -8,6 +8,7 @@ import { Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RootState } from '@/store';
 import { addReservation } from '@/store/reserveSlice';
+import { showToast } from '@/store/toastSlice';
 import { AvailabilityItem } from '@/types/roomType';
 import {
   selectAvailability,
@@ -20,6 +21,7 @@ import { getServiceIcon } from '@/icons';
 import type { Property, PropertyService } from '@/types/property';
 import type { Zone } from '@/types/zone';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { addRoomTypeService } from '@/services/roomApi';
 
 const fallbackThumbnail = '/logo.png';
 
@@ -92,6 +94,9 @@ export default function AvailabilityResult() {
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [serviceRequestState, setServiceRequestState] = useState<
+    Record<string, 'idle' | 'loading' | 'success' | 'error'>
+  >({});
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -99,6 +104,10 @@ export default function AvailabilityResult() {
     }, 3500);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    setServiceRequestState({});
+  }, [availability]);
 
   const allZones = useSelector((state: RootState) => state.zones.data);
   const selectedProperty = useSelector(selectSelectedProperty);
@@ -249,7 +258,55 @@ export default function AvailabilityResult() {
           }
         });
 
-        const displayServices = dedupedServices.slice(0, 10);
+        const buildServiceKey = (serviceIdentifier: string | number) =>
+          `${propertyId}-${roomTypeID}-${serviceIdentifier}`;
+
+        const handleServiceBadgeClick = async (
+          service: PropertyService,
+          serviceKey: string
+        ) => {
+          if (!roomTypeID || !service?.code) return;
+
+          setServiceRequestState((prev) => {
+            if (prev[serviceKey] === 'loading') return prev;
+            return { ...prev, [serviceKey]: 'loading' };
+          });
+
+          try {
+            await addRoomTypeService(roomTypeID, {
+              code: service.code,
+              name: service.name,
+              description: service.description,
+            });
+
+            setServiceRequestState((prev) => ({
+              ...prev,
+              [serviceKey]: 'success',
+            }));
+
+            dispatch(
+              showToast({
+                message: t('availability.serviceAdded'),
+                color: 'green',
+              })
+            );
+          } catch (error) {
+            console.error('Error adding room type service', error);
+            setServiceRequestState((prev) => ({
+              ...prev,
+              [serviceKey]: 'error',
+            }));
+
+            dispatch(
+              showToast({
+                message: t('availability.serviceAddError'),
+                color: 'red',
+              })
+            );
+          }
+        };
+
+        const displayServices = dedupedServices;
 
         return (
           <div
@@ -306,16 +363,59 @@ export default function AvailabilityResult() {
                       const tooltipId = `service-${propertyId}-${roomTypeID}-${idx}`;
                       const tooltipContent =
                         service.description || service.name || service.code || 'Servicio';
-                      const key = service.id ?? `${iconCode || 'default'}-${idx}`;
+                      const baseKey = service.id ?? `${iconCode || 'default'}-${idx}`;
+                      const serviceKey = buildServiceKey(baseKey);
+                      const status = serviceRequestState[serviceKey] ?? 'idle';
+                      const isLoading = status === 'loading';
+                      const isSuccess = status === 'success';
+                      const isError = status === 'error';
+                      const badgeStateClasses = isSuccess
+                        ? 'border-emerald-500 text-emerald-600 dark:text-emerald-300 bg-emerald-500/10'
+                        : isError
+                          ? 'border-red-500 text-red-500 dark:text-red-300 bg-red-500/10'
+                          : '';
+                      const isDisabled = isLoading || isSuccess;
 
                       return (
-                        <div key={key} className="relative group">
+                        <div key={serviceKey} className="relative group">
                           <div
-                            className="w-9 h-9 flex items-center justify-center rounded-full bg-green-100 text-green-700 shadow-inner cursor-pointer"
-                            data-tooltip-id={tooltipId}
-                            data-tooltip-content={tooltipContent}
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={isSuccess}
+                            aria-busy={isLoading}
+                            data-service-state={status}
+                            className={`flex flex-col items-center gap-2 w-[82px] max-w-[90px] text-center text-[10px] font-medium text-[var(--foreground)]/80 ${
+                              isDisabled ? 'cursor-default' : 'cursor-pointer'
+                            }`}
+                            onClick={() =>
+                              !isDisabled &&
+                              void handleServiceBadgeClick(service, serviceKey)
+                            }
+                            onKeyDown={(event) => {
+                              if (isDisabled) return;
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                void handleServiceBadgeClick(service, serviceKey);
+                              }
+                            }}
                           >
-                            <Icon size={20} aria-hidden />
+                            <div
+                              className={`w-10 h-10 flex items-center justify-center rounded-full border border-[var(--icon-badge-border)] bg-[var(--icon-badge-bg)] text-[var(--icon-badge-color)] shadow-sm transition-colors duration-200 ${
+                                isDisabled
+                                  ? 'cursor-default'
+                                  : 'cursor-pointer hover:border-[var(--icon-badge-color)]'
+                              } ${isLoading ? 'animate-pulse' : ''} ${badgeStateClasses}`}
+                              data-tooltip-id={tooltipId}
+                              data-tooltip-content={tooltipContent}
+                            >
+                              <Icon size={20} aria-hidden />
+                            </div>
+                            <span
+                              className="text-[11px] leading-tight text-center truncate w-full"
+                              title={service.name || service.code}
+                            >
+                              {service.name || service.code}
+                            </span>
                           </div>
                           <Tooltip id={tooltipId} />
                         </div>
