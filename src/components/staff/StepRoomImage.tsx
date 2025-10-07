@@ -13,6 +13,9 @@ import {
 import { getPropertyServices } from '@/services/propertiesApi';
 import type { PropertyService } from '@/types/property';
 import { Plus, X, Loader2, Check } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+
+const SERVICES_PREVIEW_COUNT = 8;
 
 interface Props {
   open: boolean;
@@ -38,6 +41,10 @@ export default function StepRoomImage({
   const [description, setDescription] = useState('');
   const [propertyServices, setPropertyServices] = useState<PropertyService[]>([]);
   const [roomServices, setRoomServices] = useState<PropertyService[]>([]);
+  const [showAllServices, setShowAllServices] = useState(false);
+  const visibleServices = showAllServices
+    ? propertyServices
+    : propertyServices.slice(0, SERVICES_PREVIEW_COUNT);
 
   useEffect(() => {
     if (!open) return;
@@ -148,30 +155,51 @@ export default function StepRoomImage({
           <label className="block text-sm font-medium text-dozegray dark:text-white/80">
             Servicios disponibles
           </label>
-          <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+          <motion.div layout className="mt-2 flex flex-wrap gap-2">
             {propertyServices.length === 0 && (
               <p className="text-sm text-gray-500">No hay servicios registrados.</p>
             )}
-            {propertyServices.map((svc) => (
-              <label
-                key={svc.id}
-                className="flex items-center gap-2 cursor-pointer select-none"
-              >
-                <input
-                  type="checkbox"
-                  checked={roomServices.some((s) => s.id === svc.id)}
-                  onChange={() => handleToggleService(svc)}
-                  className="sr-only peer"
-                />
-                <span
-                  className="h-5 w-5 flex items-center justify-center border border-gray-300 rounded peer-checked:bg-dozeblue peer-checked:border-dozeblue"
+            <AnimatePresence initial={false} mode="popLayout">
+              {visibleServices.map((svc) => (
+                <motion.label
+                  key={svc.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2 }}
+                  className="cursor-pointer select-none"
                 >
-                  <Check className="w-4 h-4 text-white hidden peer-checked:block" />
-                </span>
-                <span className="text-sm">{svc.name}</span>
-              </label>
-            ))}
-          </div>
+                  <input
+                    type="checkbox"
+                    checked={roomServices.some((s) => s.id === svc.id)}
+                    onChange={() => handleToggleService(svc)}
+                    className="sr-only peer"
+                  />
+                  <span
+                    className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-dozeblue/30 bg-white text-sm font-medium text-dozeblue dark:bg-dozzegray/60 dark:text-dozeblue transition-all duration-200 shadow-sm hover:border-dozeblue hover:shadow-md focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-dozeblue/40 peer-checked:bg-dozeblue peer-checked:text-white peer-checked:border-dozeblue"
+                  >
+                    <Check className="hidden w-4 h-4 transition-transform duration-200 text-white peer-checked:block" />
+                    <span className="leading-none text-center text-current">{svc.name}</span>
+                  </span>
+                </motion.label>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+          {propertyServices.length > SERVICES_PREVIEW_COUNT && (
+            <div className="mt-3 flex justify-center">
+              <motion.button
+                type="button"
+                onClick={() => setShowAllServices((prev) => !prev)}
+                className="text-sm font-medium text-dozeblue hover:text-dozeblue/80 transition-colors"
+                aria-expanded={showAllServices}
+                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }}
+              >
+                {showAllServices ? 'Ver menos' : 'Ver más'}
+              </motion.button>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">

@@ -42,7 +42,9 @@ const en = {
   availability: {
     reservedOrUnavailable: 'Already reserved / No availability',
     reserveNow: 'Reserve now',
-    noAvailability: 'No availability'
+    noAvailability: 'No availability',
+    serviceAdded: 'Service added to the room type',
+    serviceAddError: 'Could not add the service. Please try again.'
   },
   about: {
     title: 'About Us',

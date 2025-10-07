@@ -3,6 +3,9 @@
 :root {
   --background: #e6e4ff;
   --foreground: #01072c;
+  --icon-badge-bg: rgba(30, 58, 138, 0.08);
+  --icon-badge-border: rgba(30, 58, 138, 0.18);
+  --icon-badge-color: #1e3a8a;
 }
 
 @theme inline {
@@ -43,6 +46,9 @@ body {
   --color-dozegray: #9ca3af;
   --color-dozeblue: #60a5fa;
   --color-greenlight: #001a30;
+  --icon-badge-bg: rgba(96, 165, 250, 0.16);
+  --icon-badge-border: rgba(96, 165, 250, 0.35);
+  --icon-badge-color: #bfdbfe;
 }
 @keyframes shimmer {
   0% {

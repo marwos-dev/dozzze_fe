@@ -1,3 +1,5 @@
+import type { PropertyService } from './property';
+
 export interface Price {
   price: number;
   occupancy: number;
@@ -18,6 +20,7 @@ export interface AvailabilityItem {
   property_id: number;
   total_price?: number;
   images?: string[];
+  services?: PropertyService[];
 }
 
 export interface RoomType {
@@ -25,6 +28,7 @@ export interface RoomType {
   name: string;
   description?: string;
   images?: string[];
+  services?: PropertyService[];
 }
 
 export interface AvailabilityPayload {

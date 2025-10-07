@@ -12,7 +12,8 @@ import {
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { PropertyFormData } from '@/types/property';
-import { Zone } from '@/types/zone';
+import type { Zone } from '@/types/zone';
+import { parseAreaToCoordinates } from '@/utils/mapUtils/parseAreaToCoordiantes';
 
 // Fix Leaflet default icons for Next.js
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })
@@ -27,7 +28,7 @@ interface Props {
   onBack: () => void;
   onNext: () => void;
   zones: Zone[];
-  zonePolygon: [number, number][];
+  zonePolygon?: [number, number][];
 }
 
 // Verifica si un punto está dentro de un polígono
@@ -82,20 +83,62 @@ export default function StepSelectLocation({
   onChange,
   onBack,
   onNext,
+  zones,
   zonePolygon,
 }: Props) {
   const [mapCenter, setMapCenter] = useState<[number, number]>([-34.6, -58.45]);
 
+  const polygon = useMemo(() => {
+    if (zonePolygon && zonePolygon.length > 0) {
+      return zonePolygon;
+    }
+
+    if (!data.zone_id) return [] as [number, number][];
+
+    const selectedZone = zones.find((z) => z.id === data.zone_id);
+    if (!selectedZone?.area) return [] as [number, number][];
+
+    const coords = parseAreaToCoordinates(selectedZone.area);
+    const sanitized: [number, number][] = [];
+
+    coords.forEach((coord) => {
+      if (Array.isArray(coord) && coord.length === 2) {
+        const lat = Number(coord[0]);
+        const lng = Number(coord[1]);
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          sanitized.push([lat, lng]);
+        }
+        return;
+      }
+
+      if (typeof coord === 'object' && coord !== null) {
+        const maybeLat = 'lat' in coord ? Number((coord as { lat: number }).lat) : NaN;
+        const maybeLng = 'lng' in coord ? Number((coord as { lng: number }).lng) : NaN;
+        if (Number.isFinite(maybeLat) && Number.isFinite(maybeLng)) {
+          sanitized.push([maybeLat, maybeLng]);
+        }
+      }
+    });
+
+    return sanitized;
+  }, [zonePolygon, data.zone_id, zones]);
+
   const polygonBounds = useMemo(() => {
-    return L.latLngBounds(zonePolygon.map(([lat, lng]) => L.latLng(lat, lng)));
-  }, [zonePolygon]);
+    if (!polygon.length) return null;
+    return L.latLngBounds(polygon.map(([lat, lng]) => L.latLng(lat, lng)));
+  }, [polygon]);
 
   useEffect(() => {
-    if (zonePolygon.length > 0) {
+    if (data.latitude && data.longitude) {
+      setMapCenter([data.latitude, data.longitude]);
+      return;
+    }
+
+    if (polygonBounds) {
       const center = polygonBounds.getCenter();
       setMapCenter([center.lat, center.lng]);
     }
-  }, [polygonBounds, zonePolygon]);
+  }, [data.latitude, data.longitude, polygonBounds]);
 
   const handleSetCoords = (lat: number, lng: number) => {
     onChange({ latitude: lat, longitude: lng });
@@ -116,15 +159,15 @@ export default function StepSelectLocation({
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {zonePolygon.length > 0 && (
+          {polygon.length > 0 && (
             <>
               <Polygon
-                positions={zonePolygon}
+                positions={polygon}
                 pathOptions={{ color: '#2563EB', fillOpacity: 0.15 }}
               />
-              <MapBoundsHandler bounds={polygonBounds} />
+              {polygonBounds && <MapBoundsHandler bounds={polygonBounds} />}
               <LocationSelector
-                polygon={zonePolygon}
+                polygon={polygon}
                 onChange={handleSetCoords}
               />
             </>

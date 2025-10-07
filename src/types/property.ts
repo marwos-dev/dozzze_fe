@@ -1,4 +1,4 @@
-import { RoomType } from './roomType';
+import type { RoomType } from './roomType';
 
 export interface PropertyService {
   id: number;

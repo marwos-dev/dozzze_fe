@@ -8,6 +8,7 @@ import { Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RootState } from '@/store';
 import { addReservation } from '@/store/reserveSlice';
+import { showToast } from '@/store/toastSlice';
 import { AvailabilityItem } from '@/types/roomType';
 import {
   selectAvailability,
@@ -15,11 +16,15 @@ import {
   selectSelectedProperty,
 } from '@/store/selectors/propertiesSelectors';
 import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
-import { includedServicesMock } from '@/../public/icons/service'; // <- Import correcto según ubicación
 import { Tooltip } from 'react-tooltip';
-import type { Property } from '@/types/property';
+import { getServiceIcon } from '@/icons';
+import type { Property, PropertyService } from '@/types/property';
 import type { Zone } from '@/types/zone';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { addRoomTypeService } from '@/services/roomApi';
+
+const toMessage = (value: string | string[]) =>
+  Array.isArray(value) ? value.join(' ') : value;
 
 const fallbackThumbnail = '/logo.png';
 
@@ -45,6 +50,35 @@ function findRoomTypeImages(
   return [];
 }
 
+function findRoomTypeServices(
+  propertyId: number,
+  roomTypeId: number,
+  selectedProperty: Property | null | undefined,
+  allZones: Zone[]
+): PropertyService[] {
+  if (selectedProperty?.id === propertyId) {
+    const roomType = selectedProperty.room_types?.find(
+      (rt) => rt.id === roomTypeId
+    );
+    if (roomType?.services?.length) return roomType.services;
+  }
+
+  for (const zone of allZones) {
+    const property = zone.properties?.find((p) => p.id === propertyId);
+    const roomType = property?.room_types?.find((rt) => rt.id === roomTypeId);
+    if (roomType?.services?.length) return roomType.services;
+  }
+
+  return [];
+}
+
+function normalizeServiceCode(value?: string) {
+  return value
+    ?.trim()
+    .toUpperCase()
+    .replace(/[\s/-]+/g, '_');
+}
+
 export default function AvailabilityResult() {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -63,6 +97,9 @@ export default function AvailabilityResult() {
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [serviceRequestState, setServiceRequestState] = useState<
+    Record<string, 'idle' | 'loading' | 'success' | 'error'>
+  >({});
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -70,6 +107,10 @@ export default function AvailabilityResult() {
     }, 3500);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    setServiceRequestState({});
+  }, [availability]);
 
   const allZones = useSelector((state: RootState) => state.zones.data);
   const selectedProperty = useSelector(selectSelectedProperty);
@@ -197,6 +238,79 @@ export default function AvailabilityResult() {
         const imgIndex = images.length > 0 ? carouselIndex % images.length : 0;
         const currentImage = images[imgIndex];
 
+        const services =
+          items[0].services?.length
+            ? items[0].services
+            : findRoomTypeServices(
+                propertyId,
+                roomTypeID,
+                selectedProperty,
+                allZones
+              );
+
+        const seenServiceKeys = new Set<string>();
+        const dedupedServices: PropertyService[] = [];
+        services.forEach((svc, idx) => {
+          const key =
+            normalizeServiceCode(svc.code) ??
+            normalizeServiceCode(svc.name) ??
+            (svc.id ? `ID-${svc.id}` : `IDX-${idx}`);
+          if (!seenServiceKeys.has(key)) {
+            seenServiceKeys.add(key);
+            dedupedServices.push(svc);
+          }
+        });
+
+        const buildServiceKey = (serviceIdentifier: string | number) =>
+          `${propertyId}-${roomTypeID}-${serviceIdentifier}`;
+
+        const handleServiceBadgeClick = async (
+          service: PropertyService,
+          serviceKey: string
+        ) => {
+          if (!roomTypeID || !service?.code) return;
+
+          setServiceRequestState((prev) => {
+            if (prev[serviceKey] === 'loading') return prev;
+            return { ...prev, [serviceKey]: 'loading' };
+          });
+
+          try {
+            await addRoomTypeService(roomTypeID, {
+              code: service.code,
+              name: service.name,
+              description: service.description,
+            });
+
+            setServiceRequestState((prev) => ({
+              ...prev,
+              [serviceKey]: 'success',
+            }));
+
+            dispatch(
+              showToast({
+                message: toMessage(t('availability.serviceAdded')),
+                color: 'green',
+              })
+            );
+          } catch (error) {
+            console.error('Error adding room type service', error);
+            setServiceRequestState((prev) => ({
+              ...prev,
+              [serviceKey]: 'error',
+            }));
+
+            dispatch(
+              showToast({
+                message: toMessage(t('availability.serviceAddError')),
+                color: 'red',
+              })
+            );
+          }
+        };
+
+        const displayServices = dedupedServices;
+
         return (
           <div
             key={roomType}
@@ -241,22 +355,77 @@ export default function AvailabilityResult() {
                 </p>
 
                 {/* Íconos SVG */}
-                <div className="flex flex-wrap gap-3 mt-1 items-center">
-                  {includedServicesMock.map((service, idx) => {
-                    const tooltipId = `tooltip-${roomType}-${idx}`;
-                    return (
-                      <div key={idx} className="relative group">
-                        <div
-                          className="w-9 h-9 flex items-center justify-center rounded-full bg-green-100 text-green-700 shadow-inner cursor-pointer"
-                          data-tooltip-id={tooltipId}
-                          data-tooltip-content={service.message}
-                          dangerouslySetInnerHTML={{ __html: service.icon }}
-                        />
-                        <Tooltip id={tooltipId} />
-                      </div>
-                    );
-                  })}
-                </div>
+                {displayServices.length > 0 && (
+                  <div className="flex flex-wrap gap-3 mt-1 items-center">
+                    {displayServices.map((service, idx) => {
+                      const iconCode =
+                        normalizeServiceCode(service.code) ??
+                        normalizeServiceCode(service.name) ??
+                        '';
+                      const Icon = getServiceIcon(iconCode);
+                      const tooltipId = `service-${propertyId}-${roomTypeID}-${idx}`;
+                      const tooltipContent =
+                        service.description || service.name || service.code || 'Servicio';
+                      const baseKey = service.id ?? `${iconCode || 'default'}-${idx}`;
+                      const serviceKey = buildServiceKey(baseKey);
+                      const status = serviceRequestState[serviceKey] ?? 'idle';
+                      const isLoading = status === 'loading';
+                      const isSuccess = status === 'success';
+                      const isError = status === 'error';
+                      const badgeStateClasses = isSuccess
+                        ? 'border-emerald-500 text-emerald-600 dark:text-emerald-300 bg-emerald-500/10'
+                        : isError
+                          ? 'border-red-500 text-red-500 dark:text-red-300 bg-red-500/10'
+                          : '';
+                      const isDisabled = isLoading || isSuccess;
+
+                      return (
+                        <div key={serviceKey} className="relative group">
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={isSuccess}
+                            aria-busy={isLoading}
+                            data-service-state={status}
+                            className={`flex flex-col items-center gap-2 w-[82px] max-w-[90px] text-center text-[10px] font-medium text-[var(--foreground)]/80 ${
+                              isDisabled ? 'cursor-default' : 'cursor-pointer'
+                            }`}
+                            onClick={() =>
+                              !isDisabled &&
+                              void handleServiceBadgeClick(service, serviceKey)
+                            }
+                            onKeyDown={(event) => {
+                              if (isDisabled) return;
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                void handleServiceBadgeClick(service, serviceKey);
+                              }
+                            }}
+                          >
+                            <div
+                              className={`w-10 h-10 flex items-center justify-center rounded-full border border-[var(--icon-badge-border)] bg-[var(--icon-badge-bg)] text-[var(--icon-badge-color)] shadow-sm transition-colors duration-200 ${
+                                isDisabled
+                                  ? 'cursor-default'
+                                  : 'cursor-pointer hover:border-[var(--icon-badge-color)]'
+                              } ${isLoading ? 'animate-pulse' : ''} ${badgeStateClasses}`}
+                              data-tooltip-id={tooltipId}
+                              data-tooltip-content={tooltipContent}
+                            >
+                              <Icon size={20} aria-hidden />
+                            </div>
+                            <span
+                              className="text-[11px] leading-tight text-center truncate w-full"
+                              title={service.name || service.code}
+                            >
+                              {service.name || service.code}
+                            </span>
+                          </div>
+                          <Tooltip id={tooltipId} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 <div className="flex flex-col sm:flex-row gap-2">
                   <select
