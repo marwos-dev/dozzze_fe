@@ -15,9 +15,9 @@ import {
   selectSelectedProperty,
 } from '@/store/selectors/propertiesSelectors';
 import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
-import { includedServicesMock } from '@/../public/icons/service'; // <- Import correcto según ubicación
 import { Tooltip } from 'react-tooltip';
-import type { Property } from '@/types/property';
+import { getServiceIcon } from '@/icons';
+import type { Property, PropertyService } from '@/types/property';
 import type { Zone } from '@/types/zone';
 import { useLanguage } from '@/i18n/LanguageContext';
 
@@ -43,6 +43,35 @@ function findRoomTypeImages(
   }
 
   return [];
+}
+
+function findRoomTypeServices(
+  propertyId: number,
+  roomTypeId: number,
+  selectedProperty: Property | null | undefined,
+  allZones: Zone[]
+): PropertyService[] {
+  if (selectedProperty?.id === propertyId) {
+    const roomType = selectedProperty.room_types?.find(
+      (rt) => rt.id === roomTypeId
+    );
+    if (roomType?.services?.length) return roomType.services;
+  }
+
+  for (const zone of allZones) {
+    const property = zone.properties?.find((p) => p.id === propertyId);
+    const roomType = property?.room_types?.find((rt) => rt.id === roomTypeId);
+    if (roomType?.services?.length) return roomType.services;
+  }
+
+  return [];
+}
+
+function normalizeServiceCode(value?: string) {
+  return value
+    ?.trim()
+    .toUpperCase()
+    .replace(/[\s/-]+/g, '_');
 }
 
 export default function AvailabilityResult() {
@@ -197,6 +226,31 @@ export default function AvailabilityResult() {
         const imgIndex = images.length > 0 ? carouselIndex % images.length : 0;
         const currentImage = images[imgIndex];
 
+        const services =
+          items[0].services?.length
+            ? items[0].services
+            : findRoomTypeServices(
+                propertyId,
+                roomTypeID,
+                selectedProperty,
+                allZones
+              );
+
+        const seenServiceKeys = new Set<string>();
+        const dedupedServices: PropertyService[] = [];
+        services.forEach((svc, idx) => {
+          const key =
+            normalizeServiceCode(svc.code) ??
+            normalizeServiceCode(svc.name) ??
+            (svc.id ? `ID-${svc.id}` : `IDX-${idx}`);
+          if (!seenServiceKeys.has(key)) {
+            seenServiceKeys.add(key);
+            dedupedServices.push(svc);
+          }
+        });
+
+        const displayServices = dedupedServices.slice(0, 10);
+
         return (
           <div
             key={roomType}
@@ -241,22 +295,34 @@ export default function AvailabilityResult() {
                 </p>
 
                 {/* Íconos SVG */}
-                <div className="flex flex-wrap gap-3 mt-1 items-center">
-                  {includedServicesMock.map((service, idx) => {
-                    const tooltipId = `tooltip-${roomType}-${idx}`;
-                    return (
-                      <div key={idx} className="relative group">
-                        <div
-                          className="w-9 h-9 flex items-center justify-center rounded-full bg-green-100 text-green-700 shadow-inner cursor-pointer"
-                          data-tooltip-id={tooltipId}
-                          data-tooltip-content={service.message}
-                          dangerouslySetInnerHTML={{ __html: service.icon }}
-                        />
-                        <Tooltip id={tooltipId} />
-                      </div>
-                    );
-                  })}
-                </div>
+                {displayServices.length > 0 && (
+                  <div className="flex flex-wrap gap-3 mt-1 items-center">
+                    {displayServices.map((service, idx) => {
+                      const iconCode =
+                        normalizeServiceCode(service.code) ??
+                        normalizeServiceCode(service.name) ??
+                        '';
+                      const Icon = getServiceIcon(iconCode);
+                      const tooltipId = `service-${propertyId}-${roomTypeID}-${idx}`;
+                      const tooltipContent =
+                        service.description || service.name || service.code || 'Servicio';
+                      const key = service.id ?? `${iconCode || 'default'}-${idx}`;
+
+                      return (
+                        <div key={key} className="relative group">
+                          <div
+                            className="w-9 h-9 flex items-center justify-center rounded-full bg-green-100 text-green-700 shadow-inner cursor-pointer"
+                            data-tooltip-id={tooltipId}
+                            data-tooltip-content={tooltipContent}
+                          >
+                            <Icon size={20} aria-hidden />
+                          </div>
+                          <Tooltip id={tooltipId} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 <div className="flex flex-col sm:flex-row gap-2">
                   <select
