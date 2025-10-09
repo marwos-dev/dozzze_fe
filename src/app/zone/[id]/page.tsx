@@ -15,6 +15,7 @@ import Image from 'next/image';
 import ZoneHeaderSkeleton from '@/components/ui/skeletons/ZoneHeaderSkeleton';
 import ZoneBannerSkeleton from '@/components/ui/skeletons/ZoneBannerSkeleton';
 import PropertiesCardSkeleton from '@/components/ui/skeletons/PropertyCardSkeleton';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface PageProps {
   params: Promise<{ id: number }>;
@@ -26,6 +27,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
   const [mainImage, setMainImage] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const toggleExpanded = () => setIsExpanded((prev) => !prev);
 
@@ -79,7 +81,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
   if (error)
     return (
       <p className="text-center mt-20 text-lg text-red-600">
-        Zona no encontrada
+        {t('zone.errorNotFound')}
       </p>
     );
 
@@ -98,10 +100,13 @@ export default function ZoneDetailPage({ params }: PageProps) {
             {selectedZone.name}
           </h1>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-dozegray">Zona:</span>
+            <span className="text-sm text-dozegray">
+              {t('zone.headerLabel')}
+            </span>
             <select
               value={selectedZone.id}
               onChange={handleZoneChange}
+              aria-label={String(t('zone.headerLabel'))}
               className="bg-white border mr-20 pr-3 border-dozeblue/30 text-dozeblue text-sm rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-dozeblue"
             >
               {allZones.map((zone) => (
@@ -120,7 +125,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
         <div className="relative w-full md:w-[75%] h-[340px] md:h-[360px]">
           <Image
             src={mainImage || coverImage}
-            alt={`Imagen principal de ${selectedZone.name}`}
+            alt={`${String(t('zone.gallery.mainAltPrefix'))} ${selectedZone.name}`}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 75vw"
@@ -142,7 +147,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
                   onClick={toggleExpanded}
                   className="mt-2 text-xs text-white border border-white/50 hover:bg-white hover:text-dozeblue transition px-3 py-1 rounded-lg"
                 >
-                  {isExpanded ? 'Ver menos' : 'Ver más'}
+                  {isExpanded ? t('zone.seeLess') : t('zone.seeMore')}
                 </button>
               )}
             </div>
@@ -166,7 +171,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
                   >
                     <Image
                       src={src}
-                      alt={`Miniatura ${i + 2}`}
+                      alt={`${String(t('zone.gallery.thumbnailAltPrefix'))} ${i + 2}`}
                       fill
                       className="object-cover"
                       sizes="25vw"
@@ -206,7 +211,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
             ))
           ) : (
             <p className="text-dozegray text-center">
-              No hay propiedades disponibles.
+              {t('zone.noProperties')}
             </p>
           )}
         </div>

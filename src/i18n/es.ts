@@ -151,6 +151,55 @@ const es = {
       grandTotal: 'Total general pagado'
     }
   },
+  profile: {
+    notLoggedTitle: 'Sesión no iniciada',
+    notLoggedDescription: 'Por favor iniciá sesión para ver tu perfil.',
+    goToLogin: 'Ir al login',
+    title: 'Mi perfil',
+    emailLabel: 'Email',
+    totalSpentLabel: 'Gasto total en Dozzze',
+    reservationsTitle: 'Mis reservas',
+    loading: 'Cargando reservas...',
+    empty: 'Aún no tenés reservas.',
+    totalLabel: 'Total:',
+    cancelButton: 'Cancelar reserva',
+    cancelling: 'Cancelando...',
+    canceledStatus: 'Reserva cancelada',
+    finishedStatus: 'Reserva finalizada',
+    activeStatus: 'Reserva vigente',
+    confirmModalMessage: '¿Estás seguro de cancelar esta reserva?',
+    confirmModalConfirm: 'Confirmar',
+    confirmModalCancel: 'Volver',
+    cancelError: 'Error al cancelar la reserva',
+    noReservationId: 'Id de reserva no encontrado'
+  },
+  zone: {
+    errorNotFound: 'Zona no encontrada',
+    headerLabel: 'Zona:',
+    seeMore: 'Ver más',
+    seeLess: 'Ver menos',
+    noProperties: 'No hay propiedades disponibles.',
+    gallery: {
+      mainAltPrefix: 'Imagen principal de',
+      thumbnailAltPrefix: 'Miniatura'
+    }
+  },
+  propertyCard: {
+    info: {
+      addressFallback: 'Dirección no disponible',
+      descriptionFallback: 'Descripción no disponible',
+      ratingSuffix: '.0'
+    },
+    actions: {
+      noContact: 'No disponible',
+      roomsLabel: 'Habitaciones disponibles:',
+      viewRooms: 'Ver habitaciones'
+    },
+    media: {
+      mainAlt: 'Imagen principal',
+      thumbnailAltPrefix: 'Miniatura'
+    }
+  },
   about: {
     title: 'Sobre Nosotros',
     company: 'Empresa',

@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState, useMemo } from 'react';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface PropertyCardMediaProps {
   images?: string[];
@@ -15,6 +16,9 @@ export default function PropertyCardMedia({
   onImageClick,
 }: PropertyCardMediaProps) {
   const fallbackThumbnail = '/logo.png';
+  const { t } = useLanguage();
+  const mainAlt = String(t('propertyCard.media.mainAlt'));
+  const thumbnailPrefix = String(t('propertyCard.media.thumbnailAltPrefix'));
 
   const fullImageList = useMemo(() => {
     const validImages = images.filter((src) => src && src.startsWith('http'));
@@ -67,7 +71,7 @@ export default function PropertyCardMedia({
                 <div className="relative w-full h-full">
                   <Image
                     src={src || fallbackThumbnail}
-                    alt={`Thumbnail ${i + 1}`}
+                    alt={`${thumbnailPrefix} ${i + 1}`}
                     fill
                     sizes="80px"
                     placeholder="empty"
@@ -94,7 +98,7 @@ export default function PropertyCardMedia({
             <Image
               key={mainImage}
               src={mainImage}
-              alt="Main image"
+              alt={mainAlt}
               fill
               sizes="(max-width: 768px) 100vw, 330px"
               placeholder="empty"
@@ -115,7 +119,7 @@ export default function PropertyCardMedia({
           <Image
             key={mainImage}
             src={mainImage}
-            alt="Main image"
+            alt={mainAlt}
             fill
             sizes="100vw"
             placeholder="empty"
@@ -139,7 +143,7 @@ export default function PropertyCardMedia({
                 <div className="relative w-full h-full">
                   <Image
                     src={src || fallbackThumbnail}
-                    alt={`Thumbnail ${i + 1}`}
+                    alt={`${thumbnailPrefix} ${i + 1}`}
                     fill
                     sizes="80px"
                     placeholder="empty"

@@ -151,6 +151,55 @@ const en = {
       grandTotal: 'Grand total paid'
     }
   },
+  profile: {
+    notLoggedTitle: 'Session not started',
+    notLoggedDescription: 'Please log in to view your profile.',
+    goToLogin: 'Go to login',
+    title: 'My profile',
+    emailLabel: 'Email',
+    totalSpentLabel: 'Total spent in Dozzze',
+    reservationsTitle: 'My reservations',
+    loading: 'Loading reservations...',
+    empty: 'You do not have reservations yet.',
+    totalLabel: 'Total:',
+    cancelButton: 'Cancel reservation',
+    cancelling: 'Cancelling...',
+    canceledStatus: 'Reservation cancelled',
+    finishedStatus: 'Reservation completed',
+    activeStatus: 'Active reservation',
+    confirmModalMessage: 'Are you sure you want to cancel this reservation?',
+    confirmModalConfirm: 'Confirm',
+    confirmModalCancel: 'Go back',
+    cancelError: 'Error cancelling reservation',
+    noReservationId: 'Reservation ID not found'
+  },
+  zone: {
+    errorNotFound: 'Zone not found',
+    headerLabel: 'Zone:',
+    seeMore: 'See more',
+    seeLess: 'See less',
+    noProperties: 'No properties available.',
+    gallery: {
+      mainAltPrefix: 'Main image of',
+      thumbnailAltPrefix: 'Thumbnail'
+    }
+  },
+  propertyCard: {
+    info: {
+      addressFallback: 'Address not available',
+      descriptionFallback: 'Description not available',
+      ratingSuffix: '.0'
+    },
+    actions: {
+      noContact: 'Not available',
+      roomsLabel: 'Available rooms:',
+      viewRooms: 'View rooms'
+    },
+    media: {
+      mainAlt: 'Main image',
+      thumbnailAltPrefix: 'Thumbnail'
+    }
+  },
   about: {
     title: 'About Us',
     company: 'Company',
