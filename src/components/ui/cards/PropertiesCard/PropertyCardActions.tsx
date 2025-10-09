@@ -6,6 +6,7 @@ import { setSelectedProperty } from '@/store/propertiesSlice';
 import slugify from '@/utils/slugify';
 import { ArrowRight, Phone, Mail, MessageCircleMore } from 'lucide-react';
 import { Property } from '@/types/property';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface PropertyCardActionsProps {
   communication_methods: string[];
@@ -30,6 +31,10 @@ export default function PropertyCardActions({
 }: PropertyCardActionsProps) {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { t } = useLanguage();
+  const noContactLabel = String(t('propertyCard.actions.noContact'));
+  const roomsLabel = String(t('propertyCard.actions.roomsLabel'));
+  const viewRoomsLabel = String(t('propertyCard.actions.viewRooms'));
 
   const handleSelect = () => {
     dispatch(setSelectedProperty(fullPropertyData));
@@ -45,7 +50,7 @@ export default function PropertyCardActions({
       <div className="flex flex-wrap gap-2 p-2 justify-center md:justify-end">
         {(communication_methods.length > 0
           ? communication_methods
-          : ['No disponible']
+          : [noContactLabel]
         ).map((method, i) => (
           <span
             key={i}
@@ -60,13 +65,13 @@ export default function PropertyCardActions({
       {/* Habitaciones + botón */}
       <div className="flex flex-col items-center md:items-end p-2 w-full">
         <p className="text-sm font-semibold p-2 text-dozeblue ">
-          Habitaciones disponibles: {roomsCount}
+          {roomsLabel} {roomsCount}
         </p>
         <button
           onClick={handleSelect}
           className="inline-flex items-center bg-dozeblue text-white px-4 py-2 pb-2 text-sm rounded-full font-medium hover:bg-blue-900 mt-28 transition"
         >
-          Ver Habitaciones
+          {viewRoomsLabel}
           <ArrowRight className="w-4 h-4 ml-2" />
         </button>
       </div>

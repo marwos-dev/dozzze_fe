@@ -6,6 +6,7 @@ import { RootState } from '@/store';
 import { postReservation } from '@/services/reservationApi';
 import { showToast } from '@/store/toastSlice';
 import { setRedsysData, updateReservations } from '@/store/reserveSlice';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface Props {
   reservationIndex: number;
@@ -22,6 +23,7 @@ export default function StepGuestDetails({
   const data = useSelector(
     (state: RootState) => state.reserve.data[reservationIndex]
   );
+  const { t } = useLanguage();
 
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
@@ -57,17 +59,23 @@ export default function StepGuestDetails({
 
   const validators = {
     name: (value: string) =>
-      /^[a-zA-ZÀ-ÿ\s]{3,}$/.test(value) ? '' : 'Debe tener al menos 3 letras',
+      /^[a-zA-ZÀ-ÿ\s]{3,}$/.test(value)
+        ? ''
+        : String(t('reserve.validation.name')),
     email: (value: string) =>
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Email inválido',
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+        ? ''
+        : String(t('reserve.validation.email')),
     phone: (value: string) =>
-      /^[\d\s()+-]{8,}$/.test(value) ? '' : 'Teléfono inválido',
+      /^[\d\s()+-]{8,}$/.test(value)
+        ? ''
+        : String(t('reserve.validation.phone')),
     cp: (value: string) =>
       value === '' || /^\d{1,10}$/.test(value)
         ? ''
-        : 'Solo números, máx 10 dígitos',
+        : String(t('reserve.validation.cp')),
     remarks: (value: string) =>
-      value.length <= 200 ? '' : 'Máximo 200 caracteres',
+      value.length <= 200 ? '' : String(t('reserve.validation.remarks')),
   };
 
   const validateField = (field: string, value: string) => {
@@ -129,13 +137,18 @@ export default function StepGuestDetails({
     try {
       const res = await postReservation(fullReservations, discountCode);
       dispatch(updateReservations(fullReservations));
-      dispatch(showToast({ message: 'Reserva Confirmada', color: 'green' }));
+      dispatch(
+        showToast({
+          message: String(t('reserve.toasts.reservationConfirmed')),
+          color: 'green',
+        })
+      );
       if (res.redsys_args) {
         dispatch(setRedsysData(res.redsys_args));
       } else {
         dispatch(
           showToast({
-            message: 'No se recibió información de pago',
+            message: String(t('reserve.toasts.noPaymentInfo')),
             color: 'red',
           })
         );
@@ -144,7 +157,10 @@ export default function StepGuestDetails({
     } catch (err) {
       console.error('Error al confirmar reservas:', err);
       dispatch(
-        showToast({ message: 'Error al confirmar reservas', color: 'red' })
+        showToast({
+          message: String(t('reserve.toasts.confirmError')),
+          color: 'red',
+        })
       );
     } finally {
       setLoading(false);
@@ -161,18 +177,18 @@ export default function StepGuestDetails({
   return (
     <div>
       <h2 className="text-2xl font-bold text-dozeblue mb-4">
-        Datos del huésped
+        {t('reserve.form.title')}
       </h2>
 
       <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-dozegray/5 shadow-sm p-6 space-y-4">
         {/* Nombre */}
         <div>
           <label className="text-sm font-medium block mb-1 text-dozeblue">
-            Nombre completo
+            {t('reserve.form.nameLabel')}
           </label>
           <input
             type="text"
-            placeholder="Ej: Juan Pérez"
+            placeholder={String(t('reserve.form.namePlaceholder'))}
             value={guestName}
             onChange={(e) => setGuestName(e.target.value)}
             onBlur={(e) => validateField('guestName', e.target.value)}
@@ -186,11 +202,11 @@ export default function StepGuestDetails({
         {/* Email */}
         <div>
           <label className="text-sm font-medium block mb-1 text-dozeblue">
-            Email
+            {t('reserve.form.emailLabel')}
           </label>
           <input
             type="email"
-            placeholder="Ej: juan@email.com"
+            placeholder={String(t('reserve.form.emailPlaceholder'))}
             value={guestEmail}
             onChange={(e) => setGuestEmail(e.target.value)}
             onBlur={(e) => validateField('guestEmail', e.target.value)}
@@ -204,11 +220,11 @@ export default function StepGuestDetails({
         {/* Teléfono */}
         <div>
           <label className="text-sm font-medium block mb-1 text-dozeblue">
-            Teléfono
+            {t('reserve.form.phoneLabel')}
           </label>
           <input
             type="tel"
-            placeholder="Ej: +54 9 11 1234-5678"
+            placeholder={String(t('reserve.form.phonePlaceholder'))}
             value={guestPhone}
             onChange={(e) =>
               setGuestPhone(e.target.value.replace(/[^\d\s()+-]/g, ''))
@@ -224,11 +240,11 @@ export default function StepGuestDetails({
         {/* Dirección */}
         <div>
           <label className="text-sm font-medium block mb-1 text-dozeblue">
-            Dirección
+            {t('reserve.form.addressLabel')}
           </label>
           <input
             type="text"
-            placeholder="Ej: Calle Falsa 123"
+            placeholder={String(t('reserve.form.addressPlaceholder'))}
             value={guestAddress}
             onChange={(e) => setGuestAddress(e.target.value)}
             className={inputClass('guestAddress')}
@@ -239,7 +255,7 @@ export default function StepGuestDetails({
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              Ciudad
+              {t('reserve.form.cityLabel')}
             </label>
             <input
               type="text"
@@ -251,7 +267,7 @@ export default function StepGuestDetails({
 
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              País
+              {t('reserve.form.countryLabel')}
             </label>
             <input
               type="text"
@@ -266,7 +282,7 @@ export default function StepGuestDetails({
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              Código postal
+              {t('reserve.form.cpLabel')}
             </label>
             <input
               type="text"
@@ -284,11 +300,11 @@ export default function StepGuestDetails({
 
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              Comentarios adicionales
+              {t('reserve.form.remarksLabel')}
             </label>
             <input
               type="text"
-              placeholder="Ej: Llegaré después de las 20 hs"
+              placeholder={String(t('reserve.form.remarksPlaceholder'))}
               value={guestRemarks}
               maxLength={200}
               onChange={(e) => setGuestRemarks(e.target.value)}
@@ -304,7 +320,7 @@ export default function StepGuestDetails({
         {/* Campos nuevos */}
         <div>
           <label className="text-sm font-medium block mb-1 text-dozeblue">
-            Empresa / Cliente corporativo
+            {t('reserve.form.corporateLabel')}
           </label>
           <input
             type="text"
@@ -317,7 +333,7 @@ export default function StepGuestDetails({
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              Región
+              {t('reserve.form.regionLabel')}
             </label>
             <input
               type="text"
@@ -329,7 +345,7 @@ export default function StepGuestDetails({
 
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              Código país (ISO)
+              {t('reserve.form.countryIsoLabel')}
             </label>
             <input
               type="text"
@@ -346,13 +362,15 @@ export default function StepGuestDetails({
           onClick={onBack}
           className="text-dozeblue border border-dozeblue px-6 py-3 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
         >
-          Atrás
+          {t('reserve.buttons.back')}
         </button>
         <button
           onClick={handleContinue}
           className="bg-dozeblue text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-dozeblue/90 transition-colors"
         >
-          {loading ? 'Procesando...' : 'Continuar'}
+          {loading
+            ? t('reserve.form.processing')
+            : t('reserve.form.continue')}
         </button>
       </div>
     </div>
