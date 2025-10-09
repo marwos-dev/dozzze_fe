@@ -7,6 +7,7 @@ import { RootState, AppDispatch } from '@/store';
 import { validateVoucher } from '@/services/voucherApi';
 import { applyCoupon, applyVoucher } from '@/store/reserveSlice';
 import { showToast } from '@/store/toastSlice';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 export default function VoucherOrLoginPrompt() {
   const profile = useSelector((state: RootState) => state.customer.profile);
@@ -14,6 +15,7 @@ export default function VoucherOrLoginPrompt() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const [voucher, setVoucher] = useState('');
+  const { t } = useLanguage();
 
   const handleVoucherSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,18 +29,36 @@ export default function VoucherOrLoginPrompt() {
             percent: data.discount_percent,
           })
         );
-        dispatch(showToast({ message: 'Cupón aplicado', color: 'green' }));
+        dispatch(
+          showToast({
+            message: String(t('reserve.toasts.couponApplied')),
+            color: 'green',
+          })
+        );
       } else if (data.type === 'voucher' && data.applicable) {
         dispatch(applyVoucher({ code: voucher, amount: data.remaining_amount }));
-        dispatch(showToast({ message: 'Voucher aplicado', color: 'green' }));
+        dispatch(
+          showToast({
+            message: String(t('reserve.toasts.voucherApplied')),
+            color: 'green',
+          })
+        );
       } else {
         dispatch(
-          showToast({ message: 'Código no aplicable', color: 'red' })
+          showToast({
+            message: String(t('reserve.toasts.codeNotApplicable')),
+            color: 'red',
+          })
         );
       }
     } catch (err) {
       console.error(err);
-      dispatch(showToast({ message: 'Código no válido', color: 'red' }));
+      dispatch(
+        showToast({
+          message: String(t('reserve.toasts.codeInvalid')),
+          color: 'red',
+        })
+      );
     }
   };
 
@@ -46,14 +66,13 @@ export default function VoucherOrLoginPrompt() {
     return (
       <div className="bg-white/40 border border-blue-100 p-4 rounded-md text-center">
         <p className="text-sm text-gray-700 mb-3">
-          ¿Tenés una cuenta? Iniciá sesión para usar tus datos y aplicar códigos
-          de descuento.
+          {t('reserve.loginPrompt.message')}
         </p>
         <button
           onClick={() => router.push('/login')}
           className="px-4 py-2 bg-dozeblue text-white rounded hover:bg-dozeblue/90 transition"
         >
-          Iniciar sesión
+          {t('reserve.buttons.login')}
         </button>
       </div>
     );
@@ -65,26 +84,28 @@ export default function VoucherOrLoginPrompt() {
       className="bg-white/40 border border-blue-100 p-4 rounded-md"
     >
       <label className="block text-sm font-medium text-gray-700 mb-1">
-        Ingresá tu código de voucher:
+        {t('reserve.voucher.label')}
       </label>
       <div className="flex items-center gap-2">
         <input
           type="text"
           value={voucher}
           onChange={(e) => setVoucher(e.target.value)}
-          placeholder="Ej: DESCUENTO10"
+          placeholder={String(t('reserve.voucher.placeholder'))}
           className="flex-1 px-3 py-2 border rounded-md border-gray-300 text-sm"
         />
         <button
           type="submit"
           className="px-4 py-2 bg-dozeblue text-white rounded hover:bg-dozeblue/90 transition text-sm"
         >
-          Aplicar
+          {t('reserve.buttons.apply')}
         </button>
       </div>
       {discount && (
         <p className="mt-2 text-sm text-dozeblue">
-          Usando {discount.type === 'coupon' ? 'cupón' : 'voucher'}
+          {discount.type === 'coupon'
+            ? t('reserve.voucher.usingCoupon')
+            : t('reserve.voucher.usingVoucher')}
         </p>
       )}
     </form>

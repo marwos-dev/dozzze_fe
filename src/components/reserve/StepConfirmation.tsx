@@ -3,6 +3,7 @@
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import ReservationTicket from './ReservationTicket';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface Props {
   onBack: () => void;
@@ -12,6 +13,7 @@ export default function StepConfirmation({ onBack }: Props) {
   const redsysData = useSelector(
     (state: RootState) => state.reserve.redsysData
   );
+  const { t } = useLanguage();
 
   return (
     <div className="py-6 space-y-6">
@@ -43,7 +45,7 @@ export default function StepConfirmation({ onBack }: Props) {
             type="submit"
             className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-green-700 transition-colors"
           >
-            Pagar reserva
+            {t('reserve.buttons.pay')}
           </button>
         </form>
       )}
@@ -53,7 +55,7 @@ export default function StepConfirmation({ onBack }: Props) {
           onClick={onBack}
           className="mt-4 px-6 py-3 rounded-lg text-sm font-medium border border-dozeblue text-dozeblue hover:bg-dozeblue/10 transition"
         >
-          Volver
+          {t('reserve.buttons.backSimple')}
         </button>
       </div>
     </div>

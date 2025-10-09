@@ -9,11 +9,17 @@ import StepReservationSummary from '@/components/reserve/StepReservationSummary'
 import StepGuestDetails from '@/components/reserve/StepGuestDetails';
 import StepConfirmation from '@/components/reserve/StepConfirmation';
 import VoucherOrLoginPrompt from '@/components/ui/VoucherOrLoginPrompt';
-const steps = ['Tu selección', 'Tus datos', 'Terminar reserva'];
+import { useLanguage } from '@/i18n/LanguageContext';
 
 export default function ReservePage() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const initialStepParam = parseInt(searchParams.get('step') || '0', 10);
+  const steps = [
+    t('reserve.steps.selection') as string,
+    t('reserve.steps.details') as string,
+    t('reserve.steps.confirmation') as string,
+  ];
   const [currentStep, setCurrentStep] = useState(
     isNaN(initialStepParam) ? 0 : Math.min(initialStepParam, steps.length - 1)
   );
@@ -98,7 +104,7 @@ export default function ReservePage() {
             onClick={goBack}
             className="text-dozeblue border border-dozeblue px-4 py-2 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
           >
-            Atrás
+            {t('reserve.buttons.back')}
           </button>
         </div>
       )}

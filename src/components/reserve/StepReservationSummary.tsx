@@ -10,6 +10,7 @@ import { ReservationData } from '@/store/reserveSlice';
 import { fetchAvailability } from '@/store/propertiesSlice';
 import Image from 'next/image';
 import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 const fallbackThumbnail = '/logo.png';
 
@@ -29,6 +30,7 @@ export default function StepReservationSummary({
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const discount = useSelector((state: RootState) => state.reserve.discount);
+  const { t } = useLanguage();
 
   const [openGallery, setOpenGallery] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
@@ -83,11 +85,13 @@ export default function StepReservationSummary({
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-dozeblue">
-        Resumen de tu reserva
+        {t('reserve.summary.title')}
       </h2>
 
       {grouped.length === 0 && (
-        <div className="text-center text-gray-500">No hay datos de reserva</div>
+        <div className="text-center text-gray-500">
+          {t('reserve.summary.empty')}
+        </div>
       )}
 
       {grouped.map(([propertyId, propertyReservations]) => {
@@ -103,7 +107,8 @@ export default function StepReservationSummary({
             className="space-y-2 border border-dozeblue/10 rounded-xl p-4 bg-dozeblue/5 dark:bg-dozeblue/10"
           >
             <div className="font-bold text-dozeblue mb-2">
-              {firstRes.property_name || `Propiedad ${propertyId}`}
+              {firstRes.property_name ||
+                `${String(t('reserve.summary.propertyFallback'))} ${propertyId}`}
             </div>
 
             {propertyReservations.map((res, index) => {
@@ -136,7 +141,7 @@ export default function StepReservationSummary({
                     >
                       <Image
                         src={images[0] || fallbackThumbnail}
-                        alt={`Imagen habitación ${res.roomType}`}
+                        alt={`${String(t('reserve.summary.roomImageAlt'))} ${res.roomType}`}
                         fill
                         className="object-cover"
                       />
@@ -154,7 +159,7 @@ export default function StepReservationSummary({
                         >
                           <Image
                             src={img}
-                            alt={`Miniatura ${idx + 1}`}
+                            alt={`${String(t('reserve.summary.thumbnailAlt'))} ${idx + 1}`}
                             fill
                             className="object-cover"
                           />
@@ -191,8 +196,10 @@ export default function StepReservationSummary({
                         <div className="flex items-center gap-1">
                           <Users className="w-4 h-4 text-dozeblue" />
                           <span className="text-dozeblue">
-                            {res.pax_count} huésped
-                            {res.pax_count > 1 ? 'es' : ''}
+                            {res.pax_count}{' '}
+                            {res.pax_count === 1
+                              ? t('reserve.guests.singular')
+                              : t('reserve.guests.plural')}
                           </span>
                         </div>
                       </div>
@@ -212,10 +219,11 @@ export default function StepReservationSummary({
                 }
                 className="text-sm border pt-2 border-dozeblue text-dozeblue px-2 py-1 rounded hover:bg-dozeblue/10 transition"
               >
-                Buscar otra habitación en esta propiedad
+                {t('reserve.summary.searchAnotherRoom')}
               </button>
               <span className="text-sm font-bold pl-3 text-dozeblue">
-                Total propiedad {propertyId}: ${totalProperty.toFixed(2)}
+                {t('reserve.summary.propertyTotalPrefix')} {propertyId}:{' '}
+                ${totalProperty.toFixed(2)}
               </span>
             </div>
 
@@ -223,12 +231,12 @@ export default function StepReservationSummary({
               <div className="bg-white dark:bg-dozegray/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 mt-2 shadow-sm">
                 <div className="flex items-center gap-2 mb-3 text-dozeblue font-semibold text-base">
                   <FileText className="w-5 h-5" />
-                  Términos y condiciones de la propiedad
+                  {t('reserve.terms.propertyTitle')}
                 </div>
                 <div className="space-y-4 text-sm text-[var(--foreground)] leading-relaxed">
                   <div>
                     <div className="font-semibold mb-1">
-                      Condición de confirmación
+                      {t('reserve.terms.confirmation')}
                     </div>
                     <div>
                       {firstRes.terms_and_conditions.condition_of_confirmation}
@@ -237,7 +245,7 @@ export default function StepReservationSummary({
                   <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
                     <div className="w-full sm:w-1/2">
                       <div className="font-semibold mb-1 text-[var(--foreground)]">
-                        Horario de Check-in
+                        {t('reserve.terms.checkIn')}
                       </div>
                       <div className="flex items-center gap-2 bg-green-100 text-dozeblue dark:bg-green-600/20 px-4 py-2 rounded-md border border-green-300 dark:border-green-600">
                         <span className="text-lg font-semibold">
@@ -247,7 +255,7 @@ export default function StepReservationSummary({
                     </div>
                     <div className="w-full sm:w-1/2">
                       <div className="font-semibold mb-1 text-[var(--foreground)]">
-                        Horario de Check-out
+                        {t('reserve.terms.checkOut')}
                       </div>
                       <div className="flex items-center gap-2 bg-red-100 text-dozeblue dark:bg-red-600/20 px-4 py-2 rounded-md border border-red-300 dark:border-red-600">
                         <span className="text-lg font-semibold">
@@ -258,7 +266,7 @@ export default function StepReservationSummary({
                   </div>
                   <div>
                     <div className="font-semibold mb-1">
-                      Política de cancelación
+                      {t('reserve.terms.cancellation')}
                     </div>
                     <div>
                       {firstRes.terms_and_conditions.cancellation_policy}
@@ -266,7 +274,7 @@ export default function StepReservationSummary({
                   </div>
                   <div>
                     <div className="font-semibold mb-1">
-                      Información adicional
+                      {t('reserve.terms.additional')}
                     </div>
                     <div>
                       {firstRes.terms_and_conditions.additional_information}
@@ -280,7 +288,7 @@ export default function StepReservationSummary({
       })}
 
       <div className="flex justify-end text-dozeblue font-bold text-sm">
-        Total general: ${totalGeneral.toFixed(2)}
+        {t('reserve.summary.grandTotal')}: ${totalGeneral.toFixed(2)}
       </div>
 
       <div className="flex flex-wrap justify-between gap-2 mt-4">
@@ -288,13 +296,13 @@ export default function StepReservationSummary({
           onClick={handleAddReservation}
           className="text-dozeblue border border-dozeblue px-4 py-2 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
         >
-          Volver / Agregar otra reservación
+          {t('reserve.buttons.goBackAdd')}
         </button>
         <button
           onClick={onNext}
           className="px-6 py-3 rounded-lg text-sm font-semibold bg-dozeblue text-white hover:bg-dozeblue/90 transition-colors"
         >
-          Continuar
+          {t('reserve.buttons.continue')}
         </button>
       </div>
 
