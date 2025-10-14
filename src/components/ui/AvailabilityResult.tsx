@@ -410,12 +410,6 @@ interface RoomCardProps {
   onPaxChange: (value: number) => void;
   reservedKeys: Set<string>;
   reservedCount: number;
-  serviceRequestState: ServiceStateMap;
-  onServiceBadgeClick: (
-    roomTypeID: number,
-    service: PropertyService,
-    serviceKey: string
-  ) => void;
   onReserve: (
     roomType: string,
     rateIndex: number,
