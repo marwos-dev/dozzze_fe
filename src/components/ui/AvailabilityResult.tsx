@@ -418,7 +418,8 @@ interface RoomCardProps {
     total: number,
     propertyId: number,
     roomTypeID: number,
-    images: string[]
+    images: string[],
+    services: PropertyService[]
   ) => void;
   openGallery: (images: string[], initialIndex: number) => void;
   selectedProperty: Property | null | undefined;
@@ -637,16 +638,17 @@ const RoomCard: React.FC<RoomCardProps> = ({
             <button
               type="button"
               onClick={() =>
-                onReserve(
-                  roomType,
-                  safeSelectedIndex,
-                  firstItem.rates[safeSelectedIndex].rate_id,
-                  pax,
-                  total,
-                  propertyId,
-                  roomTypeId,
-                  images
-                )
+              onReserve(
+                roomType,
+                safeSelectedIndex,
+                firstItem.rates[safeSelectedIndex].rate_id,
+                pax,
+                total,
+                propertyId,
+                roomTypeId,
+                images,
+                dedupedServices
+              )
               }
               disabled={isSelectedReserved}
               className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold transition-colors sm:w-auto ${
@@ -731,7 +733,8 @@ export default function AvailabilityResult() {
       total: number,
       propertyId: number,
       roomTypeID: number,
-      images: string[]
+      images: string[],
+      services: PropertyService[]
     ) => {
       if (!range?.check_in || !range?.check_out) return;
 
@@ -751,6 +754,7 @@ export default function AvailabilityResult() {
           roomType,
           roomTypeID,
           images,
+          services,
         })
       );
 

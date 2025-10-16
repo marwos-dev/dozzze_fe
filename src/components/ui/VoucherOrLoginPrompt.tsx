@@ -62,15 +62,20 @@ export default function VoucherOrLoginPrompt() {
     }
   };
 
+  const containerStyles =
+    'rounded-[26px] border border-white/60 bg-white/90 p-6 shadow-[0_16px_32px_rgba(64,93,230,0.09)] backdrop-blur dark:border-white/10 dark:bg-dozebg1 dark:shadow-[0_22px_48px_rgba(5,16,45,0.38)]';
+  const buttonStyles =
+    'inline-flex items-center justify-center gap-2 rounded-full bg-dozeblue px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_25px_rgba(64,93,230,0.35)] transition-all hover:-translate-y-0.5 hover:bg-dozeblue/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dozeblue dark:shadow-[0_18px_35px_rgba(14,116,244,0.32)]';
+
   if (!profile) {
     return (
-      <div className="bg-white/40 border border-blue-100 p-4 rounded-md text-center">
-        <p className="text-sm text-gray-700 mb-3">
+      <div className={`${containerStyles} text-center`}>
+        <p className="mb-4 text-sm text-[var(--foreground)] dark:text-slate-200">
           {t('reserve.loginPrompt.message')}
         </p>
         <button
           onClick={() => router.push('/login')}
-          className="px-4 py-2 bg-dozeblue text-white rounded hover:bg-dozeblue/90 transition"
+          className={buttonStyles}
         >
           {t('reserve.buttons.login')}
         </button>
@@ -81,28 +86,32 @@ export default function VoucherOrLoginPrompt() {
   return (
     <form
       onSubmit={handleVoucherSubmit}
-      className="bg-white/40 border border-blue-100 p-4 rounded-md"
+      className={`${containerStyles} flex flex-col gap-4`}
     >
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {t('reserve.voucher.label')}
-      </label>
-      <div className="flex items-center gap-2">
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--foreground)]/70 dark:text-slate-500">
+          Voucher
+        </p>
+        <label className="block text-base font-semibold text-[var(--foreground)] dark:text-dozeblue">
+          {t('reserve.voucher.label')}
+        </label>
+      </div>
+
+      <div className="flex flex-col gap-3 md:flex-row">
         <input
           type="text"
           value={voucher}
           onChange={(e) => setVoucher(e.target.value)}
           placeholder={String(t('reserve.voucher.placeholder'))}
-          className="flex-1 px-3 py-2 border rounded-md border-gray-300 text-sm"
+          className="flex-1 rounded-2xl border border-transparent bg-white px-4 py-3 text-sm text-slate-700 shadow-inner shadow-white/40 transition focus:border-dozeblue/60 focus:outline-none focus:ring-2 focus:ring-dozeblue/40 dark:border-white/10 dark:bg-dozebg2 dark:text-slate-100 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] dark:focus:border-dozeblue dark:focus:ring-dozeblue/40 dark:placeholder:text-slate-500"
         />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-dozeblue text-white rounded hover:bg-dozeblue/90 transition text-sm"
-        >
+        <button type="submit" className={buttonStyles}>
           {t('reserve.buttons.apply')}
         </button>
       </div>
+
       {discount && (
-        <p className="mt-2 text-sm text-dozeblue">
+        <p className="text-sm font-medium text-dozeblue dark:text-dozeblue">
           {discount.type === 'coupon'
             ? t('reserve.voucher.usingCoupon')
             : t('reserve.voucher.usingVoucher')}
