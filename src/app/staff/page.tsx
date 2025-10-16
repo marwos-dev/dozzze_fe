@@ -161,8 +161,8 @@ export default function StaffPage() {
         <AddPropertyWizard startInZoneId={startInZoneId || undefined} />
       )}
 
-      {activeTab === 'edit' && selectedPropertyId && (
-        <EditRoomTypeWizard initialPropertyId={selectedPropertyId} />
+      {activeTab === 'edit' && (
+        <EditRoomTypeWizard initialPropertyId={selectedPropertyId || undefined} />
       )}
     </div>
   );
