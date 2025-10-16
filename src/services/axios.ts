@@ -1,9 +1,9 @@
 import axios from 'axios';
 import errorMessages from '@/utils/errorMessages';
-import { store } from '@/store';
 import { clearReserveStorage } from '@/utils/storage';
 import { getAccessToken, clearPersistedSession } from '@/utils/authSession';
 import { clearCustomer } from '@/store/customerSlice';
+import { getStoreDispatch } from '@/store/storeAccessors';
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api',
@@ -27,8 +27,11 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error?.response?.status === 401) {
       clearPersistedSession();
-      store.dispatch(clearCustomer());
-      clearReserveStorage(store.dispatch);
+      const dispatch = getStoreDispatch();
+      if (dispatch) {
+        dispatch(clearCustomer());
+        clearReserveStorage(dispatch);
+      }
     }
 
     const data = error?.response?.data as

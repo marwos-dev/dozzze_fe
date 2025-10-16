@@ -23,7 +23,7 @@ export default function EditRoomWizard({ initialPropertyId }: Props) {
   const zones = useSelector((state: RootState) => state.zones.data);
 
   const [step] = useState(3);
-  const [selectedPropertyId] = useState<number | null>(
+  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(
     initialPropertyId ?? null
   );
 
@@ -38,6 +38,17 @@ export default function EditRoomWizard({ initialPropertyId }: Props) {
       dispatch(getPropertyById(initialPropertyId));
     }
   }, [initialPropertyId, dispatch]);
+
+  useEffect(() => {
+    if (initialPropertyId !== undefined) {
+      setSelectedPropertyId(initialPropertyId ?? null);
+    }
+  }, [initialPropertyId]);
+
+  const handlePropertyChange = (propertyId: number) => {
+    setSelectedPropertyId(propertyId);
+    dispatch(getPropertyById(propertyId));
+  };
 
   return (
     <div className="px-4 sm:px-6 max-w-5xl mx-auto py-6 space-y-4">
@@ -55,9 +66,10 @@ export default function EditRoomWizard({ initialPropertyId }: Props) {
             exit="exit"
             transition={{ duration: 0.4 }}
           >
-            {selectedPropertyId && (
-              <StepRoomEdit propertyId={selectedPropertyId} />
-            )}
+            <StepRoomEdit
+              propertyId={selectedPropertyId}
+              onChangeProperty={handlePropertyChange}
+            />
           </motion.div>
         </AnimatePresence>
       </div>
