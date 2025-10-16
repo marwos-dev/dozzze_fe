@@ -7,6 +7,7 @@ import toastReducer from './toastSlice';
 import customerReducer from './customerSlice';
 import { persistReducer, persistStore } from 'redux-persist';
 import { persistStorage } from './persistStorage';
+import { setStoreRefs } from './storeAccessors';
 
 const persistConfig = {
   key: 'root',
@@ -34,6 +35,7 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
+setStoreRefs(store.dispatch, persistor);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
