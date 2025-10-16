@@ -1,15 +1,9 @@
 import axios from 'axios';
-import errorMessages from '@/utils/errorMessages';
-import { clearReserveStorage } from '@/utils/storage';
-import { getAccessToken, clearPersistedSession } from '@/utils/authSession';
+import { getStoreDispatch } from '@/store/storeAccessors';
 import { clearCustomer } from '@/store/customerSlice';
-import type { AnyAction, Dispatch } from '@reduxjs/toolkit';
-
-let dispatchRef: Dispatch<AnyAction> | null = null;
-
-export const registerAxiosDispatch = (dispatch: Dispatch<AnyAction>) => {
-  dispatchRef = dispatch;
-};
+import errorMessages from '@/utils/errorMessages';
+import { getAccessToken, clearPersistedSession } from '@/utils/authSession';
+import { clearReserveStorage } from '@/utils/storage';
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api',
@@ -33,9 +27,10 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error?.response?.status === 401) {
       clearPersistedSession();
-      if (dispatchRef) {
-        dispatchRef(clearCustomer());
-        clearReserveStorage(dispatchRef);
+      const dispatch = getStoreDispatch();
+      if (dispatch) {
+        dispatch(clearCustomer());
+        clearReserveStorage(dispatch);
       }
     }
 

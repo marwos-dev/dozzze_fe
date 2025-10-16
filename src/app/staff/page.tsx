@@ -18,6 +18,9 @@ export default function StaffPage() {
   const profile = useSelector((state: RootState) =>
     selectCustomerProfile(state)
   );
+  const customerChecked = useSelector(
+    (state: RootState) => state.customer.checked
+  );
 
   const myProperties = useSelector(
     (state: RootState) => state.properties.myProperties
@@ -35,12 +38,13 @@ export default function StaffPage() {
   const [startInZoneId, setStartInZoneId] = useState<number | null>(null);
 
   useEffect(() => {
+    if (!customerChecked) return;
     if (!profile) {
       router.push('/login?redirect=/staff');
     } else if (!profile.staff) {
       router.push('/');
     }
-  }, [profile, router]);
+  }, [customerChecked, profile, router]);
 
   useEffect(() => {
     if (profile?.staff) {
@@ -157,8 +161,8 @@ export default function StaffPage() {
         <AddPropertyWizard startInZoneId={startInZoneId || undefined} />
       )}
 
-      {activeTab === 'edit' && selectedPropertyId && (
-        <EditRoomTypeWizard initialPropertyId={selectedPropertyId} />
+      {activeTab === 'edit' && (
+        <EditRoomTypeWizard initialPropertyId={selectedPropertyId || undefined} />
       )}
     </div>
   );

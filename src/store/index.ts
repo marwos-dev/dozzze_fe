@@ -7,8 +7,7 @@ import toastReducer from './toastSlice';
 import customerReducer from './customerSlice';
 import { persistReducer, persistStore } from 'redux-persist';
 import { persistStorage } from './persistStorage';
-import { registerReservePersistor } from '@/utils/storage';
-import { registerAxiosDispatch } from '@/services/axios';
+import { setStoreRefs } from './storeAccessors';
 
 const persistConfig = {
   key: 'root',
@@ -35,11 +34,8 @@ export const store = configureStore({
     }),
 });
 
-registerAxiosDispatch(store.dispatch);
-
 export const persistor = persistStore(store);
-
-registerReservePersistor(persistor);
+setStoreRefs(store.dispatch, persistor);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

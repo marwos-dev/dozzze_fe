@@ -19,8 +19,8 @@ import { useEffect } from "react";
 interface MapViewProps {
   zoneCoordinates: LatLngExpression[];
   pointsCoordinates?: PointWithMedia[];
-  center: LatLngExpression;
-  zoom: number;
+  center?: LatLngExpression | null;
+  zoom?: number;
   onCenterChange: (center: LatLngExpression) => void;
   onZoomChange: (zoom: number) => void;
 }
@@ -85,6 +85,16 @@ export default function MapZoneView({
   onCenterChange,
   onZoomChange,
 }: MapViewProps) {
+  const resolvedCenter = center ?? zoneCoordinates[0] ?? null;
+
+  if (!resolvedCenter) {
+    return (
+      <div className="flex h-full w-full items-center justify-center rounded bg-gray-100 text-sm text-gray-500">
+        No hay coordenadas disponibles para esta zona.
+      </div>
+    );
+  }
+
   const handleMarkerClick = (id?: number) => {
     if (!id) return;
     const target = document.getElementById(`property-${id}`);
@@ -95,13 +105,15 @@ export default function MapZoneView({
 
   return (
     <MapContainer
-      center={center}
+      center={resolvedCenter}
       zoom={zoom}
       scrollWheelZoom={true}
       className="h-full w-full z-0 rounded"
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <Polygon positions={zoneCoordinates} pathOptions={{ color: "#808080" }} />
+      {zoneCoordinates.length > 0 && (
+        <Polygon positions={zoneCoordinates} pathOptions={{ color: "#808080" }} />
+      )}
 
       {pointsCoordinates.map((point, index) => (
         <Marker
@@ -139,7 +151,7 @@ export default function MapZoneView({
         onCenterChange={onCenterChange}
         onZoomChange={onZoomChange}
       />
-      <SyncMapView center={center} zoom={zoom} />
+      <SyncMapView center={resolvedCenter} zoom={zoom} />
     </MapContainer>
   );
 }
