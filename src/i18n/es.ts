@@ -69,7 +69,16 @@ const es = {
       propertyTotalPrefix: 'Total propiedad',
       grandTotal: 'Total general',
       roomImageAlt: 'Imagen habitación',
-      thumbnailAlt: 'Miniatura'
+      thumbnailAlt: 'Miniatura',
+      servicesTitle: 'Servicios incluidos',
+      nights: {
+        singular: 'noche',
+        plural: 'noches'
+      },
+      rooms: {
+        singular: 'habitación',
+        plural: 'habitaciones'
+      }
     },
     guests: {
       singular: 'huésped',

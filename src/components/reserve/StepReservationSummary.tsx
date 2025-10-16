@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import slugify from '@/utils/slugify';
-import { CalendarDays, Users, X, FileText } from 'lucide-react';
+import { CalendarDays, Users, X, FileText, Moon, BedDouble } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { ReservationData } from '@/store/reserveSlice';
@@ -13,6 +13,41 @@ import ImageGalleryModal from '@/components/ui/modals/ImageGaleryModal';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 const fallbackThumbnail = '/logo.png';
+
+function parseDate(value?: string | null) {
+  if (!value) return null;
+  const parts = value.split('-').map((part) => Number.parseInt(part, 10));
+  if (parts.length !== 3) return null;
+  const [year, month, day] = parts;
+  if (
+    Number.isNaN(year) ||
+    Number.isNaN(month) ||
+    Number.isNaN(day) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  ) {
+    return null;
+  }
+  return new Date(year, month - 1, day);
+}
+
+function calculateNights(checkIn?: string | null, checkOut?: string | null) {
+  const checkInDate = parseDate(checkIn);
+  const checkOutDate = parseDate(checkOut);
+
+  if (!checkInDate || !checkOutDate) {
+    return null;
+  }
+
+  const diffMs = checkOutDate.getTime() - checkInDate.getTime();
+  if (Number.isNaN(diffMs) || diffMs <= 0) {
+    return 1;
+  }
+
+  return Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+}
 
 interface Props {
   reservations: ReservationData[];
@@ -131,6 +166,27 @@ export default function StepReservationSummary({
               <div className="space-y-4">
                 {propertyReservations.map((res, index) => {
                   const images = res.images ?? [];
+                  const nights = calculateNights(res.check_in, res.check_out);
+                  const nightsLabel =
+                    typeof nights === 'number'
+                      ? `${nights} ${
+                          nights === 1
+                            ? (t('reserve.summary.nights.singular') as string)
+                            : (t('reserve.summary.nights.plural') as string)
+                        }`
+                      : null;
+                  const rawRooms =
+                    typeof res.rooms === 'number' ? res.rooms : null;
+                  const roomsCount =
+                    rawRooms && rawRooms > 0 ? rawRooms : 1;
+                  const roomsLabel = `${roomsCount} ${
+                    roomsCount === 1
+                      ? (t('reserve.summary.rooms.singular') as string)
+                      : (t('reserve.summary.rooms.plural') as string)
+                  }`;
+                  const services = Array.isArray(res.services)
+                    ? res.services
+                    : [];
 
                   return (
                     <div
@@ -224,7 +280,33 @@ export default function StepReservationSummary({
                                   : t('reserve.guests.plural')}
                               </span>
                             </div>
+                            {nightsLabel && (
+                              <div className="flex items-center gap-2 rounded-full bg-dozeblue/10 px-3 py-1.5 dark:bg-dozeblue/20">
+                                <Moon className="h-4 w-4" />
+                                <span className="font-medium">{nightsLabel}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2 rounded-full bg-dozeblue/10 px-3 py-1.5 dark:bg-dozeblue/20">
+                              <BedDouble className="h-4 w-4" />
+                              <span className="font-medium">{roomsLabel}</span>
+                            </div>
                           </div>
+                          {services.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-2 text-xs text-dozeblue/70 dark:text-dozeblue">
+                              <span className="mr-1 inline-flex items-center gap-2 rounded-full bg-dozeblue/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-dozeblue dark:bg-dozeblue/20">
+                                <FileText className="h-3.5 w-3.5" />
+                                {t('reserve.summary.servicesTitle')}
+                              </span>
+                              {services.map((service, svcIdx) => (
+                                <span
+                                  key={service.id ?? service.code ?? svcIdx}
+                                  className="inline-flex items-center rounded-full border border-dozeblue/15 bg-white px-3 py-1 font-medium text-[var(--foreground)]/80 shadow-sm dark:border-white/15 dark:bg-dozebg1"
+                                >
+                                  {service.name || service.code}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
 
                         <div className="hidden h-full items-center justify-end lg:flex">

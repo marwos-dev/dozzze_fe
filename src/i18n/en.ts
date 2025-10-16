@@ -69,7 +69,16 @@ const en = {
       propertyTotalPrefix: 'Property total',
       grandTotal: 'Grand total',
       roomImageAlt: 'Room image',
-      thumbnailAlt: 'Thumbnail'
+      thumbnailAlt: 'Thumbnail',
+      servicesTitle: 'Included services',
+      nights: {
+        singular: 'night',
+        plural: 'nights'
+      },
+      rooms: {
+        singular: 'room',
+        plural: 'rooms'
+      }
     },
     guests: {
       singular: 'guest',
