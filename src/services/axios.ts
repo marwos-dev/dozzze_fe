@@ -1,9 +1,9 @@
 import axios from 'axios';
-import errorMessages from '@/utils/errorMessages';
-import { clearReserveStorage } from '@/utils/storage';
-import { getAccessToken, clearPersistedSession } from '@/utils/authSession';
-import { clearCustomer } from '@/store/customerSlice';
 import { getStoreDispatch } from '@/store/storeAccessors';
+import { clearCustomer } from '@/store/customerSlice';
+import errorMessages from '@/utils/errorMessages';
+import { getAccessToken, clearPersistedSession } from '@/utils/authSession';
+import { clearReserveStorage } from '@/utils/storage';
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api',
