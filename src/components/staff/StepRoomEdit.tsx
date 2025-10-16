@@ -257,7 +257,7 @@ export default function StepRoomEdit({
         </div>
       )}
 
-      {editModalOpen && selectedRoom && (
+      {editModalOpen && selectedRoom && propertyId !== null && (
         <StepRoomImage
           open={editModalOpen}
           onClose={() => {
