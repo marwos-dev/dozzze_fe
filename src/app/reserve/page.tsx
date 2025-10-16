@@ -89,9 +89,9 @@ export default function ReservePage() {
                         className={`text-sm font-medium tracking-wide transition-colors ${
                           isActive
                             ? 'text-dozeblue'
-                            : isCompleted
-                              ? 'text-[var(--foreground)] dark:text-slate-200'
-                              : 'text-[var(--foreground)]/70 dark:text-slate-500'
+                          : isCompleted
+                            ? 'text-[#13428f] dark:text-[#7fa8ff]'
+                            : 'text-[var(--foreground)]/70 dark:text-slate-400'
                         }`}
                       >
                         {label}
@@ -108,7 +108,7 @@ export default function ReservePage() {
 
                   {index < steps.length - 1 && (
                     <div className="relative hidden flex-1 items-center md:flex">
-                      <div className="h-[3px] w-full rounded-full bg-gradient-to-r from-white/40 via-white/60 to-transparent dark:from-white/10 dark:via-white/15" />
+                      <div className="h-[3px] w-full rounded-full bg-gradient-to-r from-dozeblue/15 via-dozeblue/25 to-transparent dark:from-white/10 dark:via-white/15" />
                       {isCompleted && (
                         <div className="absolute inset-0 h-[3px] w-full rounded-full bg-gradient-to-r from-dozeblue via-dozeblue/70 to-transparent" />
                       )}
@@ -124,9 +124,10 @@ export default function ReservePage() {
           <div>
             <button
               onClick={goBack}
-              className="inline-flex items-center gap-2 rounded-full border border-dozeblue/60 bg-white/90 px-5 py-2 text-sm font-medium text-dozeblue shadow-[0_8px_20px_rgba(64,93,230,0.15)] transition-all hover:-translate-y-0.5 hover:bg-white dark:border-white/15 dark:bg-dozebg2 dark:text-white dark:shadow-[0_14px_32px_rgba(2,31,89,0.45)] dark:hover:bg-dozebg2/90"
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-dozeblue to-[#142b87] px-5 py-2 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(30,58,138,0.28)] transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(30,58,138,0.34)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dozeblue dark:from-[#4471d8] dark:to-[#2b4ba8] dark:shadow-[0_18px_40px_rgba(14,116,244,0.35)] dark:hover:shadow-[0_22px_46px_rgba(14,116,244,0.4)]"
             >
-              ← {t('reserve.buttons.back')}
+              <span aria-hidden="true">←</span>
+              {t('reserve.buttons.back')}
             </button>
           </div>
         )}

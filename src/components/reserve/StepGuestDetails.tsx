@@ -23,7 +23,7 @@ export default function StepGuestDetails({
   const data = useSelector(
     (state: RootState) => state.reserve.data[reservationIndex]
   );
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
@@ -40,6 +40,8 @@ export default function StepGuestDetails({
   const [guestRegion, setGuestRegion] = useState('');
   const [guestCountryIso, setGuestCountryIso] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [showOptional, setShowOptional] = useState(false);
 
   useEffect(() => {
     if (data) {
@@ -101,12 +103,32 @@ export default function StepGuestDetails({
     return error;
   };
 
+  const handleBlur = (field: string, value: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    return validateField(field, value);
+  };
+
   const allReservations = useSelector((state: RootState) => state.reserve.data);
   const discountCode = useSelector(
     (state: RootState) => state.reserve.discount?.code
   );
 
   const handleContinue = async () => {
+    const fieldsToValidate = [
+      'guestName',
+      'guestEmail',
+      'guestPhone',
+      'guestCp',
+      'guestRemarks',
+    ] as const;
+    setTouched((prev) => ({
+      ...prev,
+      ...fieldsToValidate.reduce<Record<string, boolean>>(
+        (acc, field) => ({ ...acc, [field]: true }),
+        {}
+      ),
+    }));
+
     const newErrors = {
       guestName: validateField('guestName', guestName),
       guestEmail: validateField('guestEmail', guestEmail),
@@ -167,12 +189,34 @@ export default function StepGuestDetails({
     }
   };
 
-  const inputClass = (field: string) =>
-    `w-full px-4 py-3 text-sm rounded-md border ${
-      errors[field]
-        ? 'border-red-500 focus:ring-red-500'
-        : 'border-dozeblue focus:ring-dozeblue'
-    } bg-white dark:bg-dozegray/10 dark:border-white/10 focus:outline-none focus:ring-2`;
+  const inputClass = (field: string, value: string) => {
+    const base =
+      'w-full px-4 py-3 text-sm rounded-md border bg-white dark:bg-dozegray/10 dark:border-white/10 focus:outline-none focus:ring-2';
+    if (errors[field]) {
+      return `${base} border-red-500 focus:ring-red-500`;
+    }
+    if (touched[field] && value) {
+      return `${base} border-emerald-500 focus:ring-emerald-500`;
+    }
+    return `${base} border-dozeblue focus:ring-dozeblue`;
+  };
+
+  const optionalToggleLabel =
+    lang === 'en' ? 'Optional details' : 'Detalles opcionales';
+  const optionalToggleActionLabel = showOptional
+    ? lang === 'en'
+      ? 'Hide optional details'
+      : 'Ocultar detalles opcionales'
+    : optionalToggleLabel;
+  const optionalBadgeLabel = lang === 'en' ? 'Optional' : 'Opcional';
+  const primaryInfoLegend =
+    lang === 'en' ? 'Guest information' : 'Información del huésped';
+  const addressLegend = lang === 'en' ? 'Address' : 'Dirección';
+  const remarksLegend = lang === 'en' ? 'Comments' : 'Comentarios adicionales';
+  const remarksMaxLength = 200;
+  const remainingRemarks = Math.max(0, remarksMaxLength - guestRemarks.length);
+  const charactersLeftLabel =
+    lang === 'en' ? 'characters left' : 'caracteres restantes';
 
   return (
     <div>
@@ -180,197 +224,356 @@ export default function StepGuestDetails({
         {t('reserve.form.title')}
       </h2>
 
-      <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-dozegray/5 shadow-sm p-6 space-y-4">
-        {/* Nombre */}
-        <div>
-          <label className="text-sm font-medium block mb-1 text-dozeblue">
-            {t('reserve.form.nameLabel')}
-          </label>
-          <input
-            type="text"
-            placeholder={String(t('reserve.form.namePlaceholder'))}
-            value={guestName}
-            onChange={(e) => setGuestName(e.target.value)}
-            onBlur={(e) => validateField('guestName', e.target.value)}
-            className={inputClass('guestName')}
-          />
-          {errors.guestName && (
-            <p className="text-sm text-red-600 mt-1">{errors.guestName}</p>
-          )}
-        </div>
+      <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-dozegray/5 shadow-sm p-6 space-y-6">
+        <fieldset className="space-y-4">
+          <legend className="text-base font-semibold text-dozeblue">
+            {primaryInfoLegend}
+          </legend>
 
-        {/* Email */}
-        <div>
-          <label className="text-sm font-medium block mb-1 text-dozeblue">
-            {t('reserve.form.emailLabel')}
-          </label>
-          <input
-            type="email"
-            placeholder={String(t('reserve.form.emailPlaceholder'))}
-            value={guestEmail}
-            onChange={(e) => setGuestEmail(e.target.value)}
-            onBlur={(e) => validateField('guestEmail', e.target.value)}
-            className={inputClass('guestEmail')}
-          />
-          {errors.guestEmail && (
-            <p className="text-sm text-red-600 mt-1">{errors.guestEmail}</p>
-          )}
-        </div>
-
-        {/* Teléfono */}
-        <div>
-          <label className="text-sm font-medium block mb-1 text-dozeblue">
-            {t('reserve.form.phoneLabel')}
-          </label>
-          <input
-            type="tel"
-            placeholder={String(t('reserve.form.phonePlaceholder'))}
-            value={guestPhone}
-            onChange={(e) =>
-              setGuestPhone(e.target.value.replace(/[^\d\s()+-]/g, ''))
-            }
-            onBlur={(e) => validateField('guestPhone', e.target.value)}
-            className={inputClass('guestPhone')}
-          />
-          {errors.guestPhone && (
-            <p className="text-sm text-red-600 mt-1">{errors.guestPhone}</p>
-          )}
-        </div>
-
-        {/* Dirección */}
-        <div>
-          <label className="text-sm font-medium block mb-1 text-dozeblue">
-            {t('reserve.form.addressLabel')}
-          </label>
-          <input
-            type="text"
-            placeholder={String(t('reserve.form.addressPlaceholder'))}
-            value={guestAddress}
-            onChange={(e) => setGuestAddress(e.target.value)}
-            className={inputClass('guestAddress')}
-          />
-        </div>
-
-        {/* Ciudad y País */}
-        <div className="grid sm:grid-cols-2 gap-4">
+          {/* Nombre */}
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              {t('reserve.form.cityLabel')}
+              {t('reserve.form.nameLabel')}
             </label>
             <input
               type="text"
-              value={guestCity}
-              onChange={(e) => setGuestCity(e.target.value)}
-              className={inputClass('guestCity')}
+              required
+              placeholder={String(t('reserve.form.namePlaceholder'))}
+              value={guestName}
+              autoComplete="name"
+              inputMode="text"
+              aria-invalid={Boolean(errors.guestName)}
+              aria-describedby={
+                errors.guestName ? 'guestName-error' : undefined
+              }
+              onChange={(e) => {
+                const value = e.target.value;
+                setGuestName(value);
+                if (touched.guestName) validateField('guestName', value);
+              }}
+              onBlur={(e) => handleBlur('guestName', e.target.value)}
+              className={inputClass('guestName', guestName)}
             />
+            {errors.guestName && (
+              <p id="guestName-error" className="text-sm text-red-600 mt-1">
+                {errors.guestName}
+              </p>
+            )}
           </div>
 
+          {/* Email */}
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              {t('reserve.form.countryLabel')}
+              {t('reserve.form.emailLabel')}
+            </label>
+            <input
+              type="email"
+              required
+              placeholder={String(t('reserve.form.emailPlaceholder'))}
+              value={guestEmail}
+              autoComplete="email"
+              aria-invalid={Boolean(errors.guestEmail)}
+              aria-describedby={
+                errors.guestEmail ? 'guestEmail-error' : undefined
+              }
+              onChange={(e) => {
+                const value = e.target.value;
+                setGuestEmail(value);
+                if (touched.guestEmail) validateField('guestEmail', value);
+              }}
+              onBlur={(e) => handleBlur('guestEmail', e.target.value)}
+              className={inputClass('guestEmail', guestEmail)}
+            />
+            {errors.guestEmail && (
+              <p id="guestEmail-error" className="text-sm text-red-600 mt-1">
+                {errors.guestEmail}
+              </p>
+            )}
+          </div>
+
+          {/* Teléfono */}
+          <div>
+            <label className="text-sm font-medium block mb-1 text-dozeblue">
+              {t('reserve.form.phoneLabel')}
+            </label>
+            <input
+              type="tel"
+              required
+              placeholder={String(t('reserve.form.phonePlaceholder'))}
+              value={guestPhone}
+              autoComplete="tel"
+              inputMode="tel"
+              aria-invalid={Boolean(errors.guestPhone)}
+              aria-describedby={
+                errors.guestPhone ? 'guestPhone-error' : undefined
+              }
+              onChange={(e) => {
+                const sanitized = e.target.value.replace(/[^\d\s()+-]/g, '');
+                setGuestPhone(sanitized);
+                if (touched.guestPhone) validateField('guestPhone', sanitized);
+              }}
+              onBlur={(e) => handleBlur('guestPhone', e.target.value)}
+              className={inputClass('guestPhone', guestPhone)}
+            />
+            {errors.guestPhone && (
+              <p id="guestPhone-error" className="text-sm text-red-600 mt-1">
+                {errors.guestPhone}
+              </p>
+            )}
+          </div>
+        </fieldset>
+
+        <fieldset className="space-y-4">
+          <legend className="text-base font-semibold text-dozeblue">
+            {addressLegend}{' '}
+            <span className="ml-2 text-xs font-medium text-gray-500">
+              {optionalBadgeLabel}
+            </span>
+          </legend>
+
+          {/* Dirección */}
+          <div>
+            <label className="text-sm font-medium block mb-1 text-dozeblue">
+              {t('reserve.form.addressLabel')}{' '}
+              <span className="text-xs font-medium text-gray-500">
+                {optionalBadgeLabel}
+              </span>
             </label>
             <input
               type="text"
-              value={guestCountry}
-              onChange={(e) => setGuestCountry(e.target.value)}
-              className={inputClass('guestCountry')}
+              placeholder={String(t('reserve.form.addressPlaceholder'))}
+              value={guestAddress}
+              autoComplete="street-address"
+              inputMode="text"
+              aria-invalid={false}
+              onChange={(e) => setGuestAddress(e.target.value)}
+              className={inputClass('guestAddress', guestAddress)}
             />
           </div>
-        </div>
 
-        {/* Código postal y comentarios */}
-        <div className="grid sm:grid-cols-2 gap-4">
+          {/* Ciudad y País */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium block mb-1 text-dozeblue">
+                {t('reserve.form.cityLabel')}{' '}
+                <span className="text-xs font-medium text-gray-500">
+                  {optionalBadgeLabel}
+                </span>
+              </label>
+              <input
+                type="text"
+                value={guestCity}
+                autoComplete="address-level2"
+                inputMode="text"
+                aria-invalid={false}
+                onChange={(e) => setGuestCity(e.target.value)}
+                className={inputClass('guestCity', guestCity)}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium block mb-1 text-dozeblue">
+                {t('reserve.form.countryLabel')}{' '}
+                <span className="text-xs font-medium text-gray-500">
+                  {optionalBadgeLabel}
+                </span>
+              </label>
+              <input
+                type="text"
+                value={guestCountry}
+                autoComplete="country"
+                inputMode="text"
+                aria-invalid={false}
+                onChange={(e) => setGuestCountry(e.target.value)}
+                className={inputClass('guestCountry', guestCountry)}
+              />
+            </div>
+          </div>
+
+          {/* Código postal */}
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
-              {t('reserve.form.cpLabel')}
+              {t('reserve.form.cpLabel')}{' '}
+              <span className="text-xs font-medium text-gray-500">
+                {optionalBadgeLabel}
+              </span>
             </label>
             <input
               type="text"
               value={guestCp}
-              onChange={(e) =>
-                setGuestCp(e.target.value.replace(/\D/g, '').slice(0, 10))
-              }
-              onBlur={(e) => validateField('guestCp', e.target.value)}
-              className={inputClass('guestCp')}
+              autoComplete="postal-code"
+              inputMode="numeric"
+              aria-invalid={Boolean(errors.guestCp)}
+              aria-describedby={errors.guestCp ? 'guestCp-error' : undefined}
+              onChange={(e) => {
+                const numeric = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setGuestCp(numeric);
+                if (touched.guestCp) validateField('guestCp', numeric);
+              }}
+              onBlur={(e) => handleBlur('guestCp', e.target.value)}
+              className={inputClass('guestCp', guestCp)}
             />
             {errors.guestCp && (
-              <p className="text-sm text-red-600 mt-1">{errors.guestCp}</p>
+              <p id="guestCp-error" className="text-sm text-red-600 mt-1">
+                {errors.guestCp}
+              </p>
             )}
           </div>
+        </fieldset>
+
+        <fieldset className="space-y-4">
+          <legend className="text-base font-semibold text-dozeblue">
+            {remarksLegend}
+          </legend>
 
           <div>
             <label className="text-sm font-medium block mb-1 text-dozeblue">
               {t('reserve.form.remarksLabel')}
             </label>
-            <input
-              type="text"
+            <textarea
               placeholder={String(t('reserve.form.remarksPlaceholder'))}
               value={guestRemarks}
-              maxLength={200}
-              onChange={(e) => setGuestRemarks(e.target.value)}
-              onBlur={(e) => validateField('guestRemarks', e.target.value)}
-              className={inputClass('guestRemarks')}
+              maxLength={remarksMaxLength}
+              autoComplete="off"
+              rows={3}
+              aria-invalid={Boolean(errors.guestRemarks)}
+              aria-describedby="guestRemarks-counter"
+              onChange={(e) => {
+                const value = e.target.value;
+                setGuestRemarks(value);
+                if (touched.guestRemarks) validateField('guestRemarks', value);
+              }}
+              onBlur={(e) => handleBlur('guestRemarks', e.target.value)}
+              className={`${inputClass(
+                'guestRemarks',
+                guestRemarks
+              )} resize-none`}
             />
-            {errors.guestRemarks && (
-              <p className="text-sm text-red-600 mt-1">{errors.guestRemarks}</p>
-            )}
+            <div
+              id="guestRemarks-counter"
+              className="flex justify-between text-xs text-gray-500 mt-1"
+              aria-live="polite"
+            >
+              {errors.guestRemarks ? (
+                <span className="text-red-600">{errors.guestRemarks}</span>
+              ) : (
+                <span>
+                  {remainingRemarks} {charactersLeftLabel}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
+        </fieldset>
 
-        {/* Campos nuevos */}
         <div>
-          <label className="text-sm font-medium block mb-1 text-dozeblue">
-            {t('reserve.form.corporateLabel')}
-          </label>
-          <input
-            type="text"
-            value={guestCorporate}
-            onChange={(e) => setGuestCorporate(e.target.value)}
-            className={inputClass('guestCorporate')}
-          />
-        </div>
+          <button
+            type="button"
+            onClick={() => setShowOptional((prev) => !prev)}
+            className="flex w-full items-center justify-between rounded-lg border border-gray-200 dark:border-white/10 px-4 py-3 text-sm font-medium text-dozeblue hover:bg-dozeblue/5 transition-colors"
+            aria-expanded={showOptional}
+          >
+            <span>{optionalToggleActionLabel}</span>
+            <span
+              className={`transform transition-transform ${
+                showOptional ? 'rotate-180' : ''
+              }`}
+            >
+              ▾
+            </span>
+          </button>
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium block mb-1 text-dozeblue">
-              {t('reserve.form.regionLabel')}
-            </label>
-            <input
-              type="text"
-              value={guestRegion}
-              onChange={(e) => setGuestRegion(e.target.value)}
-              className={inputClass('guestRegion')}
-            />
-          </div>
+          {showOptional && (
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="text-sm font-medium block mb-1 text-dozeblue">
+                  {t('reserve.form.corporateLabel')}{' '}
+                  <span className="text-xs font-medium text-gray-500">
+                    {optionalBadgeLabel}
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={guestCorporate}
+                  autoComplete="organization"
+                  inputMode="text"
+                  aria-invalid={false}
+                  onChange={(e) => setGuestCorporate(e.target.value)}
+                  className={inputClass('guestCorporate', guestCorporate)}
+                />
+              </div>
 
-          <div>
-            <label className="text-sm font-medium block mb-1 text-dozeblue">
-              {t('reserve.form.countryIsoLabel')}
-            </label>
-            <input
-              type="text"
-              value={guestCountryIso}
-              onChange={(e) => setGuestCountryIso(e.target.value)}
-              className={inputClass('guestCountryIso')}
-            />
-          </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium block mb-1 text-dozeblue">
+                    {t('reserve.form.regionLabel')}{' '}
+                    <span className="text-xs font-medium text-gray-500">
+                      {optionalBadgeLabel}
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={guestRegion}
+                    autoComplete="address-level1"
+                    inputMode="text"
+                    aria-invalid={false}
+                    onChange={(e) => setGuestRegion(e.target.value)}
+                    className={inputClass('guestRegion', guestRegion)}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium block mb-1 text-dozeblue">
+                    {t('reserve.form.countryIsoLabel')}{' '}
+                    <span className="text-xs font-medium text-gray-500">
+                      {optionalBadgeLabel}
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={guestCountryIso}
+                    autoComplete="off"
+                    inputMode="text"
+                    aria-invalid={false}
+                    onChange={(e) => setGuestCountryIso(e.target.value)}
+                    className={inputClass('guestCountryIso', guestCountryIso)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="flex justify-between mt-6">
         <button
+          type="button"
           onClick={onBack}
-          className="text-dozeblue border border-dozeblue px-6 py-3 rounded-lg text-sm font-medium hover:bg-dozeblue/10 transition-colors"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-b from-dozeblue to-[#142b87] px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(30,58,138,0.28)] transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(30,58,138,0.34)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dozeblue disabled:translate-y-0 disabled:shadow-none dark:from-[#4471d8] dark:to-[#2b4ba8] dark:shadow-[0_18px_40px_rgba(14,116,244,0.35)] dark:hover:shadow-[0_22px_46px_rgba(14,116,244,0.4)]"
         >
+          <span aria-hidden="true">←</span>
           {t('reserve.buttons.back')}
         </button>
         <button
+          type="button"
           onClick={handleContinue}
-          className="bg-dozeblue text-white px-6 py-3 rounded-lg font-semibold text-sm hover:bg-dozeblue/90 transition-colors"
+          disabled={loading}
+          aria-busy={loading}
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-b from-dozeblue to-[#142b87] px-8 py-3 text-sm font-semibold text-white shadow-[0_20px_40px_rgba(2,31,89,0.35)] transition-all hover:-translate-y-0.5 hover:shadow-[0_24px_48px_rgba(2,31,89,0.42)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dozeblue disabled:cursor-not-allowed disabled:opacity-60 disabled:translate-y-0 dark:from-[#4471d8] dark:to-[#2b4ba8] dark:shadow-[0_28px_50px_rgba(14,116,244,0.42)] dark:hover:shadow-[0_32px_56px_rgba(14,116,244,0.48)]"
         >
-          {loading
-            ? t('reserve.form.processing')
-            : t('reserve.form.continue')}
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <span
+                className="h-4 w-4 rounded-full border-2 border-white/60 border-t-transparent animate-spin"
+                aria-hidden="true"
+              />
+              {t('reserve.form.processing')}
+            </span>
+          ) : (
+            <>
+              {t('reserve.form.continue')}
+              <span aria-hidden="true">→</span>
+            </>
+          )}
         </button>
       </div>
     </div>
