@@ -207,6 +207,17 @@ const en = {
     media: {
       mainAlt: 'Main image',
       thumbnailAltPrefix: 'Thumbnail'
+    },
+    roomsCarousel: {
+      title: 'Featured rooms',
+      subtitle: 'Get inspired and choose the perfect stay',
+      countSuffix: 'rooms available',
+      servicesLabel: 'Key services',
+      servicesFallbackText: 'No highlighted services',
+      descriptionFallback: 'Description not available',
+      detailsCta: 'See details',
+      prev: 'Previous room',
+      next: 'Next room'
     }
   },
   about: {

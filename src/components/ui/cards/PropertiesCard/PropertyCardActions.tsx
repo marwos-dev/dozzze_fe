@@ -44,7 +44,7 @@ export default function PropertyCardActions({
   return (
     <div
       style={{ backgroundColor: '#e6e4ff' }}
-      className="flex flex-col rounded-xl items-center md:items-end gap-4 text-center md:text-right w-full h-full"
+      className="flex flex-col rounded-xl items-center md:items-end gap-4 text-center md:text-right w-full h-full p-4"
     >
       {/* Métodos de contacto */}
       <div className="flex flex-wrap gap-2 p-2 justify-center md:justify-end">
@@ -63,13 +63,13 @@ export default function PropertyCardActions({
       </div>
 
       {/* Habitaciones + botón */}
-      <div className="flex flex-col items-center md:items-end p-2 w-full">
+      <div className="flex flex-col items-center md:items-end w-full gap-3">
         <p className="text-sm font-semibold p-2 text-dozeblue ">
           {roomsLabel} {roomsCount}
         </p>
         <button
           onClick={handleSelect}
-          className="inline-flex items-center bg-dozeblue text-white px-4 py-2 pb-2 text-sm rounded-full font-medium hover:bg-blue-900 mt-28 transition"
+          className="inline-flex items-center bg-dozeblue text-white px-4 py-2 text-sm rounded-full font-medium hover:bg-blue-900 mt-auto transition"
         >
           {viewRoomsLabel}
           <ArrowRight className="w-4 h-4 ml-2" />

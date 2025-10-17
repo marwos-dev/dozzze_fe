@@ -26,7 +26,7 @@ export default function PropertyCardInfo({
   const ratingSuffix = String(t('propertyCard.info.ratingSuffix'));
 
   return (
-    <div className="flex flex-col justify-between flex-1 gap-2 bg-greenlight p-4 h-[270px] rounded-xl">
+    <div className="flex flex-col justify-between flex-1 gap-2 bg-greenlight p-4 rounded-xl h-full min-h-[220px]">
       <div className="flex flex-col gap-1">
         <h2 className="text-xl font-bold text-dozeblue">{name}</h2>
         <p className="text-dozeblue text-sm">

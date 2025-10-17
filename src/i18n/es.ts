@@ -207,6 +207,17 @@ const es = {
     media: {
       mainAlt: 'Imagen principal',
       thumbnailAltPrefix: 'Miniatura'
+    },
+    roomsCarousel: {
+      title: 'Habitaciones destacadas',
+      subtitle: 'Inspirate y descubrí el espacio perfecto',
+      countSuffix: 'habitaciones disponibles',
+      servicesLabel: 'Servicios clave',
+      servicesFallbackText: 'Sin servicios destacados',
+      descriptionFallback: 'Descripción no disponible',
+      detailsCta: 'Ver detalle',
+      prev: 'Habitación anterior',
+      next: 'Habitación siguiente'
     }
   },
   about: {
