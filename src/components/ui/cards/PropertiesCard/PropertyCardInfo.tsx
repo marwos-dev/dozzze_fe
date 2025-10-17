@@ -26,16 +26,18 @@ export default function PropertyCardInfo({
   const ratingSuffix = String(t('propertyCard.info.ratingSuffix'));
 
   return (
-    <div className="flex flex-col justify-between flex-1 gap-2 bg-greenlight p-4 h-[270px] rounded-xl">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-bold text-dozeblue">{name}</h2>
-        <p className="text-dozeblue text-sm">
+    <div className="flex flex-col justify-between flex-1 gap-3 bg-greenlight p-4 sm:p-5 rounded-xl h-full min-h-[200px]">
+      <div className="flex flex-col gap-1.5">
+        <h2 className="text-xl sm:text-2xl font-bold text-dozeblue break-words">
+          {name}
+        </h2>
+        <p className="text-dozeblue text-sm sm:text-base">
           {address || addressFallback}
         </p>
-        <p className="text-dozeblue font-semibold uppercase text-xs">
+        <p className="text-dozeblue font-semibold uppercase text-xs sm:text-sm tracking-wide">
           {zone}
         </p>
-        <div className="flex items-center gap-1 mt-1">
+        <div className="flex items-center gap-1 mt-2">
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
@@ -49,7 +51,7 @@ export default function PropertyCardInfo({
             {ratingSuffix}
           </span>
         </div>
-        <p className="text-dozegray text-sm pt-5 line-clamp-4 leading-snug">
+        <p className="text-dozegray text-sm sm:text-base pt-4 sm:pt-5 line-clamp-5 leading-snug">
           {description || descriptionFallback}
         </p>
       </div>

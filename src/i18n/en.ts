@@ -191,7 +191,25 @@ const en = {
     gallery: {
       mainAltPrefix: 'Main image of',
       thumbnailAltPrefix: 'Thumbnail'
-    }
+    },
+    hero: {
+      badge: 'Spotlight zone',
+      descriptionFallback: 'Explore this area and find the stay that fits you.'
+    },
+    stats: {
+      properties: 'Active properties',
+      rooms: 'Room types',
+      services: 'Highlight services'
+    },
+    selector: {
+      title: 'Explore other zones',
+      subtitle: 'Switch to compare similar stays'
+    },
+    actions: {
+      exploreMap: 'View map',
+      viewGallery: 'View gallery'
+    },
+    servicesLabel: 'Popular services'
   },
   propertyCard: {
     info: {
@@ -207,6 +225,18 @@ const en = {
     media: {
       mainAlt: 'Main image',
       thumbnailAltPrefix: 'Thumbnail'
+    },
+    roomsCarousel: {
+      title: 'Featured rooms',
+      subtitle: 'Get inspired and choose the perfect stay',
+      countSuffix: 'rooms available',
+      servicesLabel: 'Key services',
+      servicesFallbackText: 'No highlighted services',
+      descriptionFallback: 'Description not available',
+      detailsCta: 'See details',
+      prev: 'Previous room',
+      next: 'Next room',
+      propertyTag: 'Rooms at'
     }
   },
   about: {

@@ -191,7 +191,25 @@ const es = {
     gallery: {
       mainAltPrefix: 'Imagen principal de',
       thumbnailAltPrefix: 'Miniatura'
-    }
+    },
+    hero: {
+      badge: 'Zona destacada',
+      descriptionFallback: 'Explorá esta zona y descubrí sus espacios únicos.'
+    },
+    stats: {
+      properties: 'Propiedades activas',
+      rooms: 'Tipos de habitación',
+      services: 'Servicios destacados'
+    },
+    selector: {
+      title: 'Explorá otras zonas',
+      subtitle: 'Cambiá para descubrir espacios similares'
+    },
+    actions: {
+      exploreMap: 'Ver mapa',
+      viewGallery: 'Ver galería'
+    },
+    servicesLabel: 'Servicios populares'
   },
   propertyCard: {
     info: {
@@ -207,6 +225,18 @@ const es = {
     media: {
       mainAlt: 'Imagen principal',
       thumbnailAltPrefix: 'Miniatura'
+    },
+    roomsCarousel: {
+      title: 'Habitaciones destacadas',
+      subtitle: 'Inspirate y descubrí el espacio perfecto',
+      countSuffix: 'habitaciones disponibles',
+      servicesLabel: 'Servicios clave',
+      servicesFallbackText: 'Sin servicios destacados',
+      descriptionFallback: 'Descripción no disponible',
+      detailsCta: 'Ver detalle',
+      prev: 'Habitación anterior',
+      next: 'Habitación siguiente',
+      propertyTag: 'Habitaciones de'
     }
   },
   about: {
