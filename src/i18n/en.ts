@@ -191,7 +191,25 @@ const en = {
     gallery: {
       mainAltPrefix: 'Main image of',
       thumbnailAltPrefix: 'Thumbnail'
-    }
+    },
+    hero: {
+      badge: 'Spotlight zone',
+      descriptionFallback: 'Explore this area and find the stay that fits you.'
+    },
+    stats: {
+      properties: 'Active properties',
+      rooms: 'Room types',
+      services: 'Highlight services'
+    },
+    selector: {
+      title: 'Explore other zones',
+      subtitle: 'Switch to compare similar stays'
+    },
+    actions: {
+      exploreMap: 'View map',
+      viewGallery: 'View gallery'
+    },
+    servicesLabel: 'Popular services'
   },
   propertyCard: {
     info: {

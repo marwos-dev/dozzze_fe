@@ -1,7 +1,6 @@
 'use client';
 
-import { use } from 'react';
-import { useEffect, useState } from 'react';
+import { use, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { getZoneById, setSelectedZone } from '@/store/zoneSlice';
@@ -16,6 +15,13 @@ import ZoneHeaderSkeleton from '@/components/ui/skeletons/ZoneHeaderSkeleton';
 import ZoneBannerSkeleton from '@/components/ui/skeletons/ZoneBannerSkeleton';
 import PropertiesCardSkeleton from '@/components/ui/skeletons/PropertyCardSkeleton';
 import { useLanguage } from '@/i18n/LanguageContext';
+import {
+  Building2,
+  LayoutGrid,
+  Sparkles,
+  MapPin,
+  Compass,
+} from 'lucide-react';
 
 interface PageProps {
   params: Promise<{ id: number }>;
@@ -25,11 +31,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [mainImage, setMainImage] = useState<string | null>(null);
   const { t } = useLanguage();
-
-  const toggleExpanded = () => setIsExpanded((prev) => !prev);
 
   const {
     selectedZone,
@@ -43,12 +45,6 @@ export default function ZoneDetailPage({ params }: PageProps) {
       dispatch(getZoneById(id));
     }
   }, [id, dispatch, selectedZone]);
-
-  useEffect(() => {
-    if (selectedZone?.images?.length) {
-      setMainImage(selectedZone.images[0]);
-    }
-  }, [selectedZone]);
 
   const handleZoneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newZoneId = Number(e.target.value);
@@ -89,104 +85,185 @@ export default function ZoneDetailPage({ params }: PageProps) {
   const pointsCoordinates = extractPoints(selectedZone.properties);
 
   const coverImage = selectedZone.images?.[0] || '/logo.png';
-  const galleryImages = selectedZone.images?.slice(1) || [];
+  const heroBackground = coverImage;
+
+  const heroDescription =
+    selectedZone.description && selectedZone.description.length > 0
+      ? selectedZone.description.length > 220
+        ? `${selectedZone.description.slice(0, 217)}…`
+        : selectedZone.description
+      : String(t('zone.hero.descriptionFallback'));
+
+  const propertiesList = selectedZone.properties || [];
+
+  const propertyCount = propertiesList.length;
+
+  const totalRoomTypes = propertiesList.reduce(
+    (acc, property) => acc + (property.room_types?.length ?? 0),
+    0
+  );
+
+  const uniqueServices = (() => {
+    const serviceSet = new Set<string>();
+    propertiesList.forEach((property) => {
+      property.services?.forEach((service) => {
+        if (service?.name) serviceSet.add(service.name);
+      });
+      property.room_types?.forEach((room) => {
+        room.services?.forEach((service) => {
+          if (service?.name) serviceSet.add(service.name);
+        });
+      });
+    });
+    return Array.from(serviceSet);
+  })();
+
+  const highlightServices = uniqueServices.slice(0, 4);
+
+  const scrollToSection = (sectionId: string) => {
+    if (typeof window === 'undefined') return;
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const statsItems = [
+    {
+      icon: Building2,
+      value: propertyCount,
+      label: String(t('zone.stats.properties')),
+    },
+    {
+      icon: LayoutGrid,
+      value: totalRoomTypes,
+      label: String(t('zone.stats.rooms')),
+    },
+    {
+      icon: Sparkles,
+      value: uniqueServices.length,
+      label: String(t('zone.stats.services')),
+    },
+  ];
 
   return (
     <div className="md:full bg-dozebg2 mx-auto px-4 sm:px-6 py-2">
-      {/* Encabezado compacto más centrado */}
-      <div className="z-10 relative mt-6 mb-6 px-2 md:px-4">
-        <div className="bg-white/80 backdrop-blur-md border border-dozeblue/20 rounded-2xl px-6 py-4 shadow-md max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
-          <h1 className="text-xl md:text-2xl pl-10 font-bold text-dozeblue">
-            {selectedZone.name}
-          </h1>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-dozegray">
-              {t('zone.headerLabel')}
-            </span>
-            <select
-              value={selectedZone.id}
-              onChange={handleZoneChange}
-              aria-label={String(t('zone.headerLabel'))}
-              className="bg-white border mr-20 pr-3 border-dozeblue/30 text-dozeblue text-sm rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-dozeblue"
-            >
-              {allZones.map((zone) => (
-                <option key={zone.id} value={zone.id}>
-                  {zone.name}
-                </option>
-              ))}
-            </select>
+      {/* Hero principal */}
+      <div className="relative mt-6 mb-10 px-1 sm:px-4">
+        <div className="relative overflow-hidden rounded-[32px] border border-white/50 bg-dozebg1 shadow-2xl">
+          <div className="absolute inset-0">
+            <Image
+              src={heroBackground}
+              alt={`${String(t('zone.gallery.mainAltPrefix'))} ${selectedZone.name}`}
+              fill
+              className="object-cover opacity-60"
+              sizes="(max-width: 768px) 100vw, 1200px"
+              priority
+              unoptimized
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#101a43]/90 via-[#15265c]/75 to-[#213779]/70" />
           </div>
-        </div>
-      </div>
+          <div className="relative flex flex-col md:flex-row gap-8 lg:gap-12 p-6 sm:p-8 lg:p-12 text-white">
+            <div className="flex-1 flex flex-col gap-6">
+              <span className="inline-flex items-center gap-2 self-start rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.35em] text-white/70">
+                <Compass className="w-4 h-4 text-white/80" />
+                {t('zone.hero.badge')}
+              </span>
 
-      {/* Imagen principal y miniaturas */}
-      <div className="mb-6 md:ml-2 flex flex-col md:flex-row gap-4 relative rounded-2xl overflow-hidden shadow">
-        {/* Imagen principal */}
-        <div className="relative w-full md:w-[75%] h-[340px] md:h-[360px]">
-          <Image
-            src={mainImage || coverImage}
-            alt={`${String(t('zone.gallery.mainAltPrefix'))} ${selectedZone.name}`}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 75vw"
-            priority
-            unoptimized
-          />
+              <div className="flex flex-col gap-3">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight">
+                  {selectedZone.name}
+                </h1>
+                <p className="max-w-2xl text-sm sm:text-base text-white/80">
+                  {heroDescription}
+                </p>
+              </div>
 
-          {/* Gradiente oscuro inferior */}
-          <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/80 to-transparent z-10" />
-
-          {/* Descripción sobre la imagen */}
-          {selectedZone.description && (
-            <div className="absolute bottom-4 left-4 z-20 max-w-xl text-white text-sm rounded-xl px-4 py-3 shadow-md">
-              <p className={isExpanded ? '' : 'line-clamp-3'}>
-                {selectedZone.description}
-              </p>
-              {selectedZone.description.length > 250 && (
-                <button
-                  onClick={toggleExpanded}
-                  className="mt-2 text-xs text-white border border-white/50 hover:bg-white hover:text-dozeblue transition px-3 py-1 rounded-lg"
-                >
-                  {isExpanded ? t('zone.seeLess') : t('zone.seeMore')}
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Miniaturas con fondo blanco alineado */}
-        {galleryImages.length > 0 && (
-          <div className="hidden md:flex w-[25%]">
-            <div className="relative flex flex-col gap-2 w-full p-2 pr-3 overflow-y-auto max-h-[360px] scroll-smooth bg-white/70 backdrop-blur-sm rounded-xl">
-              {/* Gradiente arriba */}
-              <div className="absolute top-0  left-0 w-full h-6 from-dozebg2 to-transparent z-10 pointer-events-none" />
-
-              {/* Miniaturas */}
-              <div className="relative z-20 flex flex-col gap-2">
-                {galleryImages.map((src, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setMainImage(src)}
-                    className="relative w-full h-[80px] rounded-xl overflow-hidden border border-white/20 shadow-sm focus:outline-none focus:ring-2 focus:ring-dozeblue"
+              <div className="flex flex-wrap gap-3">
+                {statsItems.map(({ icon: Icon, label, value }) => (
+                  <div
+                    key={label}
+                    className="min-w-[150px] rounded-2xl border border-white/20 bg-white/10 px-4 py-3 shadow-md backdrop-blur-sm"
                   >
-                    <Image
-                      src={src}
-                      alt={`${String(t('zone.gallery.thumbnailAltPrefix'))} ${i + 2}`}
-                      fill
-                      className="object-cover"
-                      sizes="25vw"
-                      unoptimized
-                    />
-                  </button>
+                    <div className="flex items-center gap-2 text-white">
+                      <Icon className="w-5 h-5" />
+                      <span className="text-lg font-semibold">{value}</span>
+                    </div>
+                    <p className="mt-2 text-xs font-medium uppercase tracking-[0.25em] text-white/60">
+                      {label}
+                    </p>
+                  </div>
                 ))}
               </div>
 
-              {/* Gradiente abajo */}
-              <div className="absolute bottom-0 left-0 w-full h-6 from-dozebg2 to-transparent z-10 pointer-events-none" />
+              {highlightServices.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                    {t('zone.servicesLabel')}
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {highlightServices.map((service) => (
+                      <span
+                        key={service}
+                        className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white"
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        {service}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="w-full md:w-[300px] lg:w-[320px]">
+              <div className="flex h-full flex-col gap-5 rounded-3xl bg-white/95 p-5 shadow-xl text-dozeblue">
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-5 w-5 text-dozeblue" />
+                  <div>
+                    <p className="text-sm font-semibold">
+                      {t('zone.selector.title')}
+                    </p>
+                    <p className="mt-1 text-xs text-dozegray">
+                      {t('zone.selector.subtitle')}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold uppercase tracking-[0.25em] text-dozegray">
+                    {t('zone.headerLabel')}
+                  </label>
+                  <select
+                    value={selectedZone.id}
+                    onChange={handleZoneChange}
+                    aria-label={String(t('zone.headerLabel'))}
+                    className="w-full rounded-full border border-dozeblue/30 bg-white px-4 py-2 text-sm font-semibold text-dozeblue shadow-sm transition focus:border-dozeblue focus:outline-none focus:ring-2 focus:ring-dozeblue/30"
+                  >
+                    {allZones.map((zone) => (
+                      <option key={zone.id} value={zone.id}>
+                        {zone.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection('zone-map')}
+                    className="inline-flex w-full items-center justify-center rounded-full bg-dozeblue px-4 py-2 text-sm font-semibold text-white transition hover:bg-dozeblue/90 focus:outline-none focus:ring-2 focus:ring-dozeblue/30"
+                  >
+                    {t('zone.actions.exploreMap')}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
+
+      <div id="zone-map" className="h-0" aria-hidden="true" />
 
       {/* Mapa en mobile */}
       <div className="block sm:hidden mb-3 mt-1 h-[180px] rounded-xl overflow-hidden shadow-md">
@@ -217,7 +294,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
         </div>
 
         {/* Mapa fijo en desktop */}
-        <div className="hidden sm:block md:w-[35%] mt-2">
+        <div className="hidden sm:block md:w-[35%] mt-2" id="zone-map-desktop">
           <div className="sticky top-24 h-[620px] rounded-xl overflow-hidden shadow-lg">
             <ZoneBanner
               zoneCoordinates={zoneCoordinates}
