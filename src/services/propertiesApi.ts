@@ -133,7 +133,15 @@ export async function updateProperty(
   propertyId: number,
   data: Partial<PropertyFormData>
 ): Promise<void> {
-  const { name, description, address, latitude, longitude, zone_id } = data;
+  const {
+    name,
+    description,
+    address,
+    latitude,
+    longitude,
+    zone_id,
+    pms_id,
+  } = data;
 
   const payload = {
     name,
@@ -142,6 +150,7 @@ export async function updateProperty(
     latitude,
     longitude,
     zone_id,
+    pms_id,
   };
 
   await axios.put(`/properties/my/${propertyId}`, payload, {

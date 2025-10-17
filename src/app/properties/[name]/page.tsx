@@ -10,6 +10,7 @@ import { DateRange, RangeKeyDict, Range } from 'react-date-range';
 import { addDays, format } from 'date-fns';
 import {
   fetchAvailability,
+  loadFullPropertyById,
   loadFullPropertyByName,
 } from '@/store/propertiesSlice';
 import AvailabilityResult from '@/components/ui/AvailabilityResult';
@@ -28,6 +29,7 @@ import 'react-date-range/dist/theme/default.css';
 export default function PropertyDetailPage() {
   const params = useParams();
   const propertyName = params?.name as string;
+  const isNumericParam = /^\d+$/.test(propertyName);
 
   const dispatch = useDispatch<AppDispatch>();
   const property = useSelector(selectSelectedProperty);
@@ -50,9 +52,13 @@ export default function PropertyDetailPage() {
 
   useEffect(() => {
     if (!property && propertyName) {
-      dispatch(loadFullPropertyByName(propertyName));
+      if (isNumericParam) {
+        dispatch(loadFullPropertyById(Number(propertyName)));
+      } else {
+        dispatch(loadFullPropertyByName(propertyName));
+      }
     }
-  }, [dispatch, property, propertyName]);
+  }, [dispatch, property, propertyName, isNumericParam]);
 
   useEffect(() => {
     if (property?.id && !hasFetched) {
