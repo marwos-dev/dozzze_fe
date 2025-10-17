@@ -23,6 +23,7 @@ interface MapViewProps {
   zoom?: number;
   onCenterChange: (center: LatLngExpression) => void;
   onZoomChange: (zoom: number) => void;
+  className?: string;
 }
 
 function TrackViewChanges({
@@ -84,6 +85,7 @@ export default function MapZoneView({
   zoom = 10,
   onCenterChange,
   onZoomChange,
+  className,
 }: MapViewProps) {
   const resolvedCenter = center ?? zoneCoordinates[0] ?? null;
 
@@ -108,7 +110,7 @@ export default function MapZoneView({
       center={resolvedCenter}
       zoom={zoom}
       scrollWheelZoom={true}
-      className="h-full w-full z-0 rounded"
+      className={className ?? 'h-full w-full z-0 rounded'}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       {zoneCoordinates.length > 0 && (

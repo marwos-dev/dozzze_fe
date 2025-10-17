@@ -39,6 +39,7 @@ export default function PropertyRoomsCarousel({
   const detailsCta = String(t('propertyCard.roomsCarousel.detailsCta'));
   const prevLabel = String(t('propertyCard.roomsCarousel.prev'));
   const nextLabel = String(t('propertyCard.roomsCarousel.next'));
+  const propertyTag = String(t('propertyCard.roomsCarousel.propertyTag'));
 
   const visibleRooms = useMemo(
     () => rooms.filter((room): room is RoomType => Boolean(room)),
@@ -52,8 +53,7 @@ export default function PropertyRoomsCarousel({
     const updateScrollState = () => {
       setCanScrollLeft(container.scrollLeft > 8);
       setCanScrollRight(
-        container.scrollLeft + container.clientWidth <
-          container.scrollWidth - 8
+        container.scrollLeft + container.clientWidth < container.scrollWidth - 8
       );
     };
 
@@ -81,17 +81,21 @@ export default function PropertyRoomsCarousel({
   if (visibleRooms.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl bg-white/60 p-4 border border-dozebg1">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+    <div className="flex flex-col gap-4 rounded-2xl bg-greenlight  p-4 sm:p-5 border border-dozebg1/40 dark:border-white/10 shadow-[0_12px_28px_rgba(149,173,161,0.35)] dark:shadow-[0_18px_38px_rgba(5,16,45,0.45)] -mx-1 sm:mx-0 transition-colors">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 text-dozeblue font-semibold text-sm uppercase tracking-wide">
+          <span className="inline-flex items-center self-start rounded-full  text-dozeblue dark:bg-blue-500/10  px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em]">
+            {propertyTag}{' '}
+            <span className="ml-2 normal-case tracking-normal">
+              {propertyName}
+            </span>
+          </span>
+          <div className="flex items-center gap-2 text-dozeblue dark:text-blue-200 font-semibold text-sm uppercase tracking-wide">
             <Sparkles className="w-4 h-4" />
             {title}
           </div>
-          <p className="text-base font-semibold text-dozeblue">
-            {subtitle}
-          </p>
-          <p className="text-sm text-dozegray">
+          <p className="text-base font-semibold text-dozeblue ">{subtitle}</p>
+          <p className="text-sm text-dozegray ">
             {visibleRooms.length} {countSuffix}
           </p>
         </div>
@@ -102,10 +106,10 @@ export default function PropertyRoomsCarousel({
             onClick={() => handleScroll('prev')}
             aria-label={prevLabel}
             disabled={!canScrollLeft}
-            className={`h-10 w-10 rounded-full border border-dozeblue text-dozeblue transition flex items-center justify-center ${
+            className={`h-10 w-10 rounded-full border border-dozeblue text-dozeblue dark:border-blue-300/60 dark:text-blue-200 transition flex items-center justify-center ${
               canScrollLeft
-                ? 'bg-white hover:bg-dozeblue hover:text-white'
-                : 'bg-white/40 text-dozegray border-dozegray cursor-not-allowed'
+                ? 'bg-white hover:bg-dozeblue hover:text-white dark:bg-[#0b162f] dark:hover:bg-blue-500 dark:hover:text-white'
+                : 'bg-white/40 text-dozegray border-dozegray cursor-not-allowed dark:bg-[#0b162f]/60 dark:text-white/30 dark:border-white/20'
             }`}
           >
             <ChevronLeft className="w-5 h-5" />
@@ -115,10 +119,10 @@ export default function PropertyRoomsCarousel({
             onClick={() => handleScroll('next')}
             aria-label={nextLabel}
             disabled={!canScrollRight}
-            className={`h-10 w-10 rounded-full border border-dozeblue text-dozeblue transition flex items-center justify-center ${
+            className={`h-10 w-10 rounded-full border border-dozeblue text-dozeblue dark:border-blue-300/60 dark:text-blue-200 transition flex items-center justify-center ${
               canScrollRight
-                ? 'bg-white hover:bg-dozeblue hover:text-white'
-                : 'bg-white/40 text-dozegray border-dozegray cursor-not-allowed'
+                ? 'bg-white hover:bg-dozeblue hover:text-white dark:bg-[#0b162f] dark:hover:bg-blue-500 dark:hover:text-white'
+                : 'bg-white/40 text-dozegray border-dozegray cursor-not-allowed dark:bg-[#0b162f]/60 dark:text-white/30 dark:border-white/20'
             }`}
           >
             <ChevronRight className="w-5 h-5" />
@@ -127,12 +131,12 @@ export default function PropertyRoomsCarousel({
       </div>
 
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white via-white/80 to-transparent pointer-events-none rounded-xl" />
-        <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none rounded-xl" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-10  from-white via-white/70 to-transparent rounded-xl dark:from-[#0d1531] dark:via-[#0d1531]/70" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-10  from-white via-white/70 to-transparent rounded-xl dark:from-[#0d1531] dark:via-[#0d1531]/70" />
 
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-dozeblue/40 scrollbar-track-transparent snap-x snap-mandatory scroll-smooth"
+          className="flex gap-4 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory scrollbar-thin scrollbar-thumb-dozeblue/40 scrollbar-track-transparent"
         >
           {visibleRooms.map((room) => {
             const mainImage =
@@ -145,7 +149,7 @@ export default function PropertyRoomsCarousel({
             return (
               <article
                 key={room.id}
-                className="group min-w-[240px] sm:min-w-[260px] md:min-w-[280px] snap-center bg-white rounded-2xl border border-dozebg1 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col"
+                className="group min-w-[240px] sm:min-w-[260px] md:min-w-[280px] snap-center  bg-[#a5b1d3] rounded-2xl border border-dozebg1 dark:border-white/10 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col"
               >
                 <div className="relative w-full h-40">
                   <Image
@@ -156,7 +160,7 @@ export default function PropertyRoomsCarousel({
                     sizes="(min-width: 768px) 280px, 240px"
                     unoptimized
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition" />
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition" />
                   <span className="absolute bottom-2 left-3 text-xs font-medium text-white uppercase tracking-wide bg-black/50 px-2 py-1 rounded-full">
                     {propertyName}
                   </span>
@@ -166,12 +170,12 @@ export default function PropertyRoomsCarousel({
                   <h4 className="text-base font-semibold text-dozeblue line-clamp-1">
                     {room.name}
                   </h4>
-                  <p className="text-sm text-dozegray leading-snug line-clamp-3">
+                  <p className="text-sm text-black  leading-snug line-clamp-3">
                     {room.description || noDescription}
                   </p>
 
                   <div className="flex flex-col gap-2 mt-auto">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-dozeblue uppercase tracking-wide">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-black uppercase tracking-wide">
                       <LayoutList className="w-4 h-4" />
                       {servicesLabel}
                     </div>
@@ -180,19 +184,19 @@ export default function PropertyRoomsCarousel({
                         visibleServices.map((service) => (
                           <span
                             key={service}
-                            className="inline-flex items-center rounded-full bg-dozebg1 px-3 py-1 text-xs font-medium text-dozeblue border border-dozeblue/10"
+                            className="inline-flex items-center rounded-full bg-dozebg1 dark:bg-[#0b162f] px-3 py-1 text-xs font-medium text-dozeblue border border-dozeblue/10 dark:border-blue-200/20"
                           >
-                            <Flag className="w-3 h-3 mr-1 text-dozeblue/70" />
+                            <Flag className="w-3 h-3 mr-1 text-black " />
                             {service}
                           </span>
                         ))
                       ) : (
-                        <span className="text-xs text-dozegray">
+                        <span className="text-xs text-black ">
                           {noServices}
                         </span>
                       )}
                       {remainingServices > 0 && (
-                        <span className="inline-flex items-center rounded-full bg-dozeblue/10 px-3 py-1 text-xs font-medium text-dozeblue">
+                        <span className="inline-flex items-center rounded-full bg-dozeblue/10 dark:bg-blue-500/20 px-3 py-1 text-xs font-medium text-dozeblue">
                           +{remainingServices}
                         </span>
                       )}
@@ -202,7 +206,7 @@ export default function PropertyRoomsCarousel({
 
                 <button
                   type="button"
-                  className="m-4 mt-0 inline-flex items-center justify-center rounded-full border border-dozeblue px-4 py-2 text-sm font-semibold text-dozeblue transition hover:bg-dozeblue hover:text-white"
+                  className="m-4 mt-0 inline-flex items-center justify-center rounded-full border border-dozeblue dark:border-blue-400 px-4 py-2 text-sm font-semibold text-dozeblue dark:text-blue-100 transition bg-dozeblue hover:text-white dark:hover:bg-blue-500"
                 >
                   {detailsCta}
                 </button>

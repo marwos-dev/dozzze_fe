@@ -235,7 +235,8 @@ const en = {
       descriptionFallback: 'Description not available',
       detailsCta: 'See details',
       prev: 'Previous room',
-      next: 'Next room'
+      next: 'Next room',
+      propertyTag: 'Rooms at'
     }
   },
   about: {

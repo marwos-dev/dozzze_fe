@@ -53,18 +53,18 @@ export default function PropertyCardMedia({
   };
 
   return (
-    <div className="flex flex-col w-full md:w-[330px] gap-2 md:h-full">
+    <div className="flex flex-col w-full lg:max-w-[380px] xl:w-[320px] gap-3 lg:h-full">
       {/* Desktop */}
-      <div className="hidden md:flex gap-2 h-full">
+      <div className="hidden lg:flex gap-3 h-full">
         {/* Thumbnails */}
-        <div className="flex flex-col rounded-xl gap-3 p-2  justify-start bg-[#a5b1d3] h-full">
+        <div className="flex flex-col rounded-xl gap-3 p-2 justify-start bg-[#a5b1d3] h-full min-w-[84px]">
           {thumbnails.map((src, i) => {
             const isSelected = src === mainImage;
             return (
               <button
                 key={`thumb-${i}`}
                 onClick={() => handleSetImage(src)}
-                className={`relative w-[70px] h-[55px] rounded-xl overflow-hidden border shadow-sm hover:scale-[1.03] transition ${
+                className={`relative w-full h-[64px] rounded-xl overflow-hidden border shadow-sm hover:scale-[1.03] transition ${
                   isSelected ? 'ring-2 ring-white' : ''
                 }`}
               >
@@ -111,10 +111,10 @@ export default function PropertyCardMedia({
       </div>
 
       {/* Mobile */}
-      <div className="md:hidden flex flex-col gap-2">
+      <div className="flex lg:hidden flex-col gap-2">
         <div
           onClick={handleImageClick}
-          className="relative w-full h-[180px] rounded-xl overflow-hidden cursor-pointer"
+          className="relative w-full h-[200px] sm:h-[220px] rounded-xl overflow-hidden cursor-pointer"
         >
           <Image
             key={mainImage}
@@ -129,7 +129,7 @@ export default function PropertyCardMedia({
           />
         </div>
 
-        <div className="flex gap-2 p-2 rounded-xl bg-[#a5b1d3]">
+        <div className="flex gap-2 p-2 rounded-xl bg-[#a5b1d3] overflow-x-auto scrollbar-thin scrollbar-thumb-white/40 scrollbar-track-transparent">
           {thumbnails.map((src, i) => {
             const isSelected = src === mainImage;
             return (

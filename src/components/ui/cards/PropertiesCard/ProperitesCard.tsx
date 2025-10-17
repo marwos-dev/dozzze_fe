@@ -29,12 +29,12 @@ export default function PropertiesCard(props: PropertiesCardProps) {
   return (
     <div
       onClick={props.onClick}
-      className={`bg-dozebg1 max-w-6xl rounded-2xl mx-1 m-2 md:mx-2 shadow-lg overflow-hidden p-4 flex flex-col gap-5 ${
+      className={`bg-dozebg1 max-w-6xl rounded-2xl mx-2 my-3 sm:mx-3 shadow-lg overflow-hidden p-3 sm:p-5 flex flex-col gap-5 ${
         props.onClick ? 'cursor-pointer hover:shadow-xl transition' : ''
       }`}
     >
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="rounded-xl">
+      <div className="flex flex-col xl:flex-row gap-4 xl:gap-6">
+        <div className="rounded-xl flex-shrink-0">
           <PropertyCardMedia
             images={props.images}
             coverImage={props.cover_image}
@@ -42,7 +42,7 @@ export default function PropertiesCard(props: PropertiesCardProps) {
           />
         </div>
 
-        <div className="flex flex-col md:flex-row flex-1 gap-4">
+        <div className="flex flex-col lg:flex-row flex-1 gap-4 lg:gap-6">
           <div className="flex-1">
             <PropertyCardInfo
               name={props.name}
@@ -51,7 +51,7 @@ export default function PropertiesCard(props: PropertiesCardProps) {
               description={props.description}
             />
           </div>
-          <div className="md:w-[220px]">
+          <div className="w-full lg:w-[240px]">
             <PropertyCardActions
               roomsCount={props.room_types?.length ?? 0}
               communication_methods={props.communication_methods}

@@ -235,7 +235,8 @@ const es = {
       descriptionFallback: 'Descripción no disponible',
       detailsCta: 'Ver detalle',
       prev: 'Habitación anterior',
-      next: 'Habitación siguiente'
+      next: 'Habitación siguiente',
+      propertyTag: 'Habitaciones de'
     }
   },
   about: {

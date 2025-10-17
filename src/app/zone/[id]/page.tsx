@@ -149,8 +149,8 @@ export default function ZoneDetailPage({ params }: PageProps) {
   return (
     <div className="md:full bg-dozebg2 mx-auto px-4 sm:px-6 py-2">
       {/* Hero principal */}
-      <div className="relative mt-6 mb-10 px-1 sm:px-4">
-        <div className="relative overflow-hidden rounded-[32px] border border-white/50 bg-dozebg1 shadow-2xl">
+      <div className="relative mt-6 mb-10 px-3 sm:px-4">
+        <div className="relative overflow-hidden rounded-[28px] sm:rounded-[32px] border border-white/40 sm:border-white/50 bg-dozebg1 shadow-2xl">
           <div className="absolute inset-0">
             <Image
               src={heroBackground}
@@ -163,15 +163,24 @@ export default function ZoneDetailPage({ params }: PageProps) {
             />
             <div className="absolute inset-0 bg-gradient-to-br from-[#101a43]/90 via-[#15265c]/75 to-[#213779]/70" />
           </div>
-          <div className="relative flex flex-col md:flex-row gap-8 lg:gap-12 p-6 sm:p-8 lg:p-12 text-white">
-            <div className="flex-1 flex flex-col gap-6">
-              <span className="inline-flex items-center gap-2 self-start rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.35em] text-white/70">
-                <Compass className="w-4 h-4 text-white/80" />
-                {t('zone.hero.badge')}
-              </span>
+          <div className="relative grid gap-8 lg:gap-12 p-6 sm:p-8 lg:p-12 text-white lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <span className="inline-flex items-center gap-2 self-start rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.35em] text-white/70">
+                  <Compass className="w-4 h-4 text-white/80" />
+                  {t('zone.hero.badge')}
+                </span>
+                <div className="flex sm:hidden flex-col gap-2 text-white/70 text-xs">
+                  <span>{t('zone.selector.subtitle')}</span>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-white/70" />
+                    <span>{t('zone.selector.title')}</span>
+                  </div>
+                </div>
+              </div>
 
               <div className="flex flex-col gap-3">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight break-words">
                   {selectedZone.name}
                 </h1>
                 <p className="max-w-2xl text-sm sm:text-base text-white/80">
@@ -179,14 +188,14 @@ export default function ZoneDetailPage({ params }: PageProps) {
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                 {statsItems.map(({ icon: Icon, label, value }) => (
                   <div
                     key={label}
-                    className="min-w-[150px] rounded-2xl border border-white/20 bg-white/10 px-4 py-3 shadow-md backdrop-blur-sm"
+                    className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 shadow-md backdrop-blur-sm"
                   >
                     <div className="flex items-center gap-2 text-white">
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-5 h-5 shrink-0" />
                       <span className="text-lg font-semibold">{value}</span>
                     </div>
                     <p className="mt-2 text-xs font-medium uppercase tracking-[0.25em] text-white/60">
@@ -197,7 +206,7 @@ export default function ZoneDetailPage({ params }: PageProps) {
               </div>
 
               {highlightServices.length > 0 && (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
                     {t('zone.servicesLabel')}
                   </span>
@@ -216,29 +225,29 @@ export default function ZoneDetailPage({ params }: PageProps) {
               )}
             </div>
 
-            <div className="w-full md:w-[300px] lg:w-[320px]">
-              <div className="flex h-full flex-col gap-5 rounded-3xl bg-white/95 p-5 shadow-xl text-dozeblue">
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-dozeblue" />
+            <div className="w-full sm:max-w-[360px] lg:w-full">
+              <div className="flex h-full flex-col gap-5 rounded-3xl bg-white/95 dark:bg-[#09112a]/95 p-5 sm:p-6 shadow-xl dark:shadow-[0_20px_45px_rgba(2,8,23,0.6)] text-dozeblue dark:text-white border border-white/50 dark:border-white/10 transition-colors">
+                <div className="hidden sm:flex items-start gap-3">
+                  <MapPin className="h-5 w-5 text-dozeblue dark:text-blue-200 shrink-0" />
                   <div>
-                    <p className="text-sm font-semibold">
+                    <p className="text-sm font-semibold text-dozeblue dark:text-white">
                       {t('zone.selector.title')}
                     </p>
-                    <p className="mt-1 text-xs text-dozegray">
+                    <p className="mt-1 text-xs text-dozegray dark:text-white/60">
                       {t('zone.selector.subtitle')}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold uppercase tracking-[0.25em] text-dozegray">
+                  <label className="text-xs font-semibold uppercase tracking-[0.25em] text-dozegray dark:text-white/60">
                     {t('zone.headerLabel')}
                   </label>
                   <select
                     value={selectedZone.id}
                     onChange={handleZoneChange}
                     aria-label={String(t('zone.headerLabel'))}
-                    className="w-full rounded-full border border-dozeblue/30 bg-white px-4 py-2 text-sm font-semibold text-dozeblue shadow-sm transition focus:border-dozeblue focus:outline-none focus:ring-2 focus:ring-dozeblue/30"
+                    className="w-full rounded-full border border-dozeblue/30 dark:border-white/15 bg-white dark:bg-[#0f172a] px-4 py-2 text-sm font-semibold text-dozeblue dark:text-white shadow-sm transition focus:border-dozeblue dark:focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-dozeblue/30 dark:focus:ring-blue-400/30"
                   >
                     {allZones.map((zone) => (
                       <option key={zone.id} value={zone.id}>
@@ -248,11 +257,11 @@ export default function ZoneDetailPage({ params }: PageProps) {
                   </select>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex flex-wrap sm:flex-nowrap gap-2">
                   <button
                     type="button"
                     onClick={() => scrollToSection('zone-map')}
-                    className="inline-flex w-full items-center justify-center rounded-full bg-dozeblue px-4 py-2 text-sm font-semibold text-white transition hover:bg-dozeblue/90 focus:outline-none focus:ring-2 focus:ring-dozeblue/30"
+                    className="inline-flex flex-1 items-center justify-center rounded-full bg-dozeblue px-4 py-2 text-sm font-semibold text-white transition hover:bg-dozeblue/90 focus:outline-none focus:ring-2 focus:ring-dozeblue/30 dark:bg-blue-500 dark:hover:bg-blue-400 dark:focus:ring-blue-300/40"
                   >
                     {t('zone.actions.exploreMap')}
                   </button>
@@ -266,10 +275,12 @@ export default function ZoneDetailPage({ params }: PageProps) {
       <div id="zone-map" className="h-0" aria-hidden="true" />
 
       {/* Mapa en mobile */}
-      <div className="block sm:hidden mb-3 mt-1 h-[180px] rounded-xl overflow-hidden shadow-md">
+      <div className="block sm:hidden mb-5 mt-3">
         <ZoneBanner
           zoneCoordinates={zoneCoordinates}
           pointsCoordinates={pointsCoordinates}
+          className="rounded-3xl border border-white/30 bg-white/60 shadow-xl dark:border-white/10 dark:bg-[#050b1a]/80"
+          mapClassName="h-[230px] min-[420px]:h-[260px] w-full rounded-[28px] overflow-hidden"
         />
       </div>
 
@@ -295,10 +306,12 @@ export default function ZoneDetailPage({ params }: PageProps) {
 
         {/* Mapa fijo en desktop */}
         <div className="hidden sm:block md:w-[35%] mt-2" id="zone-map-desktop">
-          <div className="sticky top-24 h-[620px] rounded-xl overflow-hidden shadow-lg">
+          <div className="sticky top-24 h-[620px] rounded-3xl overflow-hidden shadow-lg">
             <ZoneBanner
               zoneCoordinates={zoneCoordinates}
               pointsCoordinates={pointsCoordinates}
+              className="rounded-3xl bg-white/70 dark:bg-[#050b1a]/85 dark:border-white/10"
+              mapClassName="h-full w-full rounded-[32px]"
             />
           </div>
         </div>
