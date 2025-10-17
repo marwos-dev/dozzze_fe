@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { AppDispatch } from '@/store';
 import { showToast } from '@/store/toastSlice';
 import { getPms } from '@/services/pmsApi';
+import { updateProperty } from '@/services/propertiesApi';
 import {
   syncPropertyPMS,
   finalizePropertySync,
@@ -112,6 +113,23 @@ export default function StepSync({
     }
 
     setStatus('saving');
+    try {
+      await updateProperty(propertyId, {
+        pms_id: form.pms_id ?? undefined,
+        zone_id: form.zone_id ?? undefined,
+      });
+    } catch (error) {
+      console.error(error);
+      setStatus('idle');
+      dispatch(
+        showToast({
+          message: 'Error al actualizar la propiedad con el PMS seleccionado.',
+          color: 'red',
+        })
+      );
+      return;
+    }
+
     const res = await dispatch(syncPropertyPMS({ propertyId, data: syncData }));
 
     if (syncPropertyPMS.fulfilled.match(res)) {
